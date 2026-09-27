@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,102 +13,142 @@
 
     body {
       margin: 0;
-      min-height: 100vh;
       font-family: Arial, sans-serif;
       background: #f5f5f5;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
 
-    .box {
+    .container {
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
       background: white;
       padding: 30px;
-      border-radius: 12px;
+      border-radius: 14px;
       box-shadow: 0 5px 25px rgba(0,0,0,0.12);
     }
 
     h1 {
       text-align: center;
-      margin-bottom: 10px;
-      color: #e5322d;
+      margin-bottom: 8px;
+      color: #222;
     }
 
-    p {
+    .subtitle {
       text-align: center;
-      color: #666;
+      color: #777;
       margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin: 14px 0 6px;
+      font-weight: bold;
+      color: #333;
     }
 
     input {
       width: 100%;
       padding: 13px;
-      margin-bottom: 15px;
       border: 1px solid #ccc;
-      border-radius: 7px;
+      border-radius: 8px;
       font-size: 15px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #e53232;
     }
 
     button {
       width: 100%;
+      margin-top: 22px;
       padding: 13px;
-      background: #e5322d;
+      border: 0;
+      border-radius: 8px;
+      background: #e53232;
       color: white;
-      border: none;
-      border-radius: 7px;
       font-size: 16px;
+      font-weight: bold;
       cursor: pointer;
     }
 
     button:hover {
-      background: #c92520;
+      background: #c92525;
     }
 
     #message {
-      text-align: center;
       margin-top: 15px;
+      text-align: center;
       font-size: 14px;
     }
 
     .login-link {
-      display: block;
       text-align: center;
       margin-top: 20px;
-      color: #e5322d;
+    }
+
+    .login-link a {
+      color: #e53232;
       text-decoration: none;
+      font-weight: bold;
     }
   </style>
 </head>
 
 <body>
 
-  <div class="box">
-    <h1>iLovePDF4</h1>
-
-    <p>Create your account</p>
+  <div class="container">
+    <h1>Create Account</h1>
+    <div class="subtitle">Register for iLovePDF4</div>
 
     <form id="registerForm">
 
+      <label for="username">Username</label>
       <input
         type="text"
         id="username"
-        placeholder="Username"
+        name="username"
+        placeholder="Enter username"
         required
       >
 
+      <label for="mobile">Mobile Number</label>
+      <input
+        type="tel"
+        id="mobile"
+        name="mobile"
+        placeholder="01XXXXXXXXX"
+        pattern="01[0-9]{9}"
+        required
+      >
+
+      <label for="email">Gmail</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        placeholder="example@gmail.com"
+        required
+      >
+
+      <label for="password">Password</label>
       <input
         type="password"
         id="password"
-        placeholder="Password"
+        name="password"
+        placeholder="Minimum 6 characters"
         required
       >
 
+      <label for="confirmPassword">Confirm Password</label>
       <input
         type="password"
         id="confirmPassword"
-        placeholder="Confirm Password"
+        name="confirmPassword"
+        placeholder="Enter password again"
         required
       >
 
@@ -117,27 +158,37 @@
 
     <div id="message"></div>
 
-    <a class="login-link" href="login.html">
-      Already have an account? Login
-    </a>
+    <div class="login-link">
+      Already have an account?
+      <a href="login.html">Login</a>
+    </div>
   </div>
 
   <script>
-    const registerForm = document.getElementById("registerForm");
-    const message = document.getElementById("message");
-
-    registerForm.addEventListener("submit", async function(event) {
-      event.preventDefault();
+    document.getElementById("registerForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
 
       const username = document.getElementById("username").value.trim();
+      const mobile = document.getElementById("mobile").value.trim();
+      const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       const confirmPassword = document.getElementById("confirmPassword").value;
-
-      message.textContent = "";
-      message.style.color = "";
+      const message = document.getElementById("message");
 
       if (password !== confirmPassword) {
         message.textContent = "Passwords do not match.";
+        message.style.color = "red";
+        return;
+      }
+
+      if (!email.toLowerCase().endsWith("@gmail.com")) {
+        message.textContent = "Please enter a valid Gmail address.";
+        message.style.color = "red";
+        return;
+      }
+
+      if (!/^01[0-9]{9}$/.test(mobile)) {
+        message.textContent = "Please enter a valid Bangladesh mobile number.";
         message.style.color = "red";
         return;
       }
@@ -149,8 +200,10 @@
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            username: username,
-            password: password
+            username,
+            mobile,
+            email,
+            password
           })
         });
 
@@ -162,19 +215,13 @@
 
           setTimeout(() => {
             window.location.href = "home.html";
-          }, 1000);
-
+          }, 800);
         } else {
           message.textContent = data.message || "Registration failed.";
           message.style.color = "red";
         }
 
       } catch (error) {
-        message.textContent = "Server connection failed.";
-        message.style.color = "red";
-      }
-    });
-  </script>
-
-</body>
-</html>
+        message.textContent = "Something went wrong. Please try again.";
+        mes
+```
