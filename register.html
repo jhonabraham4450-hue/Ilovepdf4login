@@ -1,147 +1,180 @@
-<!doctype html>
-<html lang="bn">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>iLovePDF4 Register</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - iLovePDF4</title>
 
-<style>
-body{
-  font-family:Arial,sans-serif;
-  background:#f5f7fb;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  margin:0;
-}
-.box{
-  background:#fff;
-  padding:28px;
-  border-radius:18px;
-  width:90%;
-  max-width:420px;
-  box-shadow:0 8px 30px #0001;
-}
-h1{text-align:center;color:#e53935}
-input,button{
-  width:100%;
-  padding:13px;
-  margin:7px 0;
-  box-sizing:border-box;
-  border-radius:10px;
-}
-input{border:1px solid #ddd}
-button{
-  border:0;
-  background:#e53935;
-  color:white;
-  font-weight:bold;
-}
-a{
-  color:#e53935;
-  text-decoration:none;
-  font-weight:bold;
-}
-.msg{text-align:center;margin-top:10px}
-</style>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .box {
+      width: 100%;
+      max-width: 400px;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.12);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #e5322d;
+    }
+
+    p {
+      text-align: center;
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 7px;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 13px;
+      background: #e5322d;
+      color: white;
+      border: none;
+      border-radius: 7px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #c92520;
+    }
+
+    #message {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .login-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #e5322d;
+      text-decoration: none;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="box">
+  <div class="box">
+    <h1>iLovePDF4</h1>
 
-<h1>iLovePDF4</h1>
+    <p>Create your account</p>
 
-<p>Create your account</p>
+    <form id="registerForm">
 
-<form onsubmit="registerUser(event)">
+      <input
+        type="text"
+        id="username"
+        placeholder="Username"
+        required
+      >
 
-<input id="name" placeholder="Full Name" required>
+      <input
+        type="password"
+        id="password"
+        placeholder="Password"
+        required
+      >
 
-<input id="email" type="email" placeholder="Email/Gmail" required>
+      <input
+        type="password"
+        id="confirmPassword"
+        placeholder="Confirm Password"
+        required
+      >
 
-<input id="mobile" type="tel" placeholder="Mobile Number" required>
+      <button type="submit">Create Account</button>
 
-<input id="password" type="password" placeholder="Password" minlength="6" required>
+    </form>
 
-<input id="confirm" type="password" placeholder="Confirm Password" minlength="6" required>
+    <div id="message"></div>
 
-<button type="submit">Create Account</button>
+    <a class="login-link" href="login.html">
+      Already have an account? Login
+    </a>
+  </div>
 
-</form>
+  <script>
+    const registerForm = document.getElementById("registerForm");
+    const message = document.getElementById("message");
 
-<p style="text-align:center">
-<a href="/api/google">Continue with Google</a>
-</p>
+    registerForm.addEventListener("submit", async function(event) {
+      event.preventDefault();
 
-<p style="text-align:center">
-Already have an account?
-<a href="/login.html">Login</a>
-</p>
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
 
-<div id="msg" class="msg"></div>
+      message.textContent = "";
+      message.style.color = "";
 
-</div>
+      if (password !== confirmPassword) {
+        message.textContent = "Passwords do not match.";
+        message.style.color = "red";
+        return;
+      }
 
-<script>
-async function registerUser(e){
+      try {
+        const response = await fetch("/api/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            username: username,
+            password: password
+          })
+        });
 
-  e.preventDefault();
+        const data = await response.json();
 
-  const msg=document.getElementById("msg");
+        if (data.success) {
+          message.textContent = "Registration successful!";
+          message.style.color = "green";
 
-  const name=document.getElementById("name").value.trim();
-  const email=document.getElementById("email").value.trim();
-  const mobile=document.getElementById("mobile").value.trim();
-  const password=document.getElementById("password").value;
-  const confirm=document.getElementById("confirm").value;
+          setTimeout(() => {
+            window.location.href = "home.html";
+          }, 1000);
 
-  if(password !== confirm){
-    msg.textContent="Password দুটো একই নয়।";
-    return;
-  }
+        } else {
+          message.textContent = data.message || "Registration failed.";
+          message.style.color = "red";
+        }
 
-  msg.textContent="Account তৈরি হচ্ছে...";
-
-  try{
-
-    const r=await fetch("/api/register",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({
-        name,
-        email,
-        mobile,
-        password
-      })
+      } catch (error) {
+        message.textContent = "Server connection failed.";
+        message.style.color = "red";
+      }
     });
-
-    const data=await r.json();
-
-    if(data.ok){
-      msg.style.color="green";
-      msg.textContent="Registration successful! Login করুন।";
-
-      setTimeout(()=>{
-        location="/login.html";
-      },1200);
-
-    }else{
-      msg.style.color="#d92d20";
-      msg.textContent=data.error || "Registration failed";
-    }
-
-  }catch(err){
-
-    msg.style.color="#d92d20";
-    msg.textContent="Server error. আবার চেষ্টা করুন।";
-
-  }
-}
-</script>
+  </script>
 
 </body>
 </html>
