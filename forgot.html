@@ -1,128 +1,166 @@
-<!doctype html>
-<html lang="bn">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Forgot Password - iLovePDF4</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forgot Password - iLovePDF4</title>
 
-<style>
-body{
-  font-family:Arial,sans-serif;
-  background:#f5f7fb;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  margin:0;
-}
-.box{
-  background:#fff;
-  padding:28px;
-  border-radius:18px;
-  width:90%;
-  max-width:420px;
-  box-shadow:0 8px 30px #0001;
-}
-h1{
-  text-align:center;
-  color:#e53935;
-}
-input,button{
-  width:100%;
-  padding:13px;
-  margin:8px 0;
-  box-sizing:border-box;
-  border-radius:10px;
-}
-input{border:1px solid #ddd}
-button{
-  border:0;
-  background:#e53935;
-  color:white;
-  font-weight:bold;
-}
-a{
-  color:#e53935;
-  text-decoration:none;
-  font-weight:bold;
-}
-.msg{
-  text-align:center;
-  margin-top:12px;
-}
-</style>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .box {
+      width: 100%;
+      max-width: 400px;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.12);
+    }
+
+    h1 {
+      text-align: center;
+      color: #e5322d;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 7px;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 13px;
+      background: #e5322d;
+      color: white;
+      border: none;
+      border-radius: 7px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #c92520;
+    }
+
+    #message {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .login-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #e5322d;
+      text-decoration: none;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="box">
+  <div class="box">
 
-<h1>iLovePDF4</h1>
+    <h1>iLovePDF4</h1>
 
-<p>আপনার account-এর Email/Gmail দিন।</p>
+    <div class="subtitle">
+      Forgot your password?
+    </div>
 
-<form onsubmit="forgotPassword(event)">
+    <form id="forgotForm">
 
-<input
-  id="email"
-  type="email"
-  placeholder="Email/Gmail"
-  required
->
+      <input
+        type="text"
+        id="username"
+        placeholder="Enter your username"
+        required
+      >
 
-<button type="submit">Send Reset Link</button>
+      <button type="submit">
+        Continue
+      </button>
 
-</form>
+    </form>
 
-<p style="text-align:center">
-<a href="/login.html">Back to Login</a>
-</p>
+    <div id="message"></div>
 
-<div id="msg" class="msg"></div>
+    <a class="login-link" href="login.html">
+      Back to Login
+    </a>
 
-</div>
+  </div>
 
-<script>
-async function forgotPassword(e){
+  <script>
+    const forgotForm = document.getElementById("forgotForm");
+    const message = document.getElementById("message");
 
-  e.preventDefault();
+    forgotForm.addEventListener("submit", async function(event) {
+      event.preventDefault();
 
-  const msg=document.getElementById("msg");
+      const username = document.getElementById("username").value.trim();
 
-  msg.style.color="#333";
-  msg.textContent="Reset link পাঠানো হচ্ছে...";
+      message.textContent = "";
+      message.style.color = "";
 
-  try{
+      try {
+        const response = await fetch("/api/forgot", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            username: username
+          })
+        });
 
-    const r=await fetch("/api/forgot",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({
-        email:document.getElementById("email").value.trim()
-      })
+        const data = await response.json();
+
+        if (data.success) {
+          message.textContent = "Username verified. Opening reset page...";
+          message.style.color = "green";
+
+          setTimeout(() => {
+            window.location.href =
+              "reset.html?username=" +
+              encodeURIComponent(username);
+          }, 1000);
+
+        } else {
+          message.textContent =
+            data.message || "Username verification failed.";
+          message.style.color = "red";
+        }
+
+      } catch (error) {
+        message.textContent = "Server connection failed.";
+        message.style.color = "red";
+      }
     });
-
-    const data=await r.json();
-
-    if(data.ok){
-      msg.style.color="green";
-      msg.textContent=data.message ||
-        "Reset link আপনার email-এ পাঠানো হয়েছে।";
-    }else{
-      msg.style.color="#d92d20";
-      msg.textContent=data.error || "Request failed";
-    }
-
-  }catch(err){
-
-    msg.style.color="#d92d20";
-    msg.textContent="Server error. আবার চেষ্টা করুন।";
-
-  }
-}
-</script>
+  </script>
 
 </body>
 </html>
