@@ -1,1 +1,230 @@
-<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>iLovePDF4 — Dashboard</title><script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script><style>body{margin:0;font-family:Arial;background:#f5f7fb;color:#172033}.top{background:#e53935;color:#fff;padding:18px}.nav{max-width:1050px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:12px}.wrap{max-width:1050px;margin:25px auto;padding:15px}.hero,.card{background:#fff;padding:22px;border-radius:18px;box-shadow:0 5px 20px #0001}.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px;margin-top:18px}.tool{padding:20px;border:1px solid #eee;border-radius:16px;background:#fff}.tool h3{margin-top:0}.btn{background:#e53935;color:#fff;border:0;padding:11px 15px;border-radius:9px;cursor:pointer}.muted{color:#667085;font-size:14px}.result{margin-top:10px}.hide{display:none}@media(max-width:600px){.nav{align-items:flex-start;flex-direction:column}}</style></head><body><div class="top"><div class="nav"><div><b>iLovePDF4</b><div>Document Tools Dashboard</div></div><button class="btn" onclick="logout()">Logout</button></div></div><div class="wrap"><div class="hero"><h2 id="u">Loading...</h2><p class="muted">আপনার প্রয়োজনীয় PDF tools নিচে আছে।</p></div><div class="tools"><div class="tool"><h3>🖼️ Image → PDF</h3><p class="muted">JPG/PNG থেকে PDF তৈরি করুন।</p><input id="img" type="file" accept="image/*"><button class="btn" onclick="imagePdf()">Convert</button><div id="ir" class="result"></div></div><div class="tool"><h3>📕 Merge PDF</h3><p class="muted">একাধিক PDF এক ফাইলে যুক্ত করুন।</p><input id="merge" type="file" accept="application/pdf" multiple><button class="btn" onclick="mergePdf()">Merge</button><div id="mr" class="result"></div></div><div class="tool"><h3>📕 Split PDF</h3><p class="muted">একটি PDF থেকে নির্দিষ্ট page আলাদা করুন।</p><input id="split" type="file" accept="application/pdf"><input id="page" type="number" min="1" placeholder="Page number" style="padding:10px;margin:8px 0;width:120px"><button class="btn" onclick="splitPdf()">Extract</button><div id="sr" class="result"></div></div><div class="tool"><h3>📄 Word → PDF</h3><p class="muted">এই conversion-এর জন্য server-side converter/API সংযোগ প্রয়োজন।</p><span class="muted">Backend connector not configured</span></div><div class="tool"><h3>📕 PDF → Word</h3><p class="muted">এই conversion-এর জন্য server-side PDF parser প্রয়োজন।</p><span class="muted">Backend connector not configured</span></div><div class="tool"><h3>📊 Excel / PowerPoint → PDF</h3><p class="muted">এই conversion-এর জন্য server-side office engine প্রয়োজন।</p><span class="muted">Backend connector not configured</span></div></div></div><script>const $=x=>document.getElementById(x);fetch('/api/me').then(r=>r.json()).then(x=>{if(!x.ok)location.href='/login.html';else $('u').textContent='Welcome, '+x.username});async function logout(){await fetch('/api/logout',{method:'POST'});location.href='/login.html'}function dl(blob,name,el){let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.textContent='Download '+name;a.className='btn';el.innerHTML='';el.appendChild(a)}async function imagePdf(){let f=$('img').files[0];if(!f)return alert('একটি image নির্বাচন করুন');let {jsPDF}=window.jspdf;let im=new Image();im.onload=()=>{let pdf=new jsPDF({orientation:im.width>im.height?'landscape':'portrait',unit:'px',format:[im.width,im.height]});pdf.addImage(im,'JPEG',0,0,im.width,im.height);dl(pdf.output('blob'),'image.pdf',$('ir'))};im.src=URL.createObjectURL(f)}async function mergePdf(){let fs=[...$('merge').files];if(fs.length<2)return alert('কমপক্ষে 2টি PDF দিন');let out=await PDFLib.PDFDocument.create();for(let f of fs){let src=await PDFLib.PDFDocument.load(await f.arrayBuffer());let pages=await out.copyPages(src,src.getPageIndices());pages.forEach(p=>out.addPage(p))}dl(new Blob([await out.save()],{type:'application/pdf'}),'merged.pdf',$('mr'))}async function splitPdf(){let f=$('split').files[0],n=parseInt($('page').value);if(!f||!n)return alert('PDF ও page number দিন');let src=await PDFLib.PDFDocument.load(await f.arrayBuffer());if(n<1||n>src.getPageCount())return alert('Page number ভুল');let out=await PDFLib.PDFDocument.create(),[p]=await out.copyPages(src,[n-1]);out.addPage(p);dl(new Blob([await out.save()],{type:'application/pdf'}),'page-'+n+'.pdf',$('sr'))}</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iLovePDF4 - Home</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    header {
+      background: #fff;
+      padding: 15px 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #e5322d;
+    }
+
+    .user-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #username {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .logout {
+      background: #e5322d;
+      color: white;
+      border: none;
+      padding: 9px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    .welcome {
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .tools {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .tool {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+    }
+
+    .tool h3 {
+      margin-top: 0;
+      color: #e5322d;
+    }
+
+    .tool button {
+      background: #e5322d;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    #message {
+      text-align: center;
+      margin-top: 30px;
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+
+    <div class="logo">
+      iLovePDF4
+    </div>
+
+    <div class="user-area">
+      <span id="username">Checking...</span>
+      <button class="logout" id="logoutBtn">
+        Logout
+      </button>
+    </div>
+
+  </header>
+
+  <div class="container">
+
+    <h1>Welcome to iLovePDF4</h1>
+
+    <div class="welcome">
+      Choose a PDF tool to continue.
+    </div>
+
+    <div class="tools">
+
+      <div class="tool">
+        <h3>PDF to Word</h3>
+        <p>Convert PDF files to Word documents.</p>
+        <button>Open Tool</button>
+      </div>
+
+      <div class="tool">
+        <h3>Word to PDF</h3>
+        <p>Convert Word documents to PDF.</p>
+        <button>Open Tool</button>
+      </div>
+
+      <div class="tool">
+        <h3>Image to PDF</h3>
+        <p>Convert images into PDF files.</p>
+        <button>Open Tool</button>
+      </div>
+
+      <div class="tool">
+        <h3>Merge PDF</h3>
+        <p>Combine multiple PDF files.</p>
+        <button>Open Tool</button>
+      </div>
+
+    </div>
+
+    <div id="message"></div>
+
+  </div>
+
+  <script>
+    const usernameElement =
+      document.getElementById("username");
+
+    const message =
+      document.getElementById("message");
+
+    async function checkLogin() {
+
+      try {
+
+        const response = await fetch("/api/me", {
+          method: "GET",
+          credentials: "include"
+        });
+
+        const data = await response.json();
+
+        if (data.loggedIn) {
+
+          usernameElement.textContent =
+            "User: " + data.user.username;
+
+        } else {
+
+          window.location.href = "login.html";
+
+        }
+
+      } catch (error) {
+
+        message.textContent =
+          "Unable to verify login.";
+
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 1500);
+
+      }
+    }
+
+    checkLogin();
+
+
+    document
+      .getElementById("logoutBtn")
+      .addEventListener("click", async function() {
+
+        try {
+
+          await fetch("/api/logout", {
+            method: "POST",
+            credentials: "include"
+          });
+
+          window.location.href = "login.html";
+
+        } catch (error) {
+
+          window.location.href = "login.html";
+
+        }
+
+      });
+  </script>
+
+</body>
+</html>
