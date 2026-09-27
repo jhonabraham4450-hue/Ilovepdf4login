@@ -1,3 +1,4 @@
+```javascript
 import { json, setCookie } from "./_utils.js";
 
 export async function onRequestPost({ request }) {
@@ -5,13 +6,15 @@ export async function onRequestPost({ request }) {
     const body = await request.json();
 
     const username = String(body.username || "").trim();
+    const mobile = String(body.mobile || "").trim();
+    const email = String(body.email || "").trim().toLowerCase();
     const password = String(body.password || "");
 
-    if (!username || !password) {
+    if (!username || !mobile || !email || !password) {
       return json(
         {
           success: false,
-          message: "Username and password are required"
+          message: "Username, mobile number, Gmail and password are required"
         },
         400
       );
@@ -27,6 +30,26 @@ export async function onRequestPost({ request }) {
       );
     }
 
+    if (!/^01[0-9]{9}$/.test(mobile)) {
+      return json(
+        {
+          success: false,
+          message: "Please enter a valid Bangladesh mobile number"
+        },
+        400
+      );
+    }
+
+    if (!email.endsWith("@gmail.com")) {
+      return json(
+        {
+          success: false,
+          message: "Please enter a valid Gmail address"
+        },
+        400
+      );
+    }
+
     if (password.length < 6) {
       return json(
         {
@@ -37,14 +60,14 @@ export async function onRequestPost({ request }) {
       );
     }
 
-    // Temporary registration/session
-    // Database storage will be connected in the next step.
     return json(
       {
         success: true,
         message: "Registration successful",
         user: {
-          username
+          username,
+          mobile,
+          email
         }
       },
       201,
@@ -52,6 +75,7 @@ export async function onRequestPost({ request }) {
         "Set-Cookie": setCookie("auth_token", username)
       }
     );
+
   } catch (error) {
     return json(
       {
@@ -62,3 +86,4 @@ export async function onRequestPost({ request }) {
     );
   }
 }
+```
