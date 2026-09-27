@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Forgot Password - iLovePDF4</title>
+
+<style>
+body{
+  font-family:Arial,sans-serif;
+  background:#f5f7fb;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  margin:0;
+}
+.box{
+  background:#fff;
+  padding:28px;
+  border-radius:18px;
+  width:90%;
+  max-width:420px;
+  box-shadow:0 8px 30px #0001;
+}
+h1{
+  text-align:center;
+  color:#e53935;
+}
+input,button{
+  width:100%;
+  padding:13px;
+  margin:8px 0;
+  box-sizing:border-box;
+  border-radius:10px;
+}
+input{border:1px solid #ddd}
+button{
+  border:0;
+  background:#e53935;
+  color:white;
+  font-weight:bold;
+}
+a{
+  color:#e53935;
+  text-decoration:none;
+  font-weight:bold;
+}
+.msg{
+  text-align:center;
+  margin-top:12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h1>iLovePDF4</h1>
+
+<p>আপনার account-এর Email/Gmail দিন।</p>
+
+<form onsubmit="forgotPassword(event)">
+
+<input
+  id="email"
+  type="email"
+  placeholder="Email/Gmail"
+  required
+>
+
+<button type="submit">Send Reset Link</button>
+
+</form>
+
+<p style="text-align:center">
+<a href="/login.html">Back to Login</a>
+</p>
+
+<div id="msg" class="msg"></div>
+
+</div>
+
+<script>
+async function forgotPassword(e){
+
+  e.preventDefault();
+
+  const msg=document.getElementById("msg");
+
+  msg.style.color="#333";
+  msg.textContent="Reset link পাঠানো হচ্ছে...";
+
+  try{
+
+    const r=await fetch("/api/forgot",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        email:document.getElementById("email").value.trim()
+      })
+    });
+
+    const data=await r.json();
+
+    if(data.ok){
+      msg.style.color="green";
+      msg.textContent=data.message ||
+        "Reset link আপনার email-এ পাঠানো হয়েছে।";
+    }else{
+      msg.style.color="#d92d20";
+      msg.textContent=data.error || "Request failed";
+    }
+
+  }catch(err){
+
+    msg.style.color="#d92d20";
+    msg.textContent="Server error. আবার চেষ্টা করুন।";
+
+  }
+}
+</script>
+
+</body>
+</html>
