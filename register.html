@@ -1,108 +1,145 @@
-
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>iLovePDF4 - Register</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>iLovePDF4 Register</title>
+
 <style>
 body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#f5f5f5;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
+  font-family:Arial,sans-serif;
+  background:#f5f7fb;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  margin:0;
 }
 .box{
-    width:90%;
-    max-width:400px;
-    background:white;
-    padding:30px;
-    border-radius:12px;
-    box-shadow:0 5px 25px rgba(0,0,0,.15);
+  background:#fff;
+  padding:28px;
+  border-radius:18px;
+  width:90%;
+  max-width:420px;
+  box-shadow:0 8px 30px #0001;
 }
-h1{
-    text-align:center;
-    color:#e5322d;
+h1{text-align:center;color:#e53935}
+input,button{
+  width:100%;
+  padding:13px;
+  margin:7px 0;
+  box-sizing:border-box;
+  border-radius:10px;
 }
-h2{
-    text-align:center;
-    margin-bottom:25px;
-}
-input{
-    width:100%;
-    box-sizing:border-box;
-    padding:13px;
-    margin:8px 0;
-    border:1px solid #ccc;
-    border-radius:6px;
-    font-size:15px;
-}
+input{border:1px solid #ddd}
 button{
-    width:100%;
-    padding:13px;
-    margin-top:12px;
-    border:0;
-    border-radius:6px;
-    background:#e5322d;
-    color:white;
-    font-size:16px;
-    cursor:pointer;
+  border:0;
+  background:#e53935;
+  color:white;
+  font-weight:bold;
 }
-button:hover{
-    background:#c92520;
+a{
+  color:#e53935;
+  text-decoration:none;
+  font-weight:bold;
 }
-.login{
-    text-align:center;
-    margin-top:20px;
-}
-.login a{
-    color:#e5322d;
-    text-decoration:none;
-}
+.msg{text-align:center;margin-top:10px}
 </style>
 </head>
 
 <body>
 
 <div class="box">
-    <h1>iLovePDF4</h1>
-    <h2>Create Account</h2>
 
-    <form onsubmit="registerUser(event)">
-        <input type="text" id="username" placeholder="User ID" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <input type="password" id="confirm" placeholder="Confirm Password" required>
+<h1>iLovePDF4</h1>
 
-        <button type="submit">Register</button>
-    </form>
+<p>Create your account</p>
 
-    <div class="login">
-        Already have an account?
-        <a href="index.html">Login</a>
-    </div>
+<form onsubmit="registerUser(event)">
+
+<input id="name" placeholder="Full Name" required>
+
+<input id="email" type="email" placeholder="Email/Gmail" required>
+
+<input id="mobile" type="tel" placeholder="Mobile Number" required>
+
+<input id="password" type="password" placeholder="Password" minlength="6" required>
+
+<input id="confirm" type="password" placeholder="Confirm Password" minlength="6" required>
+
+<button type="submit">Create Account</button>
+
+</form>
+
+<p style="text-align:center">
+<a href="/api/google">Continue with Google</a>
+</p>
+
+<p style="text-align:center">
+Already have an account?
+<a href="/login.html">Login</a>
+</p>
+
+<div id="msg" class="msg"></div>
+
 </div>
 
 <script>
-function registerUser(event){
-    event.preventDefault();
+async function registerUser(e){
 
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value;
-    const confirm = document.getElementById("confirm").value;
+  e.preventDefault();
 
-    if(password !== confirm){
-        alert("Passwords do not match!");
-        return;
+  const msg=document.getElementById("msg");
+
+  const name=document.getElementById("name").value.trim();
+  const email=document.getElementById("email").value.trim();
+  const mobile=document.getElementById("mobile").value.trim();
+  const password=document.getElementById("password").value;
+  const confirm=document.getElementById("confirm").value;
+
+  if(password !== confirm){
+    msg.textContent="Password দুটো একই নয়।";
+    return;
+  }
+
+  msg.textContent="Account তৈরি হচ্ছে...";
+
+  try{
+
+    const r=await fetch("/api/register",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        name,
+        email,
+        mobile,
+        password
+      })
+    });
+
+    const data=await r.json();
+
+    if(data.ok){
+      msg.style.color="green";
+      msg.textContent="Registration successful! Login করুন।";
+
+      setTimeout(()=>{
+        location="/login.html";
+      },1200);
+
+    }else{
+      msg.style.color="#d92d20";
+      msg.textContent=data.error || "Registration failed";
     }
 
-    localStorage.setItem("ilovepdf4_user", username);
-    localStorage.setItem("ilovepdf4_password", password);
+  }catch(err){
 
-    alert("Registration successful!");
-    window.location.href = "index.html";
+    msg.style.color="#d92d20";
+    msg.textContent="Server error. আবার চেষ্টা করুন।";
+
+  }
 }
 </script>
 
