@@ -3,6 +3,7 @@
   "name": "ilovepdf4login",
   "main": "./worker.js",
   "compatibility_date": "2026-09-26",
+
   "assets": {
     "directory": "./",
     "binding": "ASSETS",
@@ -10,6 +11,7 @@
       "/api/*"
     ]
   },
+
   "d1_databases": [
     {
       "binding": "DB",
