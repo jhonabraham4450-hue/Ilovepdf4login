@@ -1,39 +1,15 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>iLovePDF4 - PDF Tools</title>
+<title>iLovePDF4 - All PDF Tools</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 
-<script>
-/* PDF.js loader */
-let pdfjsLib = null;
-
-async function loadPDFJS() {
-    if (pdfjsLib) return pdfjsLib;
-
-    try {
-        pdfjsLib = await import(
-            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs"
-        );
-
-        pdfjsLib.GlobalWorkerOptions.workerSrc =
-            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
-
-        return pdfjsLib;
-    } catch (e) {
-        console.error(e);
-        throw new Error("PDF engine could not be loaded.");
-    }
-}
-</script>
-
 <style>
-*{
-    box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
     margin:0;
@@ -44,16 +20,15 @@ body{
 
 header{
     background:#e5322d;
-    color:white;
-    padding:16px 20px;
+    color:#fff;
+    padding:15px 20px;
     display:flex;
     justify-content:space-between;
     align-items:center;
-    gap:15px;
 }
 
 .logo{
-    font-size:23px;
+    font-size:24px;
     font-weight:bold;
 }
 
@@ -61,73 +36,89 @@ header{
     display:flex;
     align-items:center;
     gap:10px;
-    font-size:14px;
 }
 
 .logout{
-    background:white;
-    color:#e5322d;
     border:0;
+    background:#fff;
+    color:#e5322d;
     padding:8px 13px;
     border-radius:6px;
-    cursor:pointer;
     font-weight:bold;
 }
 
 .container{
-    max-width:1000px;
-    margin:35px auto;
-    padding:20px;
+    max-width:1100px;
+    margin:25px auto;
+    padding:15px;
 }
 
-.card{
-    background:white;
+.back{
+    display:inline-block;
+    color:#e5322d;
+    text-decoration:none;
+    font-weight:bold;
+    margin-bottom:15px;
+}
+
+.hero{
+    background:#fff;
+    padding:25px;
     border-radius:14px;
-    padding:30px;
-    box-shadow:0 5px 25px rgba(0,0,0,.08);
-}
-
-h1{
-    margin-top:0;
-    font-size:28px;
-}
-
-.description{
-    color:#666;
+    box-shadow:0 4px 20px rgba(0,0,0,.07);
     margin-bottom:25px;
 }
 
-.upload-box{
-    border:2px dashed #ccc;
-    border-radius:12px;
-    padding:35px 20px;
-    text-align:center;
-    background:#fafafa;
+.hero h1{
+    margin:0 0 8px;
 }
 
-input[type=file]{
-    margin:15px 0;
-    max-width:100%;
+.hero p{
+    color:#666;
+    margin:0;
 }
 
-button{
-    border:0;
-    border-radius:7px;
-    padding:12px 20px;
-    cursor:pointer;
+.category{
+    margin:25px 0 10px;
+    font-size:20px;
     font-weight:bold;
 }
 
-.process-btn{
-    background:#e5322d;
-    color:white;
-    font-size:16px;
-    margin-top:15px;
+.tools{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    gap:14px;
 }
 
-.process-btn:disabled{
-    background:#aaa;
-    cursor:not-allowed;
+.tool{
+    background:#fff;
+    padding:18px;
+    border-radius:12px;
+    border:1px solid #eee;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.tool:hover{
+    transform:translateY(-2px);
+    border-color:#e5322d;
+    box-shadow:0 5px 18px rgba(0,0,0,.08);
+}
+
+.icon{
+    font-size:28px;
+    margin-bottom:8px;
+}
+
+.tool strong{
+    display:block;
+    font-size:16px;
+    margin-bottom:6px;
+}
+
+.tool span{
+    color:#777;
+    font-size:13px;
 }
 
 .status{
@@ -140,86 +131,34 @@ button{
 
 .success{
     display:block;
-    background:#e9f9ee;
-    color:#16783a;
+    background:#eaf9ef;
+    color:#16753a;
 }
 
 .error{
     display:block;
     background:#ffecec;
-    color:#b00000;
+    color:#a90000;
 }
 
 .info{
     display:block;
-    background:#eef5ff;
+    background:#edf5ff;
     color:#174f91;
-}
-
-.tools{
-    margin-top:30px;
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-    gap:12px;
-}
-
-.tool{
-    background:white;
-    border:1px solid #eee;
-    padding:17px;
-    border-radius:10px;
-    cursor:pointer;
-}
-
-.tool:hover{
-    border-color:#e5322d;
-}
-
-.tool strong{
-    display:block;
-    margin-bottom:5px;
-}
-
-.tool small{
-    color:#777;
-}
-
-.back{
-    display:inline-block;
-    margin-bottom:20px;
-    text-decoration:none;
-    color:#e5322d;
-    font-weight:bold;
 }
 
 footer{
     text-align:center;
+    padding:30px;
     color:#777;
-    padding:25px;
     font-size:13px;
 }
 
 @media(max-width:600px){
-    .container{
-        margin:15px auto;
-        padding:12px;
-    }
-
-    .card{
-        padding:20px 15px;
-    }
-
-    header{
-        padding:14px;
-    }
-
-    .logo{
-        font-size:19px;
-    }
-
-    .user-area{
-        font-size:12px;
-    }
+    .logo{font-size:19px}
+    .user-area{font-size:12px}
+    .tools{grid-template-columns:1fr 1fr}
+    .tool{padding:14px}
 }
 </style>
 </head>
@@ -239,884 +178,39 @@ footer{
 
 <a href="/home.html" class="back">← Back to Home</a>
 
-<div class="card">
-
-<h1 id="toolTitle">PDF Tool</h1>
-
-<div class="description" id="toolDescription">
-Select your file and start processing.
+<div class="hero">
+    <h1>All PDF Tools</h1>
+    <p>Convert, edit, compress, organize and manage your PDF files.</p>
 </div>
 
-<div class="upload-box">
 
-<input
-    type="file"
-    id="fileInput"
-    accept=".pdf,.jpg,.jpeg,.png"
-/>
+<!-- PDF CONVERSION -->
 
-<br>
-
-<button
-    id="processBtn"
-    class="process-btn"
-    onclick="processFile()"
->
-Process File
-</button>
-
-</div>
-
-<div id="status" class="status"></div>
-
-</div>
+<div class="category">📄 PDF Conversion</div>
 
 <div class="tools">
 
 <div class="tool" onclick="openTool('pdf-to-word')">
+<div class="icon">📄</div>
 <strong>PDF to Word</strong>
-<small>Convert PDF text to Word</small>
+<span>Convert PDF to editable Word</span>
 </div>
 
-<div class="tool" onclick="openTool('jpg-to-pdf')">
-<strong>JPG to PDF</strong>
-<small>Convert JPG image to PDF</small>
+<div class="tool" onclick="openTool('word-to-pdf')">
+<div class="icon">📝</div>
+<strong>Word to PDF</strong>
+<span>Convert Word documents to PDF</span>
 </div>
 
-<div class="tool" onclick="openTool('png-to-pdf')">
-<strong>PNG to PDF</strong>
-<small>Convert PNG image to PDF</small>
+<div class="tool" onclick="openTool('pdf-to-powerpoint')">
+<div class="icon">📊</div>
+<strong>PDF to PowerPoint</strong>
+<span>Convert PDF to PPT</span>
 </div>
 
-<div class="tool" onclick="openTool('merge-pdf')">
-<strong>Merge PDF</strong>
-<small>Merge multiple PDF files</small>
-</div>
-
-<div class="tool" onclick="openTool('jpg-to-png')">
-<strong>JPG to PNG</strong>
-<small>Convert JPG to PNG</small>
-</div>
-
-<div class="tool" onclick="openTool('png-to-jpg')">
-<strong>PNG to JPG</strong>
-<small>Convert PNG to JPG</small>
-</div>
-
-<div class="tool" onclick="openTool('image-compress')">
-<strong>Compress Image</strong>
-<small>Reduce image size</small>
-</div>
-
-</div>
-
-</div>
-
-<footer>
-© 2026 iLovePDF4
-</footer>
-
-
-<script>
-
-/* =========================
-   TOOL INFORMATION
-========================= */
-
-const toolInfo = {
-
-    "pdf-to-word":{
-        title:"PDF to Word",
-        description:"Convert a text-based PDF into a Microsoft Word-compatible document."
-    },
-
-    "jpg-to-pdf":{
-        title:"JPG to PDF",
-        description:"Convert your JPG image into a PDF file."
-    },
-
-    "png-to-pdf":{
-        title:"PNG to PDF",
-        description:"Convert your PNG image into a PDF file."
-    },
-
-    "merge-pdf":{
-        title:"Merge PDF",
-        description:"Select multiple PDF files and merge them into one PDF."
-    },
-
-    "jpg-to-png":{
-        title:"JPG to PNG",
-        description:"Convert a JPG image into PNG format."
-    },
-
-    "png-to-jpg":{
-        title:"PNG to JPG",
-        description:"Convert a PNG image into JPG format."
-    },
-
-    "image-compress":{
-        title:"Compress Image",
-        description:"Reduce image size while keeping reasonable quality."
-    }
-
-};
-
-
-/* =========================
-   LOGIN CHECK
-========================= */
-
-async function checkLogin(){
-
-    try{
-
-        const response = await fetch("/api/me",{
-            credentials:"include"
-        });
-
-        if(!response.ok){
-            document.getElementById("username").textContent="User";
-            return;
-        }
-
-        const data = await response.json();
-
-        if(data && data.user){
-            document.getElementById("username").textContent =
-                data.user.username ||
-                data.user.email ||
-                "User";
-        }else{
-            document.getElementById("username").textContent="User";
-        }
-
-    }catch(error){
-
-        console.log("Login check:",error);
-
-        document.getElementById("username").textContent="User";
-    }
-}
-
-
-/* =========================
-   LOGOUT
-========================= */
-
-async function logout(){
-
-    try{
-        await fetch("/api/logout",{
-            method:"POST",
-            credentials:"include"
-        });
-    }catch(e){}
-
-    window.location.href="/login.html";
-}
-
-
-/* =========================
-   URL TOOL
-========================= */
-
-const params = new URLSearchParams(window.location.search);
-
-let currentTool = params.get("tool") || "pdf-to-word";
-
-
-function loadTool(){
-
-    const info = toolInfo[currentTool];
-
-    if(info){
-
-        document.getElementById("toolTitle").textContent =
-            info.title;
-
-        document.getElementById("toolDescription").textContent =
-            info.description;
-
-    }
-
-    const fileInput = document.getElementById("fileInput");
-
-    if(currentTool === "merge-pdf"){
-
-        fileInput.multiple = true;
-        fileInput.accept = ".pdf";
-
-    }else if(
-        currentTool === "pdf-to-word"
-    ){
-
-        fileInput.multiple = false;
-        fileInput.accept = ".pdf";
-
-    }else if(
-        currentTool === "jpg-to-pdf" ||
-        currentTool === "jpg-to-png"
-    ){
-
-        fileInput.multiple = false;
-        fileInput.accept = ".jpg,.jpeg";
-
-    }else if(
-        currentTool === "png-to-pdf" ||
-        currentTool === "png-to-jpg"
-    ){
-
-        fileInput.multiple = false;
-        fileInput.accept = ".png";
-
-    }else{
-
-        fileInput.multiple = false;
-        fileInput.accept = ".jpg,.jpeg,.png";
-
-    }
-}
-
-
-/* =========================
-   STATUS
-========================= */
-
-function showStatus(message,type){
-
-    const box = document.getElementById("status");
-
-    box.textContent = message;
-
-    box.className =
-        "status " + type;
-}
-
-
-/* =========================
-   DOWNLOAD
-========================= */
-
-function downloadBlob(blob,filename){
-
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-
-    a.href = url;
-    a.download = filename;
-
-    document.body.appendChild(a);
-
-    a.click();
-
-    a.remove();
-
-    setTimeout(()=>{
-        URL.revokeObjectURL(url);
-    },1000);
-}
-
-
-/* =========================
-   MAIN PROCESS
-========================= */
-
-async function processFile(){
-
-    const input = document.getElementById("fileInput");
-
-    const files = Array.from(input.files || []);
-
-    if(files.length === 0){
-
-        showStatus(
-            "Please select a file first.",
-            "error"
-        );
-
-        return;
-    }
-
-    const button = document.getElementById("processBtn");
-
-    button.disabled = true;
-
-    button.textContent = "Processing...";
-
-    showStatus(
-        "Please wait. Processing your file...",
-        "info"
-    );
-
-    try{
-
-        switch(currentTool){
-
-            case "pdf-to-word":
-
-                await pdfToWord(files[0]);
-
-                break;
-
-
-            case "jpg-to-pdf":
-
-            case "png-to-pdf":
-
-                await imageToPDF(files[0]);
-
-                break;
-
-
-            case "merge-pdf":
-
-                await mergePDF(files);
-
-                break;
-
-
-            case "jpg-to-png":
-
-                await convertImage(
-                    files[0],
-                    "png"
-                );
-
-                break;
-
-
-            case "png-to-jpg":
-
-                await convertImage(
-                    files[0],
-                    "jpg"
-                );
-
-                break;
-
-
-            case "image-compress":
-
-                await compressImage(files[0]);
-
-                break;
-
-
-            default:
-
-                throw new Error(
-                    "This tool is not connected yet."
-                );
-        }
-
-    }catch(error){
-
-        console.error(error);
-
-        showStatus(
-            "❌ " + (
-                error.message ||
-                "Processing failed."
-            ),
-            "error"
-        );
-
-    }finally{
-
-        button.disabled = false;
-
-        button.textContent = "Process File";
-
-    }
-}
-
-
-/* =========================
-   PDF TO WORD
-   NO DOCX ENGINE
-========================= */
-
-async function pdfToWord(file){
-
-    showStatus(
-        "Reading PDF text...",
-        "info"
-    );
-
-    const pdfjs = await loadPDFJS();
-
-    const arrayBuffer =
-        await file.arrayBuffer();
-
-    const pdf =
-        await pdfjs.getDocument({
-            data:arrayBuffer
-        }).promise;
-
-    let allText = "";
-
-    for(let pageNumber=1; pageNumber<=pdf.numPages; pageNumber++){
-
-        showStatus(
-            "Reading page " +
-            pageNumber +
-            " of " +
-            pdf.numPages +
-            "...",
-            "info"
-        );
-
-        const page =
-            await pdf.getPage(pageNumber);
-
-        const content =
-            await page.getTextContent();
-
-        const pageText =
-            content.items
-            .map(item => item.str)
-            .join(" ");
-
-        allText +=
-            pageText +
-            "\n\n";
-    }
-
-    allText = allText.trim();
-
-    if(!allText){
-
-        throw new Error(
-            "No selectable text was found. This may be a scanned/image PDF."
-        );
-    }
-
-
-    /*
-       Create a Word-compatible .doc file
-       directly in the browser.
-    */
-
-    const escapedText =
-        escapeHTML(allText)
-        .replace(/\n/g,"<br>");
-
-    const html = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Converted Document</title>
-<style>
-body{
-    font-family:Arial,sans-serif;
-    font-size:12pt;
-    line-height:1.5;
-    margin:40px;
-}
-</style>
-</head>
-<body>
-${escapedText}
-</body>
-</html>
-`;
-
-
-    const blob = new Blob(
-        [html],
-        {
-            type:
-            "application/msword"
-        }
-    );
-
-    const baseName =
-        file.name
-        .replace(/\.pdf$/i,"");
-
-    downloadBlob(
-        blob,
-        baseName + ".doc"
-    );
-
-    showStatus(
-        "✅ PDF converted successfully.\nYour Word-compatible .doc file has been downloaded.",
-        "success"
-    );
-}
-
-
-/* =========================
-   HTML ESCAPE
-========================= */
-
-function escapeHTML(text){
-
-    return text
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
-}
-
-
-/* =========================
-   IMAGE TO PDF
-========================= */
-
-async function imageToPDF(file){
-
-    if(!window.PDFLib){
-
-        throw new Error(
-            "PDF engine could not be loaded."
-        );
-    }
-
-    const {
-        PDFDocument
-    } = PDFLib;
-
-    const pdfDoc =
-        await PDFDocument.create();
-
-    const bytes =
-        new Uint8Array(
-            await file.arrayBuffer()
-        );
-
-    let image;
-
-    if(file.type === "image/png"){
-
-        image =
-            await pdfDoc.embedPng(bytes);
-
-    }else{
-
-        image =
-            await pdfDoc.embedJpg(bytes);
-    }
-
-    const width =
-        image.width;
-
-    const height =
-        image.height;
-
-    const page =
-        pdfDoc.addPage([
-            width,
-            height
-        ]);
-
-    page.drawImage(
-        image,
-        {
-            x:0,
-            y:0,
-            width:width,
-            height:height
-        }
-    );
-
-    const pdfBytes =
-        await pdfDoc.save();
-
-    downloadBlob(
-        new Blob(
-            [pdfBytes],
-            {
-                type:"application/pdf"
-            }
-        ),
-        file.name.replace(
-            /\.(jpg|jpeg|png)$/i,
-            ""
-        ) + ".pdf"
-    );
-
-    showStatus(
-        "✅ Image converted to PDF successfully.",
-        "success"
-    );
-}
-
-
-/* =========================
-   MERGE PDF
-========================= */
-
-async function mergePDF(files){
-
-    if(files.length < 2){
-
-        throw new Error(
-            "Please select at least 2 PDF files."
-        );
-    }
-
-    if(!window.PDFLib){
-
-        throw new Error(
-            "PDF engine could not be loaded."
-        );
-    }
-
-    const {
-        PDFDocument
-    } = PDFLib;
-
-    const merged =
-        await PDFDocument.create();
-
-    for(let i=0;i<files.length;i++){
-
-        showStatus(
-            "Merging PDF " +
-            (i+1) +
-            " of " +
-            files.length +
-            "...",
-            "info"
-        );
-
-        const bytes =
-            await files[i].arrayBuffer();
-
-        const pdf =
-            await PDFDocument.load(bytes);
-
-        const pages =
-            await merged.copyPages(
-                pdf,
-                pdf.getPageIndices()
-            );
-
-        pages.forEach(page=>{
-            merged.addPage(page);
-        });
-    }
-
-    const result =
-        await merged.save();
-
-    downloadBlob(
-        new Blob(
-            [result],
-            {
-                type:"application/pdf"
-            }
-        ),
-        "merged.pdf"
-    );
-
-    showStatus(
-        "✅ PDF files merged successfully.",
-        "success"
-    );
-}
-
-
-/* =========================
-   IMAGE CONVERTER
-========================= */
-
-async function convertImage(file,format){
-
-    const img =
-        new Image();
-
-    const url =
-        URL.createObjectURL(file);
-
-    await new Promise(
-        (resolve,reject)=>{
-
-            img.onload=resolve;
-
-            img.onerror=()=>{
-                reject(
-                    new Error(
-                        "Could not read image."
-                    )
-                );
-            };
-
-            img.src=url;
-        }
-    );
-
-    const canvas =
-        document.createElement("canvas");
-
-    canvas.width =
-        img.naturalWidth;
-
-    canvas.height =
-        img.naturalHeight;
-
-    const ctx =
-        canvas.getContext("2d");
-
-    if(format === "jpg"){
-
-        ctx.fillStyle="#ffffff";
-
-        ctx.fillRect(
-            0,
-            0,
-            canvas.width,
-            canvas.height
-        );
-    }
-
-    ctx.drawImage(
-        img,
-        0,
-        0
-    );
-
-    const mime =
-        format === "jpg"
-        ? "image/jpeg"
-        : "image/png";
-
-    const blob =
-        await new Promise(
-            resolve =>
-            canvas.toBlob(
-                resolve,
-                mime,
-                0.92
-            )
-        );
-
-    URL.revokeObjectURL(url);
-
-    const base =
-        file.name.replace(
-            /\.(jpg|jpeg|png)$/i,
-            ""
-        );
-
-    downloadBlob(
-        blob,
-        base +
-        "." +
-        format
-    );
-
-    showStatus(
-        "✅ Image converted successfully.",
-        "success"
-    );
-}
-
-
-/* =========================
-   IMAGE COMPRESS
-========================= */
-
-async function compressImage(file){
-
-    const img =
-        new Image();
-
-    const url =
-        URL.createObjectURL(file);
-
-    await new Promise(
-        (resolve,reject)=>{
-
-            img.onload=resolve;
-
-            img.onerror=()=>{
-                reject(
-                    new Error(
-                        "Could not read image."
-                    )
-                );
-            };
-
-            img.src=url;
-        }
-    );
-
-    const canvas =
-        document.createElement("canvas");
-
-    canvas.width =
-        img.naturalWidth;
-
-    canvas.height =
-        img.naturalHeight;
-
-    const ctx =
-        canvas.getContext("2d");
-
-    ctx.drawImage(
-        img,
-        0,
-        0
-    );
-
-    const blob =
-        await new Promise(
-            resolve =>
-            canvas.toBlob(
-                resolve,
-                "image/jpeg",
-                0.70
-            )
-        );
-
-    URL.revokeObjectURL(url);
-
-    const base =
-        file.name.replace(
-            /\.(jpg|jpeg|png)$/i,
-            ""
-        );
-
-    downloadBlob(
-        blob,
-        base +
-        "-compressed.jpg"
-    );
-
-    showStatus(
-        "✅ Image compressed successfully.",
-        "success"
-    );
-}
-
-
-/* =========================
-   OPEN TOOL
-========================= */
-
-function openTool(tool){
-
-    window.location.href =
-        "/tools.html?tool=" +
-        encodeURIComponent(tool);
-}
-
-
-/* =========================
-   START
-========================= */
-
-checkLogin();
-
-loadTool();
-
-</script>
-
-</body>
-</html>
+<div class="tool" onclick="openTool('powerpoint-to-pdf')">
+<div class="icon">📊</div>
+<strong>PowerPoint to PDF</strong>
+<span>Convert PPT to PDF</span>
+</di
+```
