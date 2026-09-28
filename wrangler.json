@@ -17,5 +17,11 @@
       "binding": "DB",
       "database_id": "567ad1e5-9226-47ca-b12d-07072f99111f"
     }
-  ]
+  ],
+
+  "secrets": {
+    "required": [
+      "CLOUDCONVERT_API_KEY"
+    ]
+  }
 }
