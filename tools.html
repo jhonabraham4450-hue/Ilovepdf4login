@@ -3,214 +3,381 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>iLovePDF4 - All PDF Tools</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>iLovePDF4 Tool</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 
 <style>
-*{box-sizing:border-box}
+
+*{
+box-sizing:border-box;
+}
 
 body{
-    margin:0;
-    font-family:Arial,Helvetica,sans-serif;
-    background:#f5f7fb;
-    color:#222;
+margin:0;
+font-family:Arial,Helvetica,sans-serif;
+background:#f5f7fb;
+color:#222;
 }
 
 header{
-    background:#e5322d;
-    color:#fff;
-    padding:15px 20px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+background:#e5322d;
+color:white;
+padding:15px 20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
 
 .logo{
-    font-size:24px;
-    font-weight:bold;
+font-size:23px;
+font-weight:bold;
 }
 
-.user-area{
-    display:flex;
-    align-items:center;
-    gap:10px;
+.user{
+display:flex;
+align-items:center;
+gap:10px;
+font-size:14px;
 }
 
 .logout{
-    border:0;
-    background:#fff;
-    color:#e5322d;
-    padding:8px 13px;
-    border-radius:6px;
-    font-weight:bold;
+border:0;
+background:white;
+color:#e5322d;
+padding:8px 12px;
+border-radius:6px;
+font-weight:bold;
 }
 
 .container{
-    max-width:1100px;
-    margin:25px auto;
-    padding:15px;
+max-width:850px;
+margin:30px auto;
+padding:15px;
 }
 
 .back{
-    display:inline-block;
-    color:#e5322d;
-    text-decoration:none;
-    font-weight:bold;
-    margin-bottom:15px;
+display:inline-block;
+margin-bottom:15px;
+text-decoration:none;
+color:#e5322d;
+font-weight:bold;
 }
 
-.hero{
-    background:#fff;
-    padding:25px;
-    border-radius:14px;
-    box-shadow:0 4px 20px rgba(0,0,0,.07);
-    margin-bottom:25px;
+.card{
+background:white;
+border-radius:15px;
+padding:30px;
+box-shadow:0 5px 25px rgba(0,0,0,.08);
 }
 
-.hero h1{
-    margin:0 0 8px;
+h1{
+margin-top:0;
+font-size:28px;
 }
 
-.hero p{
-    color:#666;
-    margin:0;
+.desc{
+color:#666;
+margin-bottom:25px;
 }
 
-.category{
-    margin:25px 0 10px;
-    font-size:20px;
-    font-weight:bold;
+.upload{
+border:2px dashed #ccc;
+border-radius:12px;
+padding:35px 20px;
+text-align:center;
+background:#fafafa;
 }
 
-.tools{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
-    gap:14px;
+input[type=file]{
+margin:15px 0;
+max-width:100%;
 }
 
-.tool{
-    background:#fff;
-    padding:18px;
-    border-radius:12px;
-    border:1px solid #eee;
-    cursor:pointer;
-    transition:.2s;
+.process{
+display:block;
+margin:15px auto 0;
+background:#e5322d;
+color:white;
+border:0;
+padding:13px 25px;
+border-radius:7px;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
 }
 
-.tool:hover{
-    transform:translateY(-2px);
-    border-color:#e5322d;
-    box-shadow:0 5px 18px rgba(0,0,0,.08);
-}
-
-.icon{
-    font-size:28px;
-    margin-bottom:8px;
-}
-
-.tool strong{
-    display:block;
-    font-size:16px;
-    margin-bottom:6px;
-}
-
-.tool span{
-    color:#777;
-    font-size:13px;
+.process:disabled{
+background:#999;
+cursor:not-allowed;
 }
 
 .status{
-    margin-top:20px;
-    padding:13px;
-    border-radius:8px;
-    display:none;
-    white-space:pre-wrap;
-}
-
-.success{
-    display:block;
-    background:#eaf9ef;
-    color:#16753a;
-}
-
-.error{
-    display:block;
-    background:#ffecec;
-    color:#a90000;
+margin-top:20px;
+padding:13px;
+border-radius:8px;
+display:none;
+white-space:pre-wrap;
 }
 
 .info{
-    display:block;
-    background:#edf5ff;
-    color:#174f91;
+display:block;
+background:#edf5ff;
+color:#174f91;
+}
+
+.success{
+display:block;
+background:#eaf9ef;
+color:#16753a;
+}
+
+.error{
+display:block;
+background:#ffecec;
+color:#a90000;
+}
+
+.note{
+margin-top:20px;
+padding:14px;
+background:#fff8e6;
+border-radius:8px;
+color:#765700;
+font-size:14px;
 }
 
 footer{
-    text-align:center;
-    padding:30px;
-    color:#777;
-    font-size:13px;
+text-align:center;
+padding:30px;
+color:#777;
+font-size:13px;
 }
 
-@media(max-width:600px){
-    .logo{font-size:19px}
-    .user-area{font-size:12px}
-    .tools{grid-template-columns:1fr 1fr}
-    .tool{padding:14px}
-}
 </style>
 </head>
 
 <body>
 
 <header>
-    <div class="logo">iLovePDF4</div>
 
-    <div class="user-area">
-        <span id="username">Loading...</span>
-        <button class="logout" onclick="logout()">Logout</button>
-    </div>
+<div class="logo">
+iLovePDF4
+</div>
+
+<div class="user">
+<span id="username">Loading...</span>
+<button class="logout" onclick="logout()">Logout</button>
+</div>
+
 </header>
+
 
 <div class="container">
 
-<a href="/home.html" class="back">← Back to Home</a>
+<a href="/tools.html" class="back">
+← Back to All Tools
+</a>
 
-<div class="hero">
-    <h1>All PDF Tools</h1>
-    <p>Convert, edit, compress, organize and manage your PDF files.</p>
+
+<div class="card">
+
+<h1 id="title">
+PDF Tool
+</h1>
+
+<div class="desc" id="description">
+Select your file and process it.
 </div>
 
 
-<!-- PDF CONVERSION -->
+<div class="upload">
 
-<div class="category">📄 PDF Conversion</div>
+<input
+type="file"
+id="fileInput"
+/>
 
-<div class="tools">
+<button
+class="process"
+id="processBtn"
+onclick="processFile()"
+>
+Process File
+</button>
 
-<div class="tool" onclick="openTool('pdf-to-word')">
-<div class="icon">📄</div>
-<strong>PDF to Word</strong>
-<span>Convert PDF to editable Word</span>
 </div>
 
-<div class="tool" onclick="openTool('word-to-pdf')">
-<div class="icon">📝</div>
-<strong>Word to PDF</strong>
-<span>Convert Word documents to PDF</span>
+
+<div id="status" class="status"></div>
+
+<div class="note" id="note">
+Your file is processed locally in your browser when possible.
 </div>
 
-<div class="tool" onclick="openTool('pdf-to-powerpoint')">
-<div class="icon">📊</div>
-<strong>PDF to PowerPoint</strong>
-<span>Convert PDF to PPT</span>
 </div>
 
-<div class="tool" onclick="openTool('powerpoint-to-pdf')">
-<div class="icon">📊</div>
-<strong>PowerPoint to PDF</strong>
-<span>Convert PPT to PDF</span>
-</di
+</div>
+
+
+<footer>
+
+© 2026 iLovePDF4
+
+</footer>
+
+
+<script>
+
+/* =========================
+TOOL DATA
+========================= */
+
+const tools={
+
+"pdf-to-word":{
+title:"PDF to Word",
+description:"Convert PDF text into a Word-compatible document.",
+accept:".pdf",
+multiple:false
+},
+
+"word-to-pdf":{
+title:"Word to PDF",
+description:"Convert Word documents to PDF.",
+accept:".doc,.docx",
+multiple:false
+},
+
+"pdf-to-powerpoint":{
+title:"PDF to PowerPoint",
+description:"Convert PDF into PowerPoint.",
+accept:".pdf",
+multiple:false
+},
+
+"powerpoint-to-pdf":{
+title:"PowerPoint to PDF",
+description:"Convert PowerPoint presentations to PDF.",
+accept:".ppt,.pptx",
+multiple:false
+},
+
+"pdf-to-excel":{
+title:"PDF to Excel",
+description:"Extract PDF data into Excel.",
+accept:".pdf",
+multiple:false
+},
+
+"excel-to-pdf":{
+title:"Excel to PDF",
+description:"Convert Excel files to PDF.",
+accept:".xls,.xlsx",
+multiple:false
+},
+
+"jpg-to-pdf":{
+title:"JPG to PDF",
+description:"Convert JPG image into PDF.",
+accept:".jpg,.jpeg",
+multiple:false
+},
+
+"png-to-pdf":{
+title:"PNG to PDF",
+description:"Convert PNG image into PDF.",
+accept:".png",
+multiple:false
+},
+
+"image-to-pdf":{
+title:"Image to PDF",
+description:"Convert images into PDF.",
+accept:".jpg,.jpeg,.png,.webp",
+multiple:true
+},
+
+"merge-pdf":{
+title:"Merge PDF",
+description:"Combine multiple PDF files.",
+accept:".pdf",
+multiple:true
+},
+
+"split-pdf":{
+title:"Split PDF",
+description:"Split a PDF into separate pages.",
+accept:".pdf",
+multiple:false
+},
+
+"remove-pages":{
+title:"Remove Pages",
+description:"Remove pages from a PDF.",
+accept:".pdf",
+multiple:false
+},
+
+"extract-pages":{
+title:"Extract Pages",
+description:"Extract pages from a PDF.",
+accept:".pdf",
+multiple:false
+},
+
+"rotate-pdf":{
+title:"Rotate PDF",
+description:"Rotate PDF pages.",
+accept:".pdf",
+multiple:false
+},
+
+"reorder-pdf":{
+title:"Reorder PDF",
+description:"Change PDF page order.",
+accept:".pdf",
+multiple:false
+},
+
+"compress-pdf":{
+title:"Compress PDF",
+description:"Reduce PDF file size.",
+accept:".pdf",
+multiple:false
+},
+
+"resize-pdf":{
+title:"Resize PDF",
+description:"Resize PDF pages.",
+accept:".pdf",
+multiple:false
+},
+
+"crop-pdf":{
+title:"Crop PDF",
+description:"Crop PDF pages.",
+accept:".pdf",
+multiple:false
+},
+
+"watermark-pdf":{
+title:"Watermark PDF",
+description:"Add a watermark to PDF.",
+accept:".pdf",
+multiple:false
+},
+
+"page-numbers":{
+title:"Page Numbers",
+description:"Add page numbers to PDF.",
+accept:".pdf",
+multiple:false
+},
+
+"sign-pdf":{
+title:"Sign PDF",
+description
 ```
