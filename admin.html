@@ -1,139 +1,430 @@
-<!doctype html>
-<html lang="bn">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Admin Login - iLovePDF4</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>iLovePDF4 - Admin Panel</title>
 
 <style>
-body{
-  font-family:Arial,sans-serif;
-  background:#f5f7fb;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
+*{
+  box-sizing:border-box;
   margin:0;
+  padding:0;
+  font-family:Arial,Helvetica,sans-serif;
 }
-.box{
-  background:#fff;
-  padding:28px;
-  border-radius:18px;
-  width:90%;
-  max-width:420px;
-  box-shadow:0 8px 30px #0001;
-}
-h1{
-  text-align:center;
+
+body{
+  background:#f5f6f8;
   color:#222;
 }
-input,button{
-  width:100%;
-  padding:13px;
-  margin:8px 0;
-  box-sizing:border-box;
-  border-radius:10px;
+
+header{
+  background:#fff;
+  padding:15px 20px;
+  border-bottom:1px solid #ddd;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  position:sticky;
+  top:0;
+  z-index:10;
 }
-input{
-  border:1px solid #ddd;
-}
-button{
-  border:0;
-  background:#222;
-  color:white;
+
+.logo{
+  font-size:24px;
   font-weight:bold;
+  color:#e5322d;
+}
+
+.logo span{
+  color:#222;
+}
+
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.logout{
+  border:0;
+  background:#e5322d;
+  color:#fff;
+  padding:9px 15px;
+  border-radius:7px;
   cursor:pointer;
 }
-a{
-  color:#e53935;
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:25px 15px;
+}
+
+h1{
+  margin-bottom:20px;
+}
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:15px;
+  margin-bottom:25px;
+}
+
+.card{
+  background:#fff;
+  padding:22px;
+  border-radius:12px;
+  box-shadow:0 2px 10px rgba(0,0,0,.07);
+}
+
+.card h3{
+  color:#666;
+  font-size:14px;
+  margin-bottom:8px;
+}
+
+.card strong{
+  font-size:28px;
+}
+
+.table-box{
+  background:#fff;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 2px 10px rgba(0,0,0,.07);
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:800px;
+}
+
+th,td{
+  padding:12px;
+  border-bottom:1px solid #eee;
+  text-align:left;
+  font-size:14px;
+}
+
+th{
+  background:#f7f7f7;
+}
+
+.badge{
+  padding:5px 9px;
+  border-radius:20px;
+  font-size:12px;
+}
+
+.yes{
+  background:#d9f7df;
+  color:#16752a;
+}
+
+.no{
+  background:#ffe0e0;
+  color:#a50000;
+}
+
+.status{
+  padding:15px;
+  margin-bottom:20px;
+  border-radius:8px;
+  background:#fff3cd;
+  color:#705500;
+}
+
+.hidden{
+  display:none;
+}
+
+.back{
+  display:inline-block;
+  margin-bottom:20px;
+  color:#e5322d;
   text-decoration:none;
   font-weight:bold;
 }
-.msg{
-  text-align:center;
-  margin-top:12px;
+
+@media(max-width:600px){
+
+  header{
+    padding:12px 10px;
+  }
+
+  .logo{
+    font-size:20px;
+  }
+
+  .container{
+    padding:20px 10px;
+  }
+
 }
 </style>
 </head>
 
 <body>
 
-<div class="box">
+<header>
 
-<h1>iLovePDF4 Admin</h1>
+  <div class="logo">
+    iLovePDF<span>4 Admin</span>
+  </div>
 
-<p>Admin account দিয়ে প্রবেশ করুন</p>
+  <div class="header-right">
 
-<form onsubmit="adminLogin(event)">
+    <span id="adminName">Admin</span>
 
-<input
-  id="adminId"
-  placeholder="Admin ID"
-  required
->
+    <button class="logout" onclick="logout()">
+      Logout
+    </button>
 
-<input
-  id="adminPassword"
-  type="password"
-  placeholder="Admin Password"
-  required
->
+  </div>
 
-<button type="submit">Admin Login</button>
+</header>
 
-</form>
 
-<p style="text-align:center">
-<a href="/login.html">Back to User Login</a>
-</p>
+<div class="container">
 
-<div id="msg" class="msg"></div>
+<a href="home.html" class="back">
+← Back to Home
+</a>
+
+<h1>Admin Dashboard</h1>
+
+<div id="status" class="status">
+Loading users...
+</div>
+
+
+<div id="dashboard" class="hidden">
+
+<div class="cards">
+
+  <div class="card">
+    <h3>Total Users</h3>
+    <strong id="totalUsers">0</strong>
+  </div>
+
+  <div class="card">
+    <h3>Verified Email</h3>
+    <strong id="verifiedEmail">0</strong>
+  </div>
+
+  <div class="card">
+    <h3>Verified Mobile</h3>
+    <strong id="verifiedMobile">0</strong>
+  </div>
+
+  <div class="card">
+    <h3>Admins</h3>
+    <strong id="totalAdmins">0</strong>
+  </div>
 
 </div>
 
+
+<div class="table-box">
+
+<h2 style="margin-bottom:15px;">
+Registered Users
+</h2>
+
+<table>
+
+<thead>
+
+<tr>
+<th>ID</th>
+<th>Username</th>
+<th>Mobile</th>
+<th>Email</th>
+<th>Email Verified</th>
+<th>Mobile Verified</th>
+<th>Admin</th>
+<th>Created</th>
+</tr>
+
+</thead>
+
+<tbody id="usersTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+
 <script>
-async function adminLogin(e){
 
-  e.preventDefault();
-
-  const msg=document.getElementById("msg");
-
-  msg.style.color="#333";
-  msg.textContent="Login হচ্ছে...";
+async function loadAdmin(){
 
   try{
 
-    const r=await fetch("/api/admin-login",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({
-        adminId:document.getElementById("adminId").value.trim(),
-        password:document.getElementById("adminPassword").value
-      })
-    });
+    const response = await fetch(
+      "/api/admin",
+      {
+        credentials:"include"
+      }
+    );
 
-    const data=await r.json();
+    const data = await response.json();
 
-    if(data.ok){
+    if(!response.ok){
 
-      location="/admin-dashboard.html";
+      document.getElementById("status").textContent =
+        data.message || "Access denied";
 
-    }else{
-
-      msg.style.color="#d92d20";
-      msg.textContent=data.error || "Admin login failed.";
-
+      return;
     }
 
-  }catch(err){
+    document.getElementById("status")
+      .classList.add("hidden");
 
-    msg.style.color="#d92d20";
-    msg.textContent="Server error. আবার চেষ্টা করুন।";
+    document.getElementById("dashboard")
+      .classList.remove("hidden");
+
+    document.getElementById("adminName").textContent =
+      "Admin: " + data.admin.username;
+
+    document.getElementById("totalUsers").textContent =
+      data.totalUsers;
+
+    const users = data.users || [];
+
+    let emailVerified = 0;
+    let mobileVerified = 0;
+    let admins = 0;
+
+    const table =
+      document.getElementById("usersTable");
+
+    table.innerHTML = "";
+
+    users.forEach(user => {
+
+      if(Number(user.email_verified) === 1){
+        emailVerified++;
+      }
+
+      if(Number(user.mobile_verified) === 1){
+        mobileVerified++;
+      }
+
+      if(Number(user.is_admin) === 1){
+        admins++;
+      }
+
+      const row =
+        document.createElement("tr");
+
+      row.innerHTML = `
+
+        <td>${user.id}</td>
+
+        <td>${escapeHtml(user.username)}</td>
+
+        <td>${escapeHtml(user.mobile)}</td>
+
+        <td>${escapeHtml(user.email)}</td>
+
+        <td>
+          ${
+            Number(user.email_verified) === 1
+            ? '<span class="badge yes">Yes</span>'
+            : '<span class="badge no">No</span>'
+          }
+        </td>
+
+        <td>
+          ${
+            Number(user.mobile_verified) === 1
+            ? '<span class="badge yes">Yes</span>'
+            : '<span class="badge no">No</span>'
+          }
+        </td>
+
+        <td>
+          ${
+            Number(user.is_admin) === 1
+            ? '<span class="badge yes">Admin</span>'
+            : '<span class="badge no">User</span>'
+          }
+        </td>
+
+        <td>${escapeHtml(user.created_at || "")}</td>
+
+      `;
+
+      table.appendChild(row);
+
+    });
+
+    document.getElementById("verifiedEmail").textContent =
+      emailVerified;
+
+    document.getElementById("verifiedMobile").textContent =
+      mobileVerified;
+
+    document.getElementById("totalAdmins").textContent =
+      admins;
+
+  }catch(error){
+
+    document.getElementById("status").textContent =
+      "Unable to connect to server.";
 
   }
+
 }
+
+
+function escapeHtml(text){
+
+  const div =
+    document.createElement("div");
+
+  div.textContent =
+    text == null ? "" : String(text);
+
+  return div.innerHTML;
+
+}
+
+
+async function logout(){
+
+  try{
+
+    await fetch(
+      "/api/logout",
+      {
+        method:"POST",
+        credentials:"include"
+      }
+    );
+
+  }catch(error){}
+
+  window.location.href =
+    "login.html";
+
+}
+
+
+loadAdmin();
+
 </script>
 
 </body>
