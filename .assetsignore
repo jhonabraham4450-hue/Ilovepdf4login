@@ -1,0 +1,9 @@
+worker.js
+wrangler.json
+.assetsignore
+
+functions/
+
+*.zip
+
+README.md
