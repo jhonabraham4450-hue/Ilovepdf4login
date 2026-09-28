@@ -7,7 +7,8 @@
 <title>iLovePDF4 - PDF Tool</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs" type="module"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@9.5.1/build/index.umd.js"></script>
 <style>
 *{
   box-sizing:border-box;
@@ -913,104 +914,86 @@ function escapeHtml(text){
 
 }
 
-
 async function processTool(){
 
   if(selectedFiles.length === 0){
-
-    status.textContent =
-      "Please select a file first.";
-
+    status.textContent = "Please select a file first.";
     return;
-
   }
 
   actionBtn.disabled = true;
-
-  status.textContent =
-    "⏳ Processing...";
-
+  status.textContent = "⏳ Processing...";
   result.style.display = "none";
 
   try{
 
     let output;
 
-    if(toolName === "jpg-to-pdf"){
+    if(toolName === "pdf-to-word"){
 
-      output =
-        await imagesToPdf(selectedFiles);
+      output = await pdfToWord(selectedFiles[0]);
+
+    }
+
+    else if(toolName === "jpg-to-pdf"){
+
+      output = await imagesToPdf(selectedFiles);
 
     }
 
     else if(toolName === "png-to-pdf"){
 
-      output =
-        await imagesToPdf(selectedFiles);
+      output = await imagesToPdf(selectedFiles);
 
     }
 
     else if(toolName === "merge-pdf"){
 
-      output =
-        await mergePdf(selectedFiles);
+      output = await mergePdf(selectedFiles);
 
     }
 
     else if(toolName === "jpg-to-png"){
 
-      output =
-        await convertImage(
-          selectedFiles[0],
-          "image/png",
-          "converted.png"
-        );
+      output = await convertImage(
+        selectedFiles[0],
+        "image/png",
+        "converted.png"
+      );
 
     }
 
     else if(toolName === "png-to-jpg"){
 
-      output =
-        await convertImage(
-          selectedFiles[0],
-          "image/jpeg",
-          "converted.jpg"
-        );
+      output = await convertImage(
+        selectedFiles[0],
+        "image/jpeg",
+        "converted.jpg"
+      );
 
     }
 
     else if(toolName === "image-compress"){
 
-      output =
-        await compressImage(
-          selectedFiles[0]
-        );
+      output = await compressImage(selectedFiles[0]);
 
     }
 
     else{
 
-      throw new Error(
-        "This tool's conversion engine will be connected in the next step."
-      );
+      throw new Error("This tool is not connected yet.");
 
     }
 
-    downloadBtn.href =
-      output.url;
-
-    downloadBtn.download =
-      output.name;
+    downloadBtn.href = output.url;
+    downloadBtn.download = output.name;
 
     resultText.textContent =
-      output.name +
-      " is ready for download.";
+      output.name + " is ready for download.";
 
-    result.style.display =
-      "block";
+    result.style.display = "block";
 
-    status.textContent =
-      "✅ Processing complete.";
+    status.textContent = "✅ Processing complete.";
 
   }catch(error){
 
@@ -1018,6 +1001,12 @@ async function processTool(){
 
     status.textContent =
       "❌ " + error.message;
+
+  }
+
+  actionBtn.disabled = false;
+
+}
 
   }
 
