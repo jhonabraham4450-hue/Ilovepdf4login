@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iLovePDF4 - All Tools</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+  background:#f5f6f8;
+  color:#222;
+}
+
+header{
+  background:#fff;
+  border-bottom:1px solid #ddd;
+  padding:15px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+
+.logo{
+  font-size:25px;
+  font-weight:bold;
+  color:#e5322d;
+}
+
+.logo span{
+  color:#222;
+}
+
+.user-area{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+#username{
+  font-size:14px;
+  color:#555;
+}
+
+.logout{
+  border:0;
+  background:#e5322d;
+  color:white;
+  padding:9px 15px;
+  border-radius:7px;
+  cursor:pointer;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:25px 15px;
+}
+
+.back{
+  display:inline-block;
+  margin-bottom:20px;
+  color:#e5322d;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+.tool-box{
+  background:white;
+  border-radius:14px;
+  padding:30px 20px;
+  box-shadow:0 3px 15px rgba(0,0,0,.08);
+  text-align:center;
+  margin-bottom:30px;
+}
+
+.tool-title{
+  font-size:30px;
+  margin-bottom:10px;
+}
+
+.tool-description{
+  color:#666;
+  margin-bottom:25px;
+}
+
+.upload-area{
+  border:2px dashed #bbb;
+  border-radius:12px;
+  padding:40px 15px;
+  background:#fafafa;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.upload-area:hover{
+  border-color:#e5322d;
+  background:#fff5f5;
+}
+
+.upload-icon{
+  font-size:45px;
+  margin-bottom:10px;
+}
+
+.upload-area h3{
+  margin-bottom:8px;
+}
+
+.upload-area p{
+  color:#777;
+  font-size:14px;
+}
+
+#fileInput{
+  display:none;
+}
+
+.file-list{
+  margin-top:20px;
+  text-align:left;
+}
+
+.file-item{
+  background:#f5f5f5;
+  border-radius:8px;
+  padding:10px 12px;
+  margin-bottom:8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.file-name{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  max-width:80%;
+}
+
+.remove-file{
+  border:0;
+  background:#e5322d;
+  color:white;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  cursor:pointer;
+}
+
+.action-btn{
+  margin-top:20px;
+  background:#e5322d;
+  color:#fff;
+  border:0;
+  padding:13px 30px;
+  border-radius:8px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.action-btn:hover{
+  background:#c92520;
+}
+
+.action-btn:disabled{
+  background:#aaa;
+  cursor:not-allowed;
+}
+
+.status{
+  margin-top:18px;
+  font-size:14px;
+  color:#555;
+}
+
+.tools-section{
+  margin-top:30px;
+}
+
+.section-title{
+  font-size:23px;
+  margin-bottom:15px;
+}
+
+.tools-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:15px;
+}
+
+.tool-card{
+  background:#fff;
+  padding:20px 15px;
+  border-radius:12px;
+  box-shadow:0 2px 10px rgba(0,0,0,.06);
+  cursor:pointer;
+  transition:.2s;
+  border:1px solid transparent;
+}
+
+.tool-card:hover{
+  transform:translateY(-3px);
+  border-color:#e5322d;
+}
+
+.tool-icon{
+  font-size:30px;
+  margin-bottom:10px;
+}
+
+.tool-card h3{
+  font-size:16px;
+  margin-bottom:6px;
+}
+
+.tool-card p{
+  color:#777;
+  font-size:13px;
+}
+
+footer{
+  text-align:center;
+  color:#777;
+  padding:30px 15px;
+}
+
+@media(max-width:600px){
+  header{
+    padding:12px 10px;
+  }
+
+  .logo{
+    font-size:21px;
+  }
+
+  #username{
+    display:none;
+  }
+
+  .tool-title{
+    font-size:24px;
+  }
+
+  .upload-area{
+    padding:30px 10px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">
+    iLovePDF<span>4</span>
+  </div>
+
+  <div class="user-area">
+    <span id="username">Loading...</span>
+    <button class="logout" onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<div class="container">
+
+<a href="home.html" class="back">← Back to All Tools</a>
+
+<div class="tool-box">
+
+  <h1 class="tool-title" id="toolTitle">PDF Tool</h1>
+
+  <p class="tool-description" id="toolDescription">
+    Select your file and start processing.
+  </p>
+
+  <label class="upload-area" for="fileInput">
+
+    <div class="upload-icon">📁</div>
+
+    <h3>Choose Files</h3>
+
+    <p>Click here to select your file</p>
+
+  </label>
+
+  <input
+    type="file"
+    id="fileInput"
+    multiple
+  >
+
+  <div id="fileList" class="file-list"></div>
+
+  <button
+    class="action-btn"
+    id="actionBtn"
+    onclick="processTool()"
+    disabled
+  >
+    Process File
+  </button>
+
+  <div class="status" id="status"></div>
+
+</div>
+
+
+<!-- PDF TOOLS -->
+
+<div class="tools-section">
+
+<h2 class="section-title">PDF Tools</h2>
+
+<div class="tools-grid">
+
+<div class="tool-card" onclick="openTool('pdf-to-word')">
+<div class="tool-icon">📄</div>
+<h3>PDF to Word</h3>
+<p>Convert PDF to Word</p>
+</div>
+
+<div class="tool-card" onclick="openTool('word-to-pdf')">
+<div class="tool-icon">📝</div>
+<h3>Word to PDF</h3>
+<p>Convert Word to PDF</p>
+</div>
+
+<div class="tool-card" onclick="openTool('pdf-to-jpg')">
+<div class="tool-icon">🖼️</div>
+<h3>PDF to JPG</h3>
+<p>Convert PDF pages to JPG</p>
+</div>
+
+<div class="tool-card" onclick="openTool('jpg-to-pdf')">
+<div class="tool-icon">📷</div>
+<h3>JPG to PDF</h3>
+<p>Convert images to PDF</p>
+</div>
+
+<div class="tool-card" onclick="openTool('png-to-pdf')">
+<div class="tool-icon">🖼️</div>
+<h3>PNG to PDF</h3>
+<p>Convert PNG to PDF</p>
+</div>
+
+<div class="tool-card" onclick="openTool('merge-pdf')">
+<div class="tool-icon">📚</div>
+<h3>Merge PDF</h3>
+<p>Combine multiple PDFs</p>
+</div>
+
+<div class="tool-card" onclick="openTool('split-pdf')">
+<div class="tool-icon">✂️</div>
+<h3>Split PDF</h3>
+<p>Split PDF pages</p>
+</div>
+
+<div class="tool-card" onclick="openTool('compress-pdf')">
+<div class="tool-icon">🗜️</div>
+<h3>Compress PDF</h3>
+<p>Reduce PDF size</p>
+</div>
+
+<div class="tool-card" onclick="openTool('rotate-pdf')">
+<div class="tool-icon">🔄</div>
+<h3>Rotate PDF</h3>
+<p>Rotate PDF pages</p>
+</div>
+
+<div class="tool-card" onclick="openTool('pdf-to-excel')">
+<div class="tool-icon">📊</div>
+<h3>PDF to Excel</h3>
+<p>Convert PDF to Excel</p>
+</div>
+
+<div class="tool-card" onclick="openTool('pdf-to-powerpoint')">
+<div class="tool-icon">📽️</div>
+<h3>PDF to PowerPoint</h3>
+<p>Convert PDF to PPT</p>
+</div>
+
+<div class="tool-card" onclick="openTool('protect-pdf')">
+<div class="tool-icon">🔐</div>
+<h3>Protect PDF</h3>
+<p>Password protect PDF</p>
+</div>
+
+<div class="tool-card" onclick="openTool('unlock-pdf')">
+<div class="tool-icon">🔓</div>
+<h3>Unlock PDF</h3>
+<p>Remove PDF password</p>
+</div>
+
+<div class="tool-card" onclick="openTool('pdf-watermark')">
+<div class="tool-icon">💧</div>
+<h3>PDF Watermark</h3>
+<p>Add watermark to PDF</p>
+</div>
+
+<div class="tool-card" onclick="openTool('page-number')">
+<div class="tool-icon">🔢</div>
+<h3>Page Number</h3>
+<p>Add page numbers</p>
+</div>
+
+</div>
+</div>
+
+
+<!-- IMAGE TOOLS -->
+
+<div class="tools-section">
+
+<h2 class="section-title">Image Tools</h2>
+
+<div class="tools-grid">
+
+<div class="tool-card" onclick="openTool('image-compress')">
+<div class="tool-icon">🗜️</div>
+<h3>Image Compress</h3>
+<p>Reduce image size</p>
+</div>
+
+<div class="tool-card" onclick="openTool('image-resize')">
+<div class="tool-icon">📐</div>
+<h3>Image Resize</h3>
+<p>Resize your image</p>
+</div>
+
+<div class="tool-card" onclick="openTool('jpg-to-png')">
+<div class="tool-icon">🖼️</div>
+<h3>JPG to PNG</h3>
+<p>Convert JPG to PNG</p>
+</div>
+
+<div class="tool-card" onclick="openTool('png-to-jpg')">
+<div class="tool-icon">🖼️</div>
+<h3>PNG to JPG</h3>
+<p>Convert PNG to JPG</p>
+</div>
+
+<div class="tool-card" onclick="openTool('image-convert')">
+<div class="tool-icon">🔄</div>
+<h3>Image Convert</h3>
+<p>Convert image format</p>
+</div>
+
+</div>
+</div>
+
+
+<!-- DOCUMENT TOOLS -->
+
+<div class="tools-section">
+
+<h2 class="section-title">Document Tools</h2>
+
+<div class="tools-grid">
+
+<div class="tool-card" onclick="openTool('excel-to-pdf')">
+<div class="tool-icon">📊</div>
+<h3>Excel to PDF</h3>
+<p>Convert Excel to PDF</p>
+</div>
+
+<div class="tool-card" onclick="openTool('powerpoint-to-pdf')">
+<div class="tool-icon">📽️</div>
+<h3>PowerPoint to PDF</h3>
+<p>Convert PPT to PDF</p>
+</div>
+
+<div class="tool-card" onclick="openTool('word-compress')">
+<div class="tool-icon">🗜️</div>
+<h3>Word Compress</h3>
+<p>Reduce Word file size</p>
+</div>
+
+</div>
+</div>
+
+</div>
+
+<footer>
+© 2026 iLovePDF4 — All Tools
+</footer>
+
+
+<script>
+
+const tools = {
+
+  "pdf-to-word":{
+    title:"PDF to Word",
+    desc:"Convert your PDF file into an editable Word document."
+  },
+
+  "word-to-pdf":{
+    title:"Word to PDF",
+    desc:"Convert your Word document into PDF."
+  },
+
+  "pdf-to-jpg":{
+    title:"PDF to JPG",
+    desc:"Convert PDF pages into JPG images."
+  },
+
+  "jpg-to-pdf":{
+    title:"JPG to PDF",
+    desc:"Convert JPG images into PDF."
+  },
+
+  "png-to-pdf":{
+    title:"PNG to PDF",
+    desc:"Convert PNG images into PDF."
+  },
+
+  "merge-pdf":{
+    title:"Merge PDF",
+    desc:"Combine multiple PDF files into one PDF."
+  },
+
+  "split-pdf":{
+    title:"Split PDF",
+    desc:"Split your PDF into separate files."
+  },
+
+  "compress-pdf":{
+    title:"Compress PDF",
+    desc:"Reduce the size of your PDF file."
+  },
+
+  "rotate-pdf":{
+    title:"Rotate PDF",
+    desc:"Rotate PDF pages easily."
+  },
+
+  "pdf-to-excel":{
+    title:"PDF to Excel",
+    desc:"Convert PDF tables into Excel."
+  },
+
+  "pdf-to-powerpoint":{
+    title:"PDF to PowerPoint",
+    desc:"Convert PDF into PowerPoint."
+  },
+
+  "protect-pdf":{
+    title:"Protect PDF",
+    desc:"Protect your PDF with a password."
+  },
+
+  "unlock-pdf":{
+    title:"Unlock PDF",
+    desc:"Remove password protection from PDF."
+  },
+
+  "pdf-watermark":{
+    title:"PDF Watermark",
+    desc:"Add a watermark to your PDF."
+  },
+
+  "page-number":{
+    title:"PDF Page Number",
+    desc:"Add page numbers to your PDF."
+  },
+
+  "image-compress":{
+    title:"Image Compress",
+    desc:"Reduce image file size."
+  },
+
+  "image-resize":{
+    title:"Image Resize",
+    desc:"Resize your image quickly."
+  },
+
+  "jpg-to-png":{
+    title:"JPG to PNG",
+    desc:"Convert JPG images into PNG."
+  },
+
+  "png-to-jpg":{
+    title:"PNG to JPG",
+    desc:"Convert PNG images into JPG."
+  },
+
+  "image-convert":{
+    title:"Image Convert",
+    desc:"Convert your image to another format."
+  },
+
+  "excel-to-pdf":{
+    title:"Excel to PDF",
+    desc:"Convert Excel documents into PDF."
+  },
+
+  "powerpoint-to-pdf":{
+    title:"PowerPoint to PDF",
+    desc:"Convert PowerPoint into PDF."
+  },
+
+  "word-compress":{
+    title:"Word Compress",
+    desc:"Reduce the size of your Word document."
+  }
+
+};
+
+
+let selectedFiles = [];
+
+const params = new URLSearchParams(window.location.search);
+const toolName = params.get("tool");
+
+const title = document.getElementById("toolTitle");
+const description = document.getElementById("toolDescription");
+const fileInput = document.getElementById("fileInput");
+const fileList = document.getElementById("fileList");
+const actionBtn = document.getElementById("actionBtn");
+const status = document.getElementById("status");
+
+
+function loadTool(){
+
+  if(toolName && tools[toolName]){
+
+    title.textContent = tools[toolName].title;
+    description.textContent = tools[toolName].desc;
+
+    document.title =
+      "iLovePDF4 - " + tools[toolName].title;
+
+  }
+
+}
+
+
+function openTool(tool){
+
+  window.location.href =
+    "tools.html?tool=" + encodeURIComponent(tool);
+
+}
+
+
+fileInput.addEventListener("change", function(){
+
+  selectedFiles = Array.from(this.files);
+
+  showFiles();
+
+});
+
+
+function showFiles(){
+
+  fileList.innerHTML = "";
+
+  if(selectedFiles.length === 0){
+
+    actionBtn.disabled = true;
+
+    return;
+
+  }
+
+  selectedFiles.forEach((file,index)=>{
+
+    const item = document.createElement("div");
+
+    item.className = "file-item";
+
+    item.innerHTML = `
+      <span class="file-name">
+        ${escapeHtml(file.name)}
+      </span>
+
+      <button
+        class="remove-file"
+        onclick="removeFile(${index})"
+      >
+        ×
+      </button>
+    `;
+
+    fileList.appendChild(item);
+
+  });
+
+  actionBtn.disabled = false;
+
+}
+
+
+function removeFile(index){
+
+  selectedFiles.splice(index,1);
+
+  showFiles();
+
+}
+
+
+function escapeHtml(text){
+
+  const div = document.createElement("div");
+
+  div.textContent = text;
+
+  return div.innerHTML;
+
+}
+
+
+async function processTool(){
+
+  if(selectedFiles.length === 0){
+
+    status.textContent =
+      "Please select a file first.";
+
+    return;
+
+  }
+
+  status.textContent =
+    "File selected successfully. Processing system will be connected next.";
+
+}
+
+
+async function checkLogin(){
+
+  try{
+
+    const response =
+      await fetch("/api/me",{
+        credentials:"include"
+      });
+
+    if(!response.ok){
+
+      window.location.href =
+        "login.html";
+
+      return;
+
+    }
+
+    const data =
+      await response.json();
+
+    if(!data.loggedIn){
+
+      window.location.href =
+        "login.html";
+
+      return;
+
+    }
+
+    document.getElementById("username").textContent =
+      "User: " + data.user.username;
+
+  }catch(error){
+
+    window.location.href =
+      "login.html";
+
+  }
+
+}
+
+
+async function logout(){
+
+  try{
+
+    await fetch("/api/logout",{
+      method:"POST",
+      credentials:"include"
+    });
+
+  }catch(error){}
+
+  window.location.href =
+    "login.html";
+
+}
+
+
+loadTool();
+checkLogin();
+
+</script>
+
+</body>
+</html>
