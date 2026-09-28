@@ -1,7 +1,55 @@
-```javascript
 import { json, setCookie } from "./_utils.js";
 
-export async function onRequestPost({ request }) {
+function toBase64(buffer) {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+
+  return btoa(binary);
+}
+
+function fromBase64(base64) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+
+  return bytes;
+}
+
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    "PBKDF2",
+    false,
+    ["deriveBits"]
+  );
+
+  const hash = await crypto.subtle.deriveBits(
+    {
+      name: "PBKDF2",
+      salt,
+      iterations: 100000,
+      hash: "SHA-256"
+    },
+    keyMaterial,
+    256
+  );
+
+  return `${toBase64(salt)}:${toBase64(hash)}`;
+}
+
+export async function onRequestPost({ request, env }) {
   try {
     const body = await request.json();
 
@@ -40,7 +88,7 @@ export async function onRequestPost({ request }) {
       );
     }
 
-    if (!email.endsWith("@gmail.com")) {
+    if (!/^[^@\s]+@gmail\.com$/i.test(email)) {
       return json(
         {
           success: false,
@@ -59,6 +107,44 @@ export async function onRequestPost({ request }) {
         400
       );
     }
+
+    if (!env.DB) {
+      return json(
+        {
+          success: false,
+          message: "Database connection is not configured"
+        },
+        500
+      );
+    }
+
+    const existing = await env.DB.prepare(
+      `SELECT id FROM users
+       WHERE username = ? OR mobile = ? OR email = ?
+       LIMIT 1`
+    )
+      .bind(username, mobile, email)
+      .first();
+
+    if (existing) {
+      return json(
+        {
+          success: false,
+          message: "Username, mobile number or Gmail already exists"
+        },
+        409
+      );
+    }
+
+    const passwordHash = await hashPassword(password);
+
+    await env.DB.prepare(
+      `INSERT INTO users
+       (username, mobile, email, password_hash, email_verified, mobile_verified, is_admin)
+       VALUES (?, ?, ?, ?, 0, 0, 0)`
+    )
+      .bind(username, mobile, email, passwordHash)
+      .run();
 
     return json(
       {
@@ -80,10 +166,9 @@ export async function onRequestPost({ request }) {
     return json(
       {
         success: false,
-        message: "Invalid request"
+        message: "Registration failed"
       },
-      400
+      500
     );
   }
 }
-```
