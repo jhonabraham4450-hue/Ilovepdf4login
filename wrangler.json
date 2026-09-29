@@ -19,7 +19,9 @@
     }
   ],
 
-  "vars": {
-    "CLOUDCONVERT_API_KEY": ""
+  "secrets": {
+    "required": [
+      "CLOUDCONVERT_API_KEY"
+    ]
   }
 }
