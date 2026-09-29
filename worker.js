@@ -57,14 +57,9 @@ export default {
 
   async fetch(request, env, ctx) {
 
-    const url =
-      new URL(request.url);
-
-    const pathname =
-      url.pathname;
-
-    const method =
-      request.method.toUpperCase();
+    const url = new URL(request.url);
+    const pathname = url.pathname;
+    const method = request.method.toUpperCase();
 
 
     /*
@@ -89,17 +84,13 @@ export default {
         return new Response(
           JSON.stringify({
             success: false,
-            error:
-              error?.message ||
-              "Server error"
+            error: error?.message || "Server error"
           }),
           {
             status: 500,
             headers: {
-              "Content-Type":
-                "application/json",
-              "Cache-Control":
-                "no-store"
+              "Content-Type": "application/json",
+              "Cache-Control": "no-store"
             }
           }
         );
@@ -110,12 +101,10 @@ export default {
 
 
     /*
-      Unknown API route
+      UNKNOWN API ROUTE
     */
 
-    if (
-      pathname.startsWith("/api/")
-    ) {
+    if (pathname.startsWith("/api/")) {
 
       return new Response(
         JSON.stringify({
@@ -125,10 +114,8 @@ export default {
         {
           status: 404,
           headers: {
-            "Content-Type":
-              "application/json",
-            "Cache-Control":
-              "no-store"
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store"
           }
         }
       );
@@ -152,8 +139,7 @@ export default {
       {
         status: 200,
         headers: {
-          "Content-Type":
-            "text/plain"
+          "Content-Type": "text/plain"
         }
       }
     );
