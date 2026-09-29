@@ -1,8 +1,13 @@
-export async function onRequestPost({ request, env }) {
+import { env as workerEnv } from "cloudflare:workers";
+
+export async function onRequestPost({ request }) {
   try {
-    if (!env.CLOUDCONVERT_API_KEY) {
+    const apiKey = workerEnv.CLOUDCONVERT_API_KEY;
+
+    if (!apiKey) {
       return json({
-        error: "CLOUDCONVERT_API_KEY is not configured in Cloudflare."
+        success: false,
+        error: "CLOUDCONVERT_API_KEY is not available in the Production Worker."
       }, 500);
     }
 
@@ -27,7 +32,15 @@ export async function onRequestPost({ request, env }) {
 
     if (!outputFormat) {
       return json({
-        error: "This tool does not use the conversion backend."
+        success: false,
+        error: "This tool does not use the CloudConvert backend."
+      }, 400);
+    }
+
+    if (!inputFormat) {
+      return json({
+        success: false,
+        error: "Could not detect the input file format."
       }, 400);
     }
 
@@ -57,11 +70,8 @@ export async function onRequestPost({ request, env }) {
         method: "POST",
 
         headers: {
-          "Authorization":
-            `Bearer ${env.CLOUDCONVERT_API_KEY}`,
-
-          "Content-Type":
-            "application/json"
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
         },
 
         body: JSON.stringify(payload)
@@ -72,13 +82,15 @@ export async function onRequestPost({ request, env }) {
 
     if (!response.ok) {
       return json({
+        success: false,
         error:
-          result.message ||
+          result?.message ||
+          result?.data?.message ||
           "CloudConvert job creation failed."
       }, response.status);
     }
 
-    const tasks = result.data?.tasks || [];
+    const tasks = result?.data?.tasks || [];
 
     const uploadTask = tasks.find(
       task =>
@@ -92,37 +104,37 @@ export async function onRequestPost({ request, env }) {
       !uploadTask.result.form
     ) {
       return json({
-        error:
-          "CloudConvert did not return an upload form."
+        success: false,
+        error: "CloudConvert did not return an upload form."
       }, 502);
     }
 
     return json({
+      success: true,
       jobId: result.data.id,
       form: uploadTask.result.form
     });
 
   } catch (error) {
-
     return json({
-      error:
-        error.message ||
-        "Server error."
+      success: false,
+      error: error?.message || "Server error."
     }, 500);
   }
 }
 
 
 function getExtension(filename) {
-
   const clean = filename
     .split("?")[0]
+    .split("#")[0]
     .toLowerCase();
 
-  let extension =
-    clean.includes(".")
-      ? clean.split(".").pop()
-      : "";
+  let extension = "";
+
+  if (clean.includes(".")) {
+    extension = clean.split(".").pop();
+  }
 
   if (extension === "jpeg") {
     extension = "jpg";
@@ -133,18 +145,13 @@ function getExtension(filename) {
 
 
 function json(data, status = 200) {
-
   return new Response(
     JSON.stringify(data),
     {
       status,
-
       headers: {
-        "Content-Type":
-          "application/json",
-
-        "Cache-Control":
-          "no-store"
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store"
       }
     }
   );
