@@ -63,6 +63,34 @@ export default {
 
 
     /*
+      SECRET DIAGNOSTIC
+      Does NOT expose the API key.
+    */
+
+    if (
+      pathname === "/api/check-cloudconvert-key" &&
+      method === "GET"
+    ) {
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          cloudconvert_key_configured:
+            Boolean(env.CLOUDCONVERT_API_KEY)
+        }),
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store"
+          }
+        }
+      );
+
+    }
+
+
+    /*
       API ROUTES
     */
 
@@ -84,7 +112,9 @@ export default {
         return new Response(
           JSON.stringify({
             success: false,
-            error: error?.message || "Server error"
+            error:
+              error?.message ||
+              "Server error"
           }),
           {
             status: 500,
@@ -104,7 +134,9 @@ export default {
       UNKNOWN API ROUTE
     */
 
-    if (pathname.startsWith("/api/")) {
+    if (
+      pathname.startsWith("/api/")
+    ) {
 
       return new Response(
         JSON.stringify({
