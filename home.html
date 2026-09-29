@@ -1,420 +1,679 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>iLovePDF4 - All PDF Tools</title>
+<title>iLovePDF4 - All Tools</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+<style>
+*{
+  box-sizing:border-box;
+}
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      color: #222;
-    }
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f5f7fb;
+  color:#222;
+}
 
-    header {
-      background: #fff;
-      padding: 18px 25px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 12px rgba(0,0,0,.08);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
+header{
+  background:#fff;
+  padding:15px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  box-shadow:0 2px 12px rgba(0,0,0,.08);
+  position:sticky;
+  top:0;
+  z-index:100;
+}
 
-    .logo {
-      color: #e53232;
-      font-size: 30px;
-      font-weight: bold;
-    }
+.logo{
+  color:#e53232;
+  font-size:28px;
+  font-weight:bold;
+}
 
-    .user-area {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
+.user-area{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
 
-    #username {
-      font-size: 17px;
-      color: #444;
-    }
+#username{
+  font-size:15px;
+  color:#444;
+}
 
-    .logout {
-      border: 0;
-      background: #e53232;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 15px;
-      cursor: pointer;
-    }
+.nav-btn{
+  border:0;
+  background:#333;
+  color:#fff;
+  padding:10px 14px;
+  border-radius:8px;
+  font-size:14px;
+  font-weight:bold;
+  cursor:pointer;
+}
 
-    .logout:hover {
-      background: #c92525;
-    }
+.logout{
+  border:0;
+  background:#e53232;
+  color:#fff;
+  padding:10px 14px;
+  border-radius:8px;
+  font-size:14px;
+  font-weight:bold;
+  cursor:pointer;
+}
 
-    .hero {
-      text-align: center;
-      padding: 55px 20px 35px;
-    }
+.hero{
+  text-align:center;
+  padding:45px 20px 30px;
+}
 
-    .hero h1 {
-      margin: 0;
-      font-size: 42px;
-    }
+.hero h1{
+  margin:0;
+  font-size:40px;
+}
 
-    .hero h1 span {
-      color: #e53232;
-    }
+.hero h1 span{
+  color:#e53232;
+}
 
-    .hero p {
-      color: #666;
-      font-size: 18px;
-      margin-top: 12px;
-    }
+.hero p{
+  color:#666;
+  font-size:17px;
+  margin-top:12px;
+}
 
-    .container {
-      width: 92%;
-      max-width: 1200px;
-      margin: auto;
-      padding-bottom: 60px;
-    }
+.container{
+  width:92%;
+  max-width:1200px;
+  margin:auto;
+  padding-bottom:50px;
+}
 
-    .section-title {
-      font-size: 27px;
-      margin: 35px 0 20px;
-      border-left: 5px solid #e53232;
-      padding-left: 12px;
-    }
+.section-title{
+  font-size:26px;
+  margin:35px 0 18px;
+  border-left:5px solid #e53232;
+  padding-left:12px;
+}
 
-    .tools-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px;
-    }
+.tools-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
+}
 
-    .tool-card {
-      background: white;
-      padding: 25px;
-      border-radius: 14px;
-      box-shadow: 0 4px 18px rgba(0,0,0,.08);
-      transition: .2s;
-    }
+.tool-card{
+  background:#fff;
+  padding:22px 18px;
+  border-radius:14px;
+  box-shadow:0 3px 15px rgba(0,0,0,.07);
+  transition:.2s;
+  text-align:center;
+  border:1px solid #eee;
+}
 
-    .tool-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 25px rgba(0,0,0,.12);
-    }
+.tool-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 8px 24px rgba(0,0,0,.12);
+}
 
-    .icon {
-      font-size: 38px;
-      margin-bottom: 10px;
-    }
+.icon{
+  font-size:38px;
+  margin-bottom:10px;
+}
 
-    .tool-card h3 {
-      margin: 5px 0 10px;
-      font-size: 20px;
-    }
+.tool-card h3{
+  margin:6px 0 9px;
+  font-size:18px;
+}
 
-    .tool-card p {
-      color: #666;
-      min-height: 45px;
-      line-height: 1.5;
-    }
+.tool-card p{
+  color:#666;
+  line-height:1.45;
+  min-height:43px;
+  font-size:14px;
+}
 
-    .open-tool {
-      width: 100%;
-      margin-top: 12px;
-      padding: 12px;
-      border: 0;
-      border-radius: 8px;
-      background: #e53232;
-      color: white;
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-    }
+.open-tool{
+  width:100%;
+  margin-top:10px;
+  padding:11px;
+  border:0;
+  border-radius:8px;
+  background:#e53232;
+  color:#fff;
+  font-size:14px;
+  font-weight:bold;
+  cursor:pointer;
+}
 
-    .open-tool:hover {
-      background: #c92525;
-    }
+.open-tool:hover{
+  background:#c92525;
+}
 
-    footer {
-      background: #222;
-      color: #bbb;
-      text-align: center;
-      padding: 25px;
-      margin-top: 30px;
-    }
+footer{
+  background:#222;
+  color:#bbb;
+  text-align:center;
+  padding:25px;
+  margin-top:30px;
+}
 
-    @media (max-width: 600px) {
-      header {
-        padding: 15px;
-      }
+@media(max-width:900px){
+  .tools-grid{
+    grid-template-columns:repeat(3,1fr);
+  }
+}
 
-      .logo {
-        font-size: 24px;
-      }
+@media(max-width:650px){
 
-      #username {
-        font-size: 14px;
-      }
+  header{
+    padding:13px 12px;
+  }
 
-      .logout {
-        padding: 10px 13px;
-      }
+  .logo{
+    font-size:22px;
+  }
 
-      .hero h1 {
-        font-size: 32px;
-      }
+  #username{
+    display:none;
+  }
 
-      .hero p {
-        font-size: 16px;
-      }
+  .nav-btn,
+  .logout{
+    padding:9px 10px;
+    font-size:12px;
+  }
 
-      .section-title {
-        font-size: 23px;
-      }
-    }
-  </style>
+  .hero{
+    padding:35px 15px 25px;
+  }
+
+  .hero h1{
+    font-size:31px;
+  }
+
+  .hero p{
+    font-size:15px;
+  }
+
+  .tools-grid{
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+  }
+
+  .tool-card{
+    padding:18px 10px;
+  }
+
+  .icon{
+    font-size:30px;
+  }
+
+  .tool-card h3{
+    font-size:15px;
+  }
+
+  .tool-card p{
+    font-size:12px;
+  }
+
+  .section-title{
+    font-size:22px;
+  }
+}
+</style>
 </head>
 
 <body>
 
 <header>
-  <div class="logo">iLovePDF4</div>
+
+  <div class="logo">
+    iLovePDF4
+  </div>
 
   <div class="user-area">
-    <span id="username">Loading...</span>
-    <button class="logout" onclick="logout()">Logout</button>
+
+    <span id="username">
+      Loading...
+    </span>
+
+    <button class="nav-btn" onclick="goAllTools()">
+      All Tools
+    </button>
+
+    <button class="logout" onclick="logout()">
+      Logout
+    </button>
+
   </div>
+
 </header>
 
+
 <section class="hero">
-  <h1>Welcome to <span>iLovePDF4</span></h1>
-  <p>All your PDF, document and image tools in one place.</p>
+
+  <h1>
+    Welcome to <span>iLovePDF4</span>
+  </h1>
+
+  <p>
+    All your PDF, document and image tools in one place.
+  </p>
+
 </section>
+
 
 <div class="container">
 
-  <!-- PDF TOOLS -->
-  <h2 class="section-title">📄 PDF Tools</h2>
 
-  <div class="tools-grid">
+<!-- PDF CONVERTER -->
 
-    <div class="tool-card">
-      <div class="icon">📄</div>
-      <h3>PDF to Word</h3>
-      <p>Convert PDF files into editable Word documents.</p>
-      <button class="open-tool" onclick="openTool('pdf-to-word')">Open Tool</button>
-    </div>
+<h2 class="section-title">
+📄 PDF Converter
+</h2>
 
-    <div class="tool-card">
-      <div class="icon">📝</div>
-      <h3>Word to PDF</h3>
-      <p>Convert Word documents into PDF files.</p>
-      <button class="open-tool" onclick="openTool('word-to-pdf')">Open Tool</button>
-    </div>
+<div class="tools-grid">
 
-    <div class="tool-card">
-      <div class="icon">🖼️</div>
-      <h3>JPG to PDF</h3>
-      <p>Convert JPG images into PDF documents.</p>
-      <button class="open-tool" onclick="openTool('jpg-to-pdf')">Open Tool</button>
-    </div>
+<div class="tool-card">
+<div class="icon">📄</div>
+<h3>PDF to Word</h3>
+<p>Convert PDF files to editable Word documents.</p>
+<button class="open-tool" onclick="openTool('pdf-to-word')">Open Tool</button>
+</div>
 
-    <div class="tool-card">
-      <div class="icon">🖼️</div>
-      <h3>PNG to PDF</h3>
-      <p>Convert PNG images into PDF documents.</p>
-      <button class="open-tool" onclick="openTool('png-to-pdf')">Open Tool</button>
-    </div>
+<div class="tool-card">
+<div class="icon">📝</div>
+<h3>Word to PDF</h3>
+<p>Convert Word documents into PDF files.</p>
+<button class="open-tool" onclick="openTool('word-to-pdf')">Open Tool</button>
+</div>
 
-    <div class="tool-card">
-      <div class="icon">📑</div>
-      <h3>Merge PDF</h3>
-      <p>Combine multiple PDF files into one PDF.</p>
-      <button class="open-tool" onclick="openTool('merge-pdf')">Open Tool</button>
-    </div>
+<div class="tool-card">
+<div class="icon">📊</div>
+<h3>PDF to PowerPoint</h3>
+<p>Convert PDF files to PowerPoint presentations.</p>
+<button class="open-tool" onclick="openTool('pdf-to-powerpoint')">Open Tool</button>
+</div>
 
-    <div class="tool-card">
-      <div class="icon">✂️</div>
-      <h3>Split PDF</h3>
-      <p>Split a PDF into separate pages or files.</p>
-      <button class="open-tool" onclick="openTool('split-pdf')">Open Tool</button>
-    </div>
+<div class="tool-card">
+<div class="icon">📽️</div>
+<h3>PowerPoint to PDF</h3>
+<p>Convert presentations into PDF files.</p>
+<button class="open-tool" onclick="openTool('powerpoint-to-pdf')">Open Tool</button>
+</div>
 
-    <div class="tool-card">
-      <div class="icon">🗜️</div>
-      <h3>Compress PDF</h3>
-      <p>Reduce PDF file size while maintaining quality.</p>
-      <button class="open-tool" onclick="openTool('compress-pdf')">Open Tool</button>
-    </div>
+<div class="tool-card">
+<div class="icon">📗</div>
+<h3>PDF to Excel</h3>
+<p>Convert PDF tables into Excel files.</p>
+<button class="open-tool" onclick="openTool('pdf-to-excel')">Open Tool</button>
+</div>
 
-    <div class="tool-card">
-      <div class="icon">🔄</div>
-      <h3>Rotate PDF</h3>
-      <p>Rotate PDF pages to the correct orientation.</p>
-      <button class="open-tool" onclick="openTool('rotate-pdf')">Open Tool</button>
-    </div>
+<div class="tool-card">
+<div class="icon">📈</div>
+<h3>Excel to PDF</h3>
+<p>Convert Excel spreadsheets into PDF.</p>
+<button class="open-tool" onclick="openTool('excel-to-pdf')">Open Tool</button>
+</div>
 
-    <div class="tool-card">
-      <div class="icon">🔢</div>
-      <h3>PDF Page Number</h3>
-      <p>Add page numbers to your PDF files.</p>
-      <button class="open-tool" onclick="openTool('page-number')">Open Tool</button>
-    </div>
+<div class="tool-card">
+<div class="icon">🖼️</div>
+<h3>JPG to PDF</h3>
+<p>Convert JPG images into PDF.</p>
+<button class="open-tool" onclick="openTool('jpg-to-pdf')">Open Tool</button>
+</div>
 
-    <div class="tool-card">
-      <div class="icon">💧</div>
-      <h3>PDF Watermark</h3>
-      <p>Add a watermark to your PDF document.</p>
-      <button class="open-tool" onclick="openTool('watermark-pdf')">Open Tool</button>
-    </div>
+<div class="tool-card">
+<div class="icon">🖼️</div>
+<h3>PNG to PDF</h3>
+<p>Convert PNG images into PDF.</p>
+<button class="open-tool" onclick="openTool('png-to-pdf')">Open Tool</button>
+</div>
 
-    <div class="tool-card">
-      <div class="icon">🔐</div>
-      <h3>Protect PDF</h3>
-      <p>Add password protection to PDF files.</p>
-      <button class="open-tool" onclick="openTool('protect-pdf')">Open Tool</button>
-    </div>
-
-    <div class="tool-card">
-      <div class="icon">🔓</div>
-      <h3>Unlock PDF</h3>
-      <p>Remove password protection from supported PDFs.</p>
-      <button class="open-tool" onclick="openTool('unlock-pdf')">Open Tool</button>
-    </div>
-
-  </div>
-
-  <!-- IMAGE TOOLS -->
-  <h2 class="section-title">🖼️ Image Tools</h2>
-
-  <div class="tools-grid">
-
-    <div class="tool-card">
-      <div class="icon">🗜️</div>
-      <h3>Image Compress</h3>
-      <p>Compress images and reduce their file size.</p>
-      <button class="open-tool" onclick="openTool('image-compress')">Open Tool</button>
-    </div>
-
-    <div class="tool-card">
-      <div class="icon">📐</div>
-      <h3>Image Resize</h3>
-      <p>Resize images to your required dimensions.</p>
-      <button class="open-tool" onclick="openTool('image-resize')">Open Tool</button>
-    </div>
-
-    <div class="tool-card">
-      <div class="icon">🔄</div>
-      <h3>JPG to PNG</h3>
-      <p>Convert JPG images into PNG format.</p>
-      <button class="open-tool" onclick="openTool('jpg-to-png')">Open Tool</button>
-    </div>
-
-    <div class="tool-card">
-      <div class="icon">🔄</div>
-      <h3>PNG to JPG</h3>
-      <p>Convert PNG images into JPG format.</p>
-      <button class="open-tool" onclick="openTool('png-to-jpg')">Open Tool</button>
-    </div>
-
-  </div>
-
-  <!-- DOCUMENT TOOLS -->
-  <h2 class="section-title">📚 Document Tools</h2>
-
-  <div class="tools-grid">
-
-    <div class="tool-card">
-      <div class="icon">📊</div>
-      <h3>Excel to PDF</h3>
-      <p>Convert Excel spreadsheets into PDF files.</p>
-      <button class="open-tool" onclick="openTool('excel-to-pdf')">Open Tool</button>
-    </div>
-
-    <div class="tool-card">
-      <div class="icon">📽️</div>
-      <h3>PowerPoint to PDF</h3>
-      <p>Convert PowerPoint presentations into PDF.</p>
-      <button class="open-tool" onclick="openTool('ppt-to-pdf')">Open Tool</button>
-    </div>
-
-    <div class="tool-card">
-      <div class="icon">📄</div>
-      <h3>PDF to Excel</h3>
-      <p>Convert supported PDF tables into Excel.</p>
-      <button class="open-tool" onclick="openTool('pdf-to-excel')">Open Tool</button>
-    </div>
-
-    <div class="tool-card">
-      <div class="icon">📊</div>
-      <h3>PDF to PowerPoint</h3>
-      <p>Convert supported PDF documents into PowerPoint.</p>
-      <button class="open-tool" onclick="openTool('pdf-to-ppt')">Open Tool</button>
-    </div>
-
-  </div>
+<div class="tool-card">
+<div class="icon">📷</div>
+<h3>Image to PDF</h3>
+<p>Convert images into PDF documents.</p>
+<button class="open-tool" onclick="openTool('image-to-pdf')">Open Tool</button>
+</div>
 
 </div>
 
+
+<!-- PDF ORGANIZER -->
+
+<h2 class="section-title">
+📑 Organize PDF
+</h2>
+
+<div class="tools-grid">
+
+<div class="tool-card">
+<div class="icon">🔗</div>
+<h3>Merge PDF</h3>
+<p>Combine multiple PDF files into one.</p>
+<button class="open-tool" onclick="openTool('merge-pdf')">Open Tool</button>
+</div>
+
+<div class="tool-card">
+<div class="icon">✂️</div>
+<h3>Split PDF</h3>
+<p>Split PDF files into separate documents.</p>
+<button class="open-tool" onclick="openTool('split-pdf')">Open Tool</button>
+</div>
+
+<div class="tool-card">
+<div class="icon">🗑️</div>
+<h3>Remove Pages</h3>
+<p>Remove unwanted pages from PDF files.</p>
+<button class="open-tool" onclick="openTool('remove-pages')">Open Tool</button>
+</div>
+
+<div class="tool-card">
+<div class="icon">📑</div>
+<h3>Extract Pages</h3>
+<p>Extract selected pages from PDF files.</p>
+<button class="open-tool" onclick="openTool('extract-pages')">Open Tool</button>
+</div>
+
+<div class="tool-card">
+<div class="icon">🔄</div>
+<h3>Rotate PDF</h3>
+<p>Rotate PDF pages easily.</p>
+<button class="open-tool" onclick="openTool('rotate-pdf')">Open Tool</button>
+</div>
+
+<div class="tool-card">
+<div class="icon">↔️</div>
+<h3>Resize PDF</h3>
+<p>Resize PDF pages and documents.</p>
+<button class="open-tool" onclick="openTool('resize-pdf')">Open Tool</button>
+</div>
+
+<div class="tool-card">
+<div class="icon">✂️</div>
+<h3>Crop PDF</h3>
+<p>Crop PDF pages to the required area.</p>
+<button class="open-tool" onclick="openTool('crop-pdf')">Open Tool</button>
+</div>
+
+</div>
+
+
+<!-- PDF SECURITY -->
+
+<h2 class="section-title">
+🔐 PDF Security
+</h2>
+
+<div class="tools-grid">
+
+<div class="tool-card">
+<div class="icon">🔐</div>
+<h3>Protect PDF</h3>
+<p>Add password protection to PDF files.</p>
+<button class="open-tool" onclick="openTool('protect-pdf')">Open Tool</button>
+</div>
+
+<div class="tool-card">
+<div class="icon">🔓</div>
+<h3>Unlock PDF</h3>
+<p>Remove PDF restrictions where permitted.</p>
+<button class="open-tool" onclick="openTool('unlock-pdf')">Open Tool</button>
+</div>
+
+<div class="tool-card">
+<div class="icon">⬛</div>
+<h3>Redact PDF</h3>
+<p>Hide sensitive information in PDF files.</p>
+<button class="open-tool" onclick="openTool('redact-pdf')">Open Tool</button>
+</div>
+
+<div class="tool-card">
+<div class="icon">✍️</div>
+<h3>Sign PDF</h3>
+<p>Add a signature to your PDF.</p>
+<button class="open-tool" onclick="openTool('sign-pdf')">Open Tool</button>
+</div>
+
+<div class="tool-card">
+<div class="icon">💧</div>
+<h3>Watermark PDF</h3>
+<p>Add a watermark to PDF pages.</p>
+<button class="open-tool" onclick="openTool('watermark-pdf')">Open Tool</button>
+</div>
+
+<div class="tool-card">
+<div class="icon">🔢</div>
+<h3>Page Numbers</h3>
+<p>Add page numbers to PDF documents.</p>
+<button class="open-tool" onclick="openTool('page-numbers')">Open Tool</button>
+</div>
+
+</div>
+
+
+<!-- PDF OPTIMIZATION -->
+
+<h2 class="section-title">
+📦 PDF Optimization
+</h2>
+
+<div class="tools-grid">
+
+<div class="tool-card">
+<div class="icon">📦</div>
+<h3>Compress PDF</h3>
+<p>Reduce PDF file size.</p>
+<button class="open-tool" onclick="openTool('compress-pdf')">Open Tool</button>
+</div>
+
+<div class="tool-card">
+<div class="icon">🔎</div>
+<h3>OCR PDF</h3>
+<p>Recognize text inside PDF documents.</p>
+<button class="open-tool" onclick="openTool('ocr-pdf')">Open Tool</button>
+</div>
+
+</div>
+
+
+<!-- SCANNER -->
+
+<h2 class="section-title">
+📷 Scanner
+</h2>
+
+<div class="tools-grid">
+
+<div class="tool-card">
+<div class="icon">📷</div>
+<h3>PDF Scanner</h3>
+<p>Scan documents with your phone camera and create PDF.</p>
+<button class="open-tool" onclick="openTool('pdf-scanner')">Open Tool</button>
+</div>
+
+</div>
+
+
+<!-- IMAGE TOOLS -->
+
+<h2 class="section-title">
+🖼️ Image Tools
+</h2>
+
+<div class="tools-grid">
+
+<div class="tool-card">
+<div class="icon">🔄</div>
+<h3>JPG to PNG</h3>
+<p>Convert JPG images into PNG.</p>
+<button class="open-tool" onclick="openTool('jpg-to-png')">Open Tool</button>
+</div>
+
+<div class="tool-card">
+<div class="icon">🔄</div>
+<h3>PNG to JPG</h3>
+<p>Convert PNG images into JPG.</p>
+<button class="open-tool" onclick="openTool('png-to-jpg')">Open Tool</button>
+</div>
+
+<div class="tool-card">
+<div class="icon">📷</div>
+<h3>Image to JPG</h3>
+<p>Convert images into JPG format.</p>
+<button class="open-tool" onclick="openTool('image-to-jpg')">Open Tool</button>
+</div>
+
+<div class="tool-card">
+<div class="icon">↔️</div>
+<h3>Resize Image</h3>
+<p>Resize images to required dimensions.</p>
+<button class="open-tool" onclick="openTool('resize-image')">Open Tool</button>
+</div>
+
+<div class="tool-card">
+<div class="icon">📦</div>
+<h3>Compress Image</h3>
+<p>Reduce image file size.</p>
+<button class="open-tool" onclick="openTool('compress-image')">Open Tool</button>
+</div>
+
+<div class="tool-card">
+<div class="icon">🔤</div>
+<h3>Image OCR</h3>
+<p>Extract text from images.</p>
+<button class="open-tool" onclick="openTool('image-ocr')">Open Tool</button>
+</div>
+
+</div>
+
+
+</div>
+
+
 <footer>
-  <p>© 2026 iLovePDF4 — PDF & Document Tools</p>
+
+<p>
+<strong>iLovePDF4</strong>
+</p>
+
+<p>
+All your PDF, document and image tools in one place.
+</p>
+
+<p>
+© 2026 iLovePDF4 — All rights reserved.
+</p>
+
 </footer>
+
 
 <script>
 
-  async function checkLogin() {
-    try {
-      const response = await fetch("/api/me");
+async function checkLogin(){
 
-      if (!response.ok) {
-        window.location.href = "login.html";
-        return;
-      }
+  try{
 
-      const data = await response.json();
+    const response =
+      await fetch("/api/me");
 
-      if (!data.loggedIn) {
-        window.location.href = "login.html";
-        return;
-      }
+    if(!response.ok){
 
-      document.getElementById("username").textContent =
-        "User: " + data.user.username;
+      window.location.href =
+        "login.html";
 
-    } catch (error) {
-      window.location.href = "login.html";
-    }
-  }
-
-  async function logout() {
-    try {
-      await fetch("/api/logout", {
-        method: "POST"
-      });
-    } catch (error) {
-      console.log(error);
+      return;
     }
 
-    window.location.href = "login.html";
+    const data =
+      await response.json();
+
+    if(!data.loggedIn){
+
+      window.location.href =
+        "login.html";
+
+      return;
+    }
+
+    if(data.user && data.user.username){
+
+      document.getElementById(
+        "username"
+      ).textContent =
+        "User: " +
+        data.user.username;
+
+    }else{
+
+      document.getElementById(
+        "username"
+      ).textContent =
+        "Logged in";
+
+    }
+
+  }catch(error){
+
+    window.location.href =
+      "login.html";
+
   }
 
-  function openTool(tool) {
-    window.location.href = "tools.html?tool=" + encodeURIComponent(tool);
+}
+
+
+function openTool(tool){
+
+  window.location.href =
+    "tool.html?tool=" +
+    encodeURIComponent(tool);
+
+}
+
+
+function goAllTools(){
+
+  window.location.href =
+    "tools.html";
+
+}
+
+
+async function logout(){
+
+  try{
+
+    await fetch(
+      "/api/logout",
+      {
+        method:"POST"
+      }
+    );
+
+  }catch(error){
+
+    console.log(error);
+
   }
 
-  checkLogin();
+  window.location.href =
+    "login.html";
+
+}
+
+
+checkLogin();
 
 </script>
 
