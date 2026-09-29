@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>PDF Tools</title>
+
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f5f7fb;
+  color:#222;
+}
+.header{
+  background:#fff;
+  padding:16px 20px;
+  border-bottom:1px solid #ddd;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.header h2{
+  margin:0;
+  color:#e53232;
+  font-size:22px;
+}
+.back{
+  border:0;
+  background:#333;
+  color:#fff;
+  padding:10px 16px;
+  border-radius:7px;
+  cursor:pointer;
+}
+.container{
+  max-width:900px;
+  margin:30px auto;
+  padding:20px;
+}
+.card{
+  background:#fff;
+  border-radius:14px;
+  padding:25px;
+  box-shadow:0 4px 18px rgba(0,0,0,.08);
+}
+#toolTitle{
+  text-align:center;
+  margin-top:0;
+}
+.drop{
+  border:2px dashed #bbb;
+  border-radius:12px;
+  padding:35px 20px;
+  text-align:center;
+  margin-top:20px;
+  background:#fafafa;
+}
+.drop label{
+  display:inline-block;
+  background:#e53232;
+  color:white;
+  padding:13px 22px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+}
+#fileInput{
+  display:none;
+}
+#fileList{
+  margin-top:20px;
+}
+.file{
+  background:#f1f3f5;
+  padding:12px;
+  margin:8px 0;
+  border-radius:7px;
+  word-break:break-word;
+}
+.actions{
+  text-align:center;
+  margin-top:25px;
+}
+button{
+  font-size:15px;
+}
+#processBtn{
+  background:#e53232;
+  color:#fff;
+  border:0;
+  padding:13px 25px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+}
+#processBtn:disabled{
+  background:#aaa;
+  cursor:not-allowed;
+}
+#message{
+  text-align:center;
+  margin-top:18px;
+  font-weight:bold;
+}
+#downloadArea{
+  text-align:center;
+  margin-top:20px;
+}
+.download{
+  display:inline-block;
+  background:#198754;
+  color:#fff;
+  text-decoration:none;
+  padding:13px 22px;
+  border-radius:8px;
+  font-weight:bold;
+}
+.scanner{
+  margin-top:15px;
+  text-align:center;
+}
+.scanner button{
+  border:1px solid #ddd;
+  background:#fff;
+  padding:10px 16px;
+  border-radius:7px;
+  cursor:pointer;
+}
+.small{
+  color:#777;
+  font-size:13px;
+  text-align:center;
+  margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <h2>iLovePDF4</h2>
+  <button class="back" onclick="goBack()">← All Tools</button>
+</div>
+
+<div class="container">
+  <div class="card">
+
+    <h2 id="toolTitle">PDF Tool</h2>
+
+    <div class="drop">
+      <p id="description">Select your file to continue.</p>
+
+      <label for="fileInput">Select File</label>
+      <input id="fileInput" type="file" multiple>
+
+      <div class="small">
+        Your file is processed only after you press the Process button.
+      </div>
+    </div>
+
+    <div id="fileList"></div>
+
+    <div class="scanner">
+      <button type="button" onclick="clearFiles()">Clear Files</button>
+    </div>
+
+    <div class="actions">
+      <button id="processBtn" disabled onclick="processFiles()">
+        Process File
+      </button>
+    </div>
+
+    <div id="message"></div>
+    <div id="downloadArea"></div>
+
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const tool = params.get("tool") || "pdf-to-word";
+
+const toolInfo = {
+  "pdf-to-word": {
+    title:"PDF to Word",
+    description:"Convert PDF files to Word documents."
+  },
+  "word-to-pdf": {
+    title:"Word to PDF",
+    description:"Convert Word documents to PDF."
+  },
+  "pdf-to-powerpoint": {
+    title:"PDF to PowerPoint",
+    description:"Convert PDF files to PowerPoint."
+  },
+  "powerpoint-to-pdf": {
+    title:"PowerPoint to PDF",
+    description:"Convert PowerPoint files to PDF."
+  },
+  "pdf-to-excel": {
+    title:"PDF to Excel",
+    description:"Convert PDF files to Excel."
+  },
+  "excel-to-pdf": {
+    title:"Excel to PDF",
+    description:"Convert Excel files to PDF."
+  },
+  "jpg-to-pdf": {
+    title:"JPG to PDF",
+    description:"Convert JPG images to PDF."
+  },
+  "png-to-pdf": {
+    title:"PNG to PDF",
+    description:"Convert PNG images to PDF."
+  },
+  "image-to-pdf": {
+    title:"Image to PDF",
+    description:"Convert images to PDF."
+  },
+  "pdf-scanner": {
+    title:"PDF Scanner",
+    description:"Create a PDF from scanned images."
+  },
+  "merge-pdf": {
+    title:"Merge PDF",
+    description:"Merge multiple PDF files into one."
+  },
+  "split-pdf": {
+    title:"Split PDF",
+    description:"Split a PDF file into separate pages."
+  },
+  "extract-pages": {
+    title:"Extract PDF Pages",
+    description:"Extract selected pages from a PDF."
+  },
+  "remove-pages": {
+    title:"Remove PDF Pages",
+    description:"Remove pages from a PDF."
+  },
+  "rotate-pdf": {
+    title:"Rotate PDF",
+    description:"Rotate PDF pages."
+  },
+  "jpg-to-png": {
+    title:"JPG to PNG",
+    description:"Convert JPG images to PNG."
+  },
+  "png-to-jpg": {
+    title:"PNG to JPG",
+    description:"Convert PNG images to JPG."
+  },
+  "image-to-jpg": {
+    title:"Image to JPG",
+    description:"Convert images to JPG."
+  },
+  "compress-image": {
+    title:"Compress Image",
+    description:"Reduce image file size."
+  },
+  "resize-image": {
+    title:"Resize Image",
+    description:"Resize an image."
+  }
+};
+
+const info = toolInfo[tool] || {
+  title:"PDF Tool",
+  description:"Select a file to continue."
+};
+
+document.getElementById("toolTitle").textContent = info.title;
+document.getElementById("description").textContent = info.description;
+
+const fileInput = document.getElementById("fileInput");
+const fileList = document.getElementById("fileList");
+const processBtn = document.getElementById("processBtn");
+const message = document.getElementById("message");
+const downloadArea = document.getElementById("downloadArea");
+
+let selectedFiles = [];
+
+fileInput.addEventListener("change", function(e){
+  selectedFiles = Array.from(e.target.files || []);
+  showFiles();
+});
+
+function showFiles(){
+  fileList.innerHTML = "";
+
+  if(!selectedFiles.length){
+    processBtn.disabled = true;
+    return;
+  }
+
+  selectedFiles.forEach((file,index)=>{
+    const div = document.createElement("div");
+    div.className = "file";
+    div.textContent =
+      (index+1) + ". " +
+      file.name +
+      " (" +
+      formatSize(file.size) +
+      ")";
+    fileList.appendChild(div);
+  });
+
+  processBtn.disabled = false;
+  message.textContent = "";
+  downloadArea.innerHTML = "";
+}
+
+function clearFiles(){
+  selectedFiles = [];
+  fileInput.value = "";
+  fileList.innerHTML = "";
+  processBtn.disabled = true;
+  message.textContent = "";
+  downloadArea.innerHTML = "";
+}
+
+function formatSize(bytes){
+  if(bytes < 1024) return bytes + " B";
+  if(bytes < 1024*1024) return (bytes/1024).toFixed(1) + " KB";
+  return (bytes/(1024*1024)).toFixed(1) + " MB";
+}
+
+function goBack(){
+  window.location.href = "/tools.html";
+}
+
+function setMessage(text){
+  message.textContent = text;
+}
+
+function isCloudConvertTool(){
+  return [
+    "pdf-to-word",
+    "word-to-pdf",
+    "pdf-to-powerpoint",
+    "powerpoint-to-pdf",
+    "pdf-to-excel",
+    "excel-to-pdf"
+  ].includes(tool);
+}
+
+async function processFiles(){
+
+  if(!selectedFiles.length){
+    setMessage("Please select a file first.");
+    return;
+  }
+
+  processBtn.disabled = true;
+  downloadArea.innerHTML = "";
+  setMessage("Processing... Please wait.");
+
+  try{
+
+    if(isCloudConvertTool()){
+      await cloudConvert(selectedFiles[0]);
+      return;
+    }
+
+    if(tool === "jpg-to-pdf" ||
+       tool === "png-to-pdf" ||
+       tool === "image-to-pdf" ||
+       tool === "pdf-scanner"){
+
+      await imagesToPdf(selectedFiles);
+      return;
+    }
+
+    if(tool === "merge-pdf"){
+      await mergePdf(selectedFiles);
+      return;
+    }
+
+    if(tool === "split-pdf" ||
+       tool === "extract-pages" ||
+       tool === "remove-pages" ||
+       tool === "rotate-pdf"){
+
+      await pdfLocalTool(selectedFiles[0]);
+      return;
+    }
+
+    if(tool === "jpg-to-png" ||
+       tool === "png-to-jpg" ||
+       tool === "image-to-jpg"){
+
+      await imageConvert(selectedFiles[0]);
+      return;
+    }
+
+    if(tool === "compress-image"){
+      await compressImage(selectedFiles[0]);
+      return;
+    }
+
+    if(tool === "resize-image"){
+      await resizeImage(selectedFiles[0]);
+      return;
+    }
+
+    setMessage("This tool is ready, but its conversion service is not configured yet.");
+    processBtn.disabled = false;
+
+  }catch(error){
+    console.error(error);
+    setMessage("Error: " + (error.message || "Processing failed."));
+    processBtn.disabled = false;
+  }
+}
+
+/* =========================
+   CLOUD CONVERT
+========================= */
+
+async function cloudConvert(file){
+
+  setMessage("Starting conversion...");
+
+  const startResponse = await fetch("/api/convert-start",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    credentials:"include",
+    body:JSON.stringify({
+      tool:tool,
+      filename:file.name
+    })
+  });
+
+  if(!startResponse.ok){
+    const txt = await startResponse.text();
+    throw new Error(txt || "Unable to start conversion.");
+  }
+
+  const data = await startResponse.json();
+
+  if(!data.jobId){
+    throw new Error(data.error || "Conversion job was not created.");
+  }
+
+  if(data.form && data.form.url){
+
+    const formData = new FormData();
+
+    if(data.form.parameters){
+      Object.keys(data.form.parameters).forEach(key=>{
+        formData.append(
+          key,
+          data.form.parameters[key]
+        );
+      });
+    }
+
+    formData.append("file",file);
+
+    setMessage("Uploading file...");
+
+    const uploadResponse = await fetch(
+      data.form.url,
+      {
+        method:"POST",
+        body:formData
+      }
+    );
+
+    if(!uploadResponse.ok){
+      throw new Error("File upload to conversion server failed.");
+    }
+  }
+
+  setMessage("Converting...");
+
+  await pollConversion(data.jobId);
+}
+
+async function pollConversion(jobId){
+
+  let attempts = 0;
+
+  while(attempts < 120){
+
+    attempts++;
+
+    await new Promise(resolve =>
+      setTimeout(resolve,2000)
+    );
+
+    const response = await fetch(
+      "/api/convert-status?job=" +
+      encodeURIComponent(jobId),
+      {
+        credentials:"include"
+      }
+    );
+
+    if(!response.ok){
+      throw new Error("Unable to check conversion status.");
+    }
+
+    const data = await response.json();
+
+    if(data.status === "finished"){
+
+      const resultUrl =
+        data.url ||
+        data.resultUrl ||
+        data.result?.url;
+
+      if(!resultUrl){
+        throw new Error("Conversion finished but download link was not returned.");
+      }
+
+      showDownload(
+        resultUrl,
+        "Download " + info.title
+      );
+
+      setMessage("Conversion completed successfully.");
+      processBtn.disabled = false;
+      return;
+    }
+
+    if(data.status === "error" ||
+       data.status === "failed"){
+
+      throw new Error(
+        data.message ||
+        "Conversion failed."
+      );
+    }
+
+    setMessage(
+      "Converting... " +
+      attempts +
+      "%"
+    );
+  }
+
+  throw new Error("Conversion timed out. Please try again.");
+}
+
+/* =========================
+   IMAGE TO PDF
+========================= */
+
+async function imagesToPdf(files){
+
+  const pdfDoc = await PDFLib.PDFDocument.create();
+
+  for(const file of files){
+
+    if(!file.type.startsWith("image/")){
+      continue;
+    }
+
+    const bytes = await file.arrayBuffer();
+
+    let image;
+
+    if(file.type === "image/png"){
+      image = await pdfDoc.embedPng(bytes);
+    }else{
+      image = await pdfDoc.embedJpg(bytes);
+    }
+
+    const width = image.width;
+    const height = image.height;
+
+    const page = pdfDoc.addPage([
+      width,
+      height
+    ]);
+
+    page.drawImage(image,{
+      x:0,
+      y:0,
+      width:width,
+      height:height
+    });
+  }
+
+  const pdfBytes = await pdfDoc.save();
+
+  const blob = new Blob(
+    [pdfBytes],
+    {type:"application/pdf"}
+  );
+
+  showBlobDownload(
+    blob,
+    "converted-images.pdf",
+    "Download PDF"
+  );
+
+  setMessage("PDF created successfully.");
+  processBtn.disabled = false;
+}
+
+/* =========================
+   MERGE PDF
+========================= */
+
+async function mergePdf(files){
+
+  const merged =
+    await PDFLib.PDFDocument.create();
+
+  for(const file of files){
+
+    const bytes =
+      await file.arrayBuffer();
+
+    const pdf =
+      await PDFLib.PDFDocument.load(bytes);
+
+    const pages =
+      await merged.copyPages(
+        pdf,
+        pdf.getPageIndices()
+      );
+
+    pages.forEach(page=>{
+      merged.addPage(page);
+    });
+  }
+
+  const result =
+    await merged.save();
+
+  const blob =
+    new Blob(
+      [result],
+      {type:"application/pdf"}
+    );
+
+  showBlobDownload(
+    blob,
+    "merged.pdf",
+    "Download Merged PDF"
+  );
+
+  setMessage("PDF files merged successfully.");
+  processBtn.disabled = false;
+}
+
+/* =========================
+   LOCAL PDF TOOLS
+========================= */
+
+async function pdfLocalTool(file){
+
+  const bytes =
+    await file.arrayBuffer();
+
+  const pdf =
+    await PDFLib.PDFDocument.load(bytes);
+
+  if(tool === "rotate-pdf"){
+
+    pdf.getPages().forEach(page=>{
+      const rotation =
+        page.getRotation().angle || 0;
+
+      page.setRotation(
+        PDFLib.degrees(
+          (rotation + 90) % 360
+        )
+      );
+    });
+
+  }else if(tool === "remove-pages"){
+
+    const count =
+      pdf.getPageCount();
+
+    if(count > 1){
+      pdf.removePage(count - 1);
+    }
+
+  }else if(tool === "extract-pages"){
+
+    const newPdf =
+      await PDFLib.PDFDocument.create();
+
+    const page =
+      await newPdf.copyPages(
+        pdf,
+        [0]
+      );
+
+    page.forEach(p=>{
+      newPdf.addPage(p);
+    });
+
+    const output =
+      await newPdf.save();
+
+    const blob =
+      new Blob(
+        [output],
+        {type:"application/pdf"}
+      );
+
+    showBlobDownload(
+      blob,
+      "extracted-page.pdf",
+      "Download PDF"
+    );
+
+    setMessage("Page extracted successfully.");
+    processBtn.disabled = false;
+    return;
+
+  }else if(tool === "split-pdf"){
+
+    const count =
+      pdf.getPageCount();
+
+    const newPdf =
+      await PDFLib.PDFDocument.create();
+
+    const page =
+      await newPdf.copyPages(
+        pdf,
+        [0]
+      );
+
+    page.forEach(p=>{
+      newPdf.addPage(p);
+    });
+
+    const output =
+      await newPdf.save();
+
+    const blob =
+      new Blob(
+        [output],
+        {type:"application/pdf"}
+      );
+
+    showBlobDownload(
+      blob,
+      count > 1 ?
+      "split-page-1.pdf" :
+      "split.pdf",
+      "Download PDF"
+    );
+
+    setMessage("First page extracted successfully.");
+    processBtn.disabled = false;
+    return;
+  }
+
+  const output =
+    await pdf.save();
+
+  const blob =
+    new Blob(
+      [output],
+      {type:"application/pdf"}
+    );
+
+  showBlobDownload(
+    blob,
+    "processed.pdf",
+    "Download PDF"
+  );
+
+  setMessage("PDF processed successfully.");
+  processBtn.disabled = false;
+}
+
+/* =========================
+   IMAGE CONVERSION
+========================= */
+
+async function imageConvert(file){
+
+  const img =
+    await loadImage(file);
+
+  const canvas =
+    document.createElement("canvas");
+
+  canvas.width =
+    img.naturalWidth;
+
+  canvas.height =
+    img.naturalHeight;
+
+  const ctx =
+    canvas.getContext("2d");
+
+  if(tool === "jpg-to-png"){
+    ctx.drawImage(img,0,0);
+    await canvasToDownload(
+      canvas,
+      "image/png",
+      "converted.png"
+    );
+  }else{
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    ctx.drawImage(img,0,0);
+
+    await canvasToDownload(
+      canvas,
+      "image/jpeg",
+      "converted.jpg"
+    );
+  }
+
+  setMessage("Image converted successfully.");
+  processBtn.disabled = false;
+}
+
+async function compressImage(file){
+
+  const img =
+    await loadImage(file);
+
+  const canvas =
+    document.createElement("canvas");
+
+  canvas.width =
+    img.naturalWidth;
+
+  canvas.height =
+    img.naturalHeight;
+
+  const ctx =
+    canvas.getContext("2d");
+
+  ctx.drawImage(img,0,0);
+
+  await canvasToDownload(
+    canvas,
+    "image/jpeg",
+    "compressed.jpg",
+    .65
+  );
+
+  setMessage("Image compressed successfully.");
+  processBtn.disabled = false;
+}
+
+async function resizeImage(file){
+
+  const img =
+    await loadImage(file);
+
+  const maxWidth = 1200;
+
+  const ratio =
+    Math.min(
+      1,
+      maxWidth / img.naturalWidth
+    );
+
+  const canvas =
+    document.createElement("canvas");
+
+  canvas.width =
+    Math.round(
+      img.naturalWidth * ratio
+    );
+
+  canvas.height =
+    Math.round(
+      img.naturalHeight * ratio
+    );
+
+  const ctx =
+    canvas.getContext("2d");
+
+  ctx.drawImage(
+    img,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  await canvasToDownload(
+    canvas,
+    "image/jpeg",
+    "resized.jpg",
+    .9
+  );
+
+  setMessage("Image resized successfully.");
+  processBtn.disabled = false;
+}
+
+function loadImage(file){
+
+  return new Promise((resolve,reject)=>{
+
+    const img =
+      new Image();
+
+    const url =
+      URL.createObjectURL(file);
+
+    img.onload = ()=>{
+      URL.revokeObjectURL(url);
+      resolve(img);
+    };
+
+    img.onerror = ()=>{
+      URL.revokeObjectURL(url);
+      reject(
+        new Error("Unable to read image.")
+      );
+    };
+
+    img.src = url;
+  });
+}
+
+function canvasToDownload(
+  canvas,
+  type,
+  filename,
+  quality
+){
+
+  return new Promise(resolve=>{
+
+    canvas.toBlob(blob=>{
+
+      showBlobDownload(
+        blob,
+        filename,
+        "Download File"
+      );
+
+      resolve();
+
+    },type,quality);
+  });
+}
+
+/* =========================
+   DOWNLOAD HELPERS
+========================= */
+
+function showBlobDownload(
+  blob,
+  filename,
+  text
+){
+
+  const url =
+    URL.createObjectURL(blob);
+
+  showDownload(
+    url,
+    text,
+    filename
+  );
+}
+
+function showDownload(
+  url,
+  text,
+  filename
+){
+
+  downloadArea.innerHTML = "";
+
+  const a =
+    document.createElement("a");
+
+  a.href = url;
+  a.className = "download";
+  a.textContent = text || "Download";
+
+  if(filename){
+    a.download = filename;
+  }
+
+  a.target = "_blank";
+
+  downloadArea.appendChild(a);
+}
+</script>
+
+</body>
+</html>
