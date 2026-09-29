@@ -1,641 +1,1814 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>iLovePDF4 Tool</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
 <style>
-
-*{
-box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
 margin:0;
-font-family:Arial,sans-serif;
+font-family:Arial,Helvetica,sans-serif;
 background:#f5f7fb;
 color:#222;
 }
 
-header{
+.header{
 background:#e5322d;
-color:white;
-padding:16px 20px;
-display:flex;
-justify-content:space-between;
-align-items:center;
+color:#fff;
+padding:18px;
+text-align:center;
 }
 
-.logo{
-font-size:24px;
-font-weight:bold;
+.header h1{
+margin:0;
+font-size:25px;
 }
 
-.logout{
-background:white;
-color:#e5322d;
-border:0;
-padding:8px 14px;
-border-radius:6px;
-font-weight:bold;
-cursor:pointer;
+.header p{
+margin:7px 0 0;
+font-size:14px;
 }
 
 .container{
 max-width:850px;
-margin:30px auto;
-padding:20px;
-}
-
-.back{
-display:inline-block;
-margin-bottom:20px;
-color:#e5322d;
-text-decoration:none;
-font-weight:bold;
+margin:25px auto;
+padding:0 15px;
 }
 
 .card{
-background:white;
-padding:30px;
-border-radius:15px;
+background:#fff;
+border-radius:16px;
+padding:25px;
 box-shadow:0 5px 25px rgba(0,0,0,.08);
 }
 
-h1{
-margin-top:0;
+.tool-title{
+font-size:25px;
+font-weight:700;
+margin-bottom:8px;
 }
 
-.desc{
+.tool-description{
 color:#666;
-margin-bottom:25px;
+margin-bottom:22px;
 }
 
-.upload{
-border:2px dashed #bbb;
-border-radius:12px;
+.dropzone{
+display:block;
+border:2px dashed #e5322d;
+border-radius:14px;
 padding:35px 20px;
 text-align:center;
-background:#fafafa;
-}
-
-input[type=file]{
-width:100%;
-padding:15px;
-background:white;
-border:1px solid #ddd;
-border-radius:8px;
-}
-
-button{
-margin-top:20px;
-width:100%;
-padding:14px;
-border:0;
-border-radius:8px;
-background:#e5322d;
-color:white;
-font-size:16px;
-font-weight:bold;
+background:#fff8f8;
 cursor:pointer;
 }
 
-button:disabled{
-background:#aaa;
-cursor:not-allowed;
+.dropzone:hover{
+background:#fff1f1;
 }
 
-#status{
-margin-top:20px;
-padding:15px;
-border-radius:8px;
+.dropzone strong{
+display:block;
+font-size:18px;
+margin-bottom:8px;
+}
+
+#fileInput{
 display:none;
-white-space:pre-wrap;
+}
+
+.scanner-box{
+display:none;
+margin-top:18px;
+}
+
+.camera{
+width:100%;
+max-height:450px;
+background:#111;
+border-radius:12px;
+object-fit:cover;
+}
+
+.scanner-actions{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-top:12px;
+}
+
+.scanner-actions button{
+flex:1;
+}
+
+.scan-pages{
+display:flex;
+gap:10px;
+overflow-x:auto;
+margin-top:15px;
+padding-bottom:5px;
+}
+
+.scan-thumb{
+width:90px;
+height:110px;
+object-fit:cover;
+border-radius:8px;
+border:2px solid #ddd;
+flex-shrink:0;
+}
+
+.file-list{
+margin-top:18px;
+}
+
+.file-item{
+background:#f3f4f6;
+padding:12px;
+border-radius:9px;
+margin-bottom:8px;
+font-size:14px;
 word-break:break-word;
 }
 
-.info{
-background:#eef5ff;
-color:#1455a0;
+.actions{
+margin-top:20px;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
 }
 
-.success{
+button{
+border:0;
+border-radius:9px;
+padding:13px 20px;
+font-size:15px;
+font-weight:700;
+cursor:pointer;
+}
+
+.process-btn{
+background:#e5322d;
+color:#fff;
+flex:1;
+}
+
+.back-btn{
+background:#e8e8e8;
+color:#222;
+}
+
+.camera-btn{
+background:#222;
+color:#fff;
+}
+
+.add-scan-btn{
+background:#e5322d;
+color:#fff;
+}
+
+.finish-scan-btn{
+background:#16883b;
+color:#fff;
+}
+
+button:disabled{
+opacity:.55;
+cursor:not-allowed;
+}
+
+.status{
+margin-top:20px;
+padding:14px;
+border-radius:9px;
+background:#f0f4ff;
+display:none;
+line-height:1.5;
+}
+
+.status.success{
 background:#eaf8ee;
-color:#176b2c;
+color:#176b31;
 }
 
-.error{
+.status.error{
 background:#fff0f0;
-color:#a40000;
+color:#a51d1d;
 }
 
-.download-link{
+.progress{
+margin-top:15px;
+width:100%;
+height:9px;
+background:#ddd;
+border-radius:10px;
+overflow:hidden;
+display:none;
+}
+
+.progress-bar{
+height:100%;
+width:0%;
+background:#e5322d;
+transition:width .3s;
+}
+
+.download-btn{
 display:inline-block;
 margin-top:12px;
-padding:12px 18px;
-background:#176b2c;
-color:white;
+background:#16883b;
+color:#fff;
 text-decoration:none;
-border-radius:7px;
+padding:12px 18px;
+border-radius:8px;
 font-weight:bold;
 }
 
-footer{
-text-align:center;
+.note{
+margin-top:18px;
+font-size:12px;
 color:#777;
-padding:25px;
 }
 
-.page-options{
-display:none;
-margin-top:20px;
+@media(max-width:600px){
+.card{padding:18px}
+.tool-title{font-size:21px}
+.dropzone{padding:28px 15px}
 }
-
-.page-options input{
-width:100%;
-padding:12px;
-border:1px solid #ddd;
-border-radius:7px;
-}
-
 </style>
-
 </head>
-
 
 <body>
 
-
-<header>
-
-<div class="logo">
-iLovePDF4
+<div class="header">
+<h1>iLovePDF4</h1>
+<p>Online PDF & Document Tools</p>
 </div>
-
-<button class="logout" onclick="logout()">
-Logout
-</button>
-
-</header>
-
 
 <div class="container">
 
-
-<a class="back" href="/tools.html">
-← Back to All Tools
-</a>
-
-
 <div class="card">
 
+<div class="tool-title" id="toolTitle">PDF Tool</div>
 
-<h1 id="title">
-PDF Tool
-</h1>
-
-
-<div class="desc" id="description">
-Select your file and process it.
+<div class="tool-description" id="toolDescription">
+Upload your file and process it.
 </div>
 
-
-<div class="upload">
-
-<input
-id="fileInput"
-type="file"
->
-
-<div
-id="fileHint"
-style="margin-top:12px;color:#777"
->
-Select your file
-</div>
-
-</div>
-
-
-<div
-class="page-options"
-id="pageOptions"
->
-
-<label>
-<b>Page numbers</b>
+<label class="dropzone" id="dropzone" for="fileInput">
+<strong>Choose File</strong>
+<span>Tap here to select a file from your phone</span>
 </label>
 
-<p style="font-size:13px;color:#777">
-Example: 1,3,5 or 2-4
-</p>
+<input type="file" id="fileInput" multiple>
 
-<input
-id="pageNumbers"
-placeholder="Example: 1,3,5"
->
+<!-- SCANNER -->
+
+<div class="scanner-box" id="scannerBox">
+
+<video
+id="camera"
+class="camera"
+autoplay
+playsinline>
+</video>
+
+<div class="scanner-actions">
+
+<button
+class="camera-btn"
+id="startCameraBtn"
+type="button">
+Start Camera
+</button>
+
+<button
+class="add-scan-btn"
+id="captureBtn"
+type="button">
+Capture Page
+</button>
+
+<button
+class="finish-scan-btn"
+id="finishScanBtn"
+type="button">
+Create PDF
+</button>
 
 </div>
 
+<div class="scan-pages" id="scanPages"></div>
+
+</div>
+
+<div class="file-list" id="fileList"></div>
+
+<div class="progress" id="progress">
+<div class="progress-bar" id="progressBar"></div>
+</div>
+
+<div class="actions">
 
 <button
+class="process-btn"
 id="processBtn"
-onclick="processFile()"
->
+disabled>
 Process File
 </button>
 
-
-<div id="status"></div>
-
+<button
+class="back-btn"
+onclick="goBack()">
+Back
+</button>
 
 </div>
 
+<div class="status" id="status"></div>
+
+<div class="note">
+iLovePDF4 — PDF, document and image tools.
 </div>
 
-
-<footer>
-© 2026 iLovePDF4
-</footer>
+</div>
+</div>
 
 
 <script>
 
+const {PDFDocument,degrees}=PDFLib;
 
-const params =
-new URLSearchParams(location.search);
+const params=new URLSearchParams(
+window.location.search
+);
+
+const tool=params.get("tool")||"pdf-to-word";
+
+const fileInput=document.getElementById("fileInput");
+const fileList=document.getElementById("fileList");
+const processBtn=document.getElementById("processBtn");
+const statusBox=document.getElementById("status");
+const progress=document.getElementById("progress");
+const progressBar=document.getElementById("progressBar");
+const dropzone=document.getElementById("dropzone");
+
+const scannerBox=document.getElementById("scannerBox");
+const camera=document.getElementById("camera");
+const startCameraBtn=document.getElementById("startCameraBtn");
+const captureBtn=document.getElementById("captureBtn");
+const finishScanBtn=document.getElementById("finishScanBtn");
+const scanPages=document.getElementById("scanPages");
+
+let selectedFiles=[];
+let scanImages=[];
+let cameraStream=null;
 
 
-const currentTool =
-params.get("tool") || "pdf-to-word";
-
-
-const tools = {
-
+const toolInfo={
 
 "pdf-to-word":{
 title:"PDF to Word",
-desc:"Convert PDF into an editable Word document.",
-accept:".pdf",
-multiple:false
+description:"Convert PDF files to editable Word documents.",
+accept:".pdf"
 },
-
 
 "word-to-pdf":{
 title:"Word to PDF",
-desc:"Convert Word documents to PDF.",
-accept:".doc,.docx",
-multiple:false
+description:"Convert Word documents to PDF.",
+accept:".doc,.docx"
 },
-
 
 "pdf-to-powerpoint":{
 title:"PDF to PowerPoint",
-desc:"Convert PDF into PowerPoint.",
-accept:".pdf",
-multiple:false
+description:"Convert PDF files to PowerPoint.",
+accept:".pdf"
 },
-
 
 "powerpoint-to-pdf":{
 title:"PowerPoint to PDF",
-desc:"Convert PowerPoint presentations to PDF.",
-accept:".ppt,.pptx",
-multiple:false
+description:"Convert PowerPoint files to PDF.",
+accept:".ppt,.pptx"
 },
-
 
 "pdf-to-excel":{
 title:"PDF to Excel",
-desc:"Convert PDF into Excel.",
-accept:".pdf",
-multiple:false
+description:"Convert PDF files to Excel.",
+accept:".pdf"
 },
-
 
 "excel-to-pdf":{
 title:"Excel to PDF",
-desc:"Convert Excel files to PDF.",
-accept:".xls,.xlsx,.csv",
-multiple:false
+description:"Convert Excel files to PDF.",
+accept:".xls,.xlsx"
 },
-
 
 "jpg-to-pdf":{
 title:"JPG to PDF",
-desc:"Convert JPG images into PDF.",
-accept:"image/jpeg",
-multiple:true
+description:"Convert JPG images into PDF.",
+accept:"image/jpeg"
 },
-
 
 "png-to-pdf":{
 title:"PNG to PDF",
-desc:"Convert PNG images into PDF.",
-accept:"image/png",
-multiple:true
+description:"Convert PNG images into PDF.",
+accept:"image/png"
 },
-
 
 "image-to-pdf":{
 title:"Image to PDF",
-desc:"Convert images into PDF.",
-accept:"image/*",
-multiple:true
+description:"Convert images into PDF.",
+accept:"image/*"
 },
-
-
-"merge-pdf":{
-title:"Merge PDF",
-desc:"Combine multiple PDF files into one PDF.",
-accept:".pdf",
-multiple:true
-},
-
-
-"split-pdf":{
-title:"Split PDF",
-desc:"Split every page of a PDF into separate PDF files.",
-accept:".pdf",
-multiple:false
-},
-
-
-"extract-pages":{
-title:"Extract Pages",
-desc:"Extract selected pages from a PDF.",
-accept:".pdf",
-multiple:false
-},
-
-
-"remove-pages":{
-title:"Remove Pages",
-desc:"Remove selected pages from a PDF.",
-accept:".pdf",
-multiple:false
-},
-
-
-"rotate-pdf":{
-title:"Rotate PDF",
-desc:"Rotate all PDF pages 90 degrees.",
-accept:".pdf",
-multiple:false
-},
-
-
-"compress-pdf":{
-title:"Compress PDF",
-desc:"Reduce PDF file size where possible.",
-accept:".pdf",
-multiple:false
-},
-
-
-"resize-pdf":{
-title:"Resize PDF",
-desc:"Resize PDF pages.",
-accept:".pdf",
-multiple:false
-},
-
-
-"crop-pdf":{
-title:"Crop PDF",
-desc:"Crop PDF pages.",
-accept:".pdf",
-multiple:false
-},
-
-
-"watermark-pdf":{
-title:"Watermark PDF",
-desc:"Add a watermark to PDF pages.",
-accept:".pdf",
-multiple:false
-},
-
-
-"page-numbers":{
-title:"Page Numbers",
-desc:"Add page numbers to PDF.",
-accept:".pdf",
-multiple:false
-},
-
-
-"sign-pdf":{
-title:"Sign PDF",
-desc:"Add a signature image to PDF.",
-accept:".pdf",
-multiple:false
-},
-
-
-"protect-pdf":{
-title:"Protect PDF",
-desc:"Protect a PDF with a password.",
-accept:".pdf",
-multiple:false
-},
-
-
-"unlock-pdf":{
-title:"Unlock PDF",
-desc:"Remove PDF password protection when possible.",
-accept:".pdf",
-multiple:false
-},
-
-
-"redact-pdf":{
-title:"Redact PDF",
-desc:"Redact PDF content.",
-accept:".pdf",
-multiple:false
-},
-
 
 "pdf-scanner":{
 title:"PDF Scanner",
-desc:"Convert scanned images into a PDF.",
-accept:"image/*",
-multiple:true
+description:"Scan documents using your camera and create a PDF.",
+accept:"image/*"
 },
 
-
-"ocr-pdf":{
-title:"OCR PDF",
-desc:"Extract text from PDF using OCR.",
-accept:".pdf",
-multiple:false
+"merge-pdf":{
+title:"Merge PDF",
+description:"Combine multiple PDF files into one PDF.",
+accept:".pdf"
 },
 
-
-"image-ocr":{
-title:"Image OCR",
-desc:"Extract text from an image.",
-accept:"image/*",
-multiple:false
+"split-pdf":{
+title:"Split PDF",
+description:"Split a PDF into separate pages.",
+accept:".pdf"
 },
 
+"extract-pages":{
+title:"Extract Pages",
+description:"Extract selected pages from a PDF.",
+accept:".pdf"
+},
+
+"remove-pages":{
+title:"Remove Pages",
+description:"Remove selected pages from a PDF.",
+accept:".pdf"
+},
+
+"rotate-pdf":{
+title:"Rotate PDF",
+description:"Rotate PDF pages.",
+accept:".pdf"
+},
 
 "jpg-to-png":{
 title:"JPG to PNG",
-desc:"Convert JPG image to PNG.",
-accept:"image/jpeg",
-multiple:false
+description:"Convert JPG images to PNG.",
+accept:"image/jpeg"
 },
-
 
 "png-to-jpg":{
 title:"PNG to JPG",
-desc:"Convert PNG image to JPG.",
-accept:"image/png",
-multiple:false
+description:"Convert PNG images to JPG.",
+accept:"image/png"
 },
-
 
 "image-to-jpg":{
 title:"Image to JPG",
-desc:"Convert image to JPG.",
-accept:"image/*",
-multiple:false
+description:"Convert images to JPG.",
+accept:"image/*"
 },
-
-
-"resize-image":{
-title:"Resize Image",
-desc:"Resize an image.",
-accept:"image/*",
-multiple:false
-},
-
 
 "compress-image":{
 title:"Compress Image",
-desc:"Compress an image.",
-accept:"image/*",
-multiple:false
+description:"Reduce image file size.",
+accept:"image/*"
+},
+
+"resize-image":{
+title:"Resize Image",
+description:"Resize your image.",
+accept:"image/*"
 }
 
 };
 
 
-const tool =
-tools[currentTool] ||
-tools["pdf-to-word"];
+const info=toolInfo[tool]||toolInfo["pdf-to-word"];
+
+document.getElementById("toolTitle").textContent=info.title;
+document.getElementById("toolDescription").textContent=info.description;
+
+fileInput.accept=info.accept;
 
 
-document.getElementById("title").textContent =
-tool.title;
+/* SCANNER UI */
 
+if(tool==="pdf-scanner"){
 
-document.getElementById("description").textContent =
-tool.desc;
+dropzone.style.display="none";
+fileInput.style.display="none";
+processBtn.style.display="none";
 
+scannerBox.style.display="block";
 
-const input =
-document.getElementById("fileInput");
+startCameraBtn.onclick=startCamera;
+captureBtn.onclick=capturePage;
+finishScanBtn.onclick=createScannedPdf;
 
+}else{
 
-input.accept =
-tool.accept;
-
-
-input.multiple =
-tool.multiple;
-
-
-document.getElementById("fileHint").textContent =
-tool.multiple
-? "You can select multiple files"
-: "Select one file";
-
-
-if(
-currentTool==="extract-pages" ||
-currentTool==="remove-pages"
-){
-
-document.getElementById("pageOptions")
-.style.display="block";
+scannerBox.style.display="none";
 
 }
 
 
-input.addEventListener(
+fileInput.addEventListener(
 "change",
 function(){
 
-if(this.files.length){
+selectedFiles=Array.from(this.files);
 
-document.getElementById("fileHint")
-.textContent =
-this.files.length +
-" file(s) selected";
+showFiles();
+
+}
+);
+
+
+function showFiles(){
+
+fileList.innerHTML="";
+
+if(!selectedFiles.length){
+
+processBtn.disabled=true;
+return;
+
+}
+
+selectedFiles.forEach(
+(file,index)=>{
+
+const div=document.createElement("div");
+
+div.className="file-item";
+
+div.textContent=
+(index+1)+". "+
+file.name+
+" — "+
+formatSize(file.size);
+
+fileList.appendChild(div);
+
+}
+);
+
+processBtn.disabled=false;
+
+}
+
+
+function formatSize(bytes){
+
+if(bytes<1024)
+return bytes+" B";
+
+if(bytes<1024*1024)
+return (bytes/1024).toFixed(1)+" KB";
+
+return (bytes/1024/1024).toFixed(2)+" MB";
+
+}
+
+
+function setStatus(message,type="normal"){
+
+statusBox.style.display="block";
+
+statusBox.className="status "+type;
+
+statusBox.innerHTML=message;
+
+}
+
+
+function setProgress(percent){
+
+progress.style.display="block";
+
+progressBar.style.width=percent+"%";
+
+}
+
+
+function goBack(){
+
+if(cameraStream){
+
+cameraStream.getTracks().forEach(
+track=>track.stop()
+);
+
+}
+
+window.location.href="/tools.html";
+
+}
+
+
+/* CAMERA */
+
+async function startCamera(){
+
+try{
+
+cameraStream=await navigator.mediaDevices.getUserMedia({
+
+video:{
+facingMode:{
+ideal:"environment"
+}
+},
+
+audio:false
+
+});
+
+camera.srcObject=cameraStream;
+
+setStatus(
+"Camera started. Point the camera at the document and press Capture Page."
+);
+
+}catch(error){
+
+setStatus(
+"Camera could not be started. Please allow camera permission or use Gallery.",
+"error"
+);
+
+}
+
+}
+
+
+function capturePage(){
+
+if(!cameraStream){
+
+setStatus(
+"Please press Start Camera first.",
+"error"
+);
+
+return;
+
+}
+
+
+const canvas=document.createElement("canvas");
+
+canvas.width=camera.videoWidth;
+canvas.height=camera.videoHeight;
+
+const ctx=canvas.getContext("2d");
+
+ctx.drawImage(
+camera,
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+canvas.toBlob(
+blob=>{
+
+if(!blob)return;
+
+scanImages.push(blob);
+
+const url=URL.createObjectURL(blob);
+
+const img=document.createElement("img");
+
+img.className="scan-thumb";
+
+img.src=url;
+
+scanPages.appendChild(img);
+
+setStatus(
+"Page "+scanImages.length+" captured. You can capture another page."
+);
+
+},
+"image/jpeg",
+0.92
+);
+
+}
+
+
+async function createScannedPdf(){
+
+if(!scanImages.length){
+
+setStatus(
+"Please capture at least one page.",
+"error"
+);
+
+return;
+
+}
+
+try{
+
+setStatus(
+"Creating scanned PDF..."
+);
+
+setProgress(20);
+
+const pdf=await PDFDocument.create();
+
+for(
+let i=0;
+i<scanImages.length;
+i++
+){
+
+const bytes=await scanImages[i].arrayBuffer();
+
+const image=await pdf.embedJpg(bytes);
+
+const page=pdf.addPage([
+image.width,
+image.height
+]);
+
+page.drawImage(
+image,
+{
+x:0,
+y:0,
+width:image.width,
+height:image.height
+}
+);
+
+setProgress(
+20+
+Math.round(
+((i+1)/scanImages.length)*70
+)
+);
+
+}
+
+const output=await pdf.save();
+
+downloadBlob(
+new Blob(
+[output],
+{type:"application/pdf"}
+),
+"iLovePDF4-scanned-document.pdf"
+);
+
+setProgress(100);
+
+setStatus(
+"Scanned PDF created successfully!<br>"+
+"Your document is ready to download.",
+"success"
+);
+
+if(cameraStream){
+
+cameraStream.getTracks().forEach(
+track=>track.stop()
+);
+
+cameraStream=null;
+
+}
+
+}catch(error){
+
+setStatus(
+"Scanner error: "+
+escapeHtml(error.message),
+"error"
+);
+
+}
+
+}
+
+
+/* PROCESS */
+
+processBtn.addEventListener(
+"click",
+async function(){
+
+if(!selectedFiles.length){
+
+setStatus(
+"Please select a file first.",
+"error"
+);
+
+return;
+
+}
+
+processBtn.disabled=true;
+
+try{
+
+if(isCloudConvertTool()){
+
+await cloudConvert(selectedFiles[0]);
+return;
+
+}
+
+
+switch(tool){
+
+case"jpg-to-pdf":
+case"png-to-pdf":
+case"image-to-pdf":
+
+await imagesToPdf(selectedFiles);
+break;
+
+
+case"merge-pdf":
+
+await mergePdf(selectedFiles);
+break;
+
+
+case"split-pdf":
+
+await splitPdf(selectedFiles[0]);
+break;
+
+
+case"extract-pages":
+
+await extractPages(selectedFiles[0]);
+break;
+
+
+case"remove-pages":
+
+await removePages(selectedFiles[0]);
+break;
+
+
+case"rotate-pdf":
+
+await rotatePdf(selectedFiles[0]);
+break;
+
+
+case"jpg-to-png":
+
+await imageConvert(
+selectedFiles[0],
+"png"
+);
+
+break;
+
+
+case"png-to-jpg":
+case"image-to-jpg":
+
+await imageConvert(
+selectedFiles[0],
+"jpeg"
+);
+
+break;
+
+
+case"compress-image":
+
+await compressImage(
+selectedFiles[0]
+);
+
+break;
+
+
+case"resize-image":
+
+await resizeImage(
+selectedFiles[0]
+);
+
+break;
+
+
+default:
+
+setStatus(
+"This tool is not connected yet.",
+"error"
+);
+
+processBtn.disabled=false;
+
+}
+
+}catch(error){
+
+console.error(error);
+
+setStatus(
+"Error: "+
+escapeHtml(
+error.message||
+"Something went wrong."
+),
+"error"
+);
+
+processBtn.disabled=false;
 
 }
 
 });
 
 
-function status(
-message,
-type="info"
-){
+/* CLOUDCONVERT */
 
-const box =
-document.getElementById("status");
+function isCloudConvertTool(){
 
-box.style.display="block";
-
-box.className=type;
-
-box.innerHTML =
-message;
+return[
+"word-to-pdf",
+"powerpoint-to-pdf",
+"excel-to-pdf",
+"pdf-to-word",
+"pdf-to-powerpoint",
+"pdf-to-excel"
+].includes(tool);
 
 }
 
 
-function statusText(
-message,
-type="info"
+async function cloudConvert(file){
+
+setStatus(
+"Starting conversion..."
+);
+
+setProgress(10);
+
+const response=await fetch(
+"/api/convert-start",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+tool:tool,
+filename:file.name
+})
+}
+);
+
+const data=await response.json();
+
+if(!response.ok){
+
+throw new Error(
+data.error||
+"Could not start conversion."
+);
+
+}
+
+if(
+!data.jobId||
+!data.form||
+!data.form.url
 ){
 
-const box =
-document.getElementById("status");
+throw new Error(
+"Upload information was not returned."
+);
 
-box.style.display="block";
+}
 
-box.className=type;
+setStatus(
+"Uploading file..."
+);
 
-box.textContent =
-message;
+setProgress(30);
+
+const formData=new FormData();
+
+const parameters=
+data.form.parameters||{};
+
+Object.keys(parameters).forEach(
+key=>{
+formData.append(
+key,
+parameters[key]
+);
+}
+);
+
+formData.append(
+"file",
+file,
+file.name
+);
+
+const uploadResponse=await fetch(
+data.form.url,
+{
+method:"POST",
+body:formData
+}
+);
+
+if(!uploadResponse.ok){
+
+throw new Error(
+"File upload failed."
+);
+
+}
+
+setStatus(
+"File uploaded. Processing..."
+);
+
+setProgress(55);
+
+const result=
+await waitForConversion(
+data.jobId
+);
+
+if(result.status!=="finished"){
+
+throw new Error(
+result.error||
+"Conversion failed."
+);
+
+}
+
+setProgress(100);
+
+const outputName=
+result.filename||
+createOutputName(
+file.name,
+tool
+);
+
+setStatus(
+"Conversion completed successfully!<br>"+
+"<a class='download-btn' href='"+
+escapeAttribute(result.url)+
+"' target='_blank' download='"+
+escapeAttribute(outputName)+
+"'>Download File</a>",
+"success"
+);
+
+processBtn.disabled=false;
 
 }
 
 
-function downloadBlob(
+async function waitForConversion(jobId){
+
+for(
+let attempt=0;
+attempt<120;
+attempt++
+){
+
+const response=await fetch(
+"/api/convert-status?job="+
+encodeURIComponent(jobId),
+{
+cache:"no-store"
+}
+);
+
+const data=await response.json();
+
+if(!response.ok){
+
+throw new Error(
+data.error||
+"Could not read conversion status."
+);
+
+}
+
+if(data.status==="finished")
+return data;
+
+if(data.status==="error")
+return data;
+
+setProgress(
+Math.min(
+95,
+55+
+Math.round(
+(attempt/120)*40
+)
+)
+);
+
+setStatus(
+"Processing... Please wait.<br>"+
+"Status: "+
+escapeHtml(
+data.status||
+"processing"
+)
+);
+
+await sleep(2000);
+
+}
+
+throw new Error(
+"Conversion is taking too long. Please try again."
+);
+
+}
+
+
+function createOutputName(original,currentTool){
+
+const base=original.replace(
+/\.[^/.]+$/,
+""
+);
+
+const map={
+
+"word-to-pdf":".pdf",
+"powerpoint-to-pdf":".pdf",
+"excel-to-pdf":".pdf",
+"pdf-to-word":".docx",
+"pdf-to-powerpoint":".pptx",
+"pdf-to-excel":".xlsx"
+
+};
+
+return base+(map[currentTool]||".file");
+
+}
+
+
+/* IMAGES TO PDF */
+
+async function imagesToPdf(files){
+
+setStatus("Creating PDF...");
+setProgress(20);
+
+const pdf=await PDFDocument.create();
+
+for(
+let i=0;
+i<files.length;
+i++
+){
+
+const file=files[i];
+
+const bytes=await file.arrayBuffer();
+
+let image;
+
+if(
+file.type==="image/jpeg"||
+file.type==="image/jpg"
+){
+
+image=await pdf.embedJpg(bytes);
+
+}else{
+
+image=await pdf.embedPng(bytes);
+
+}
+
+const page=pdf.addPage([
+image.width,
+image.height
+]);
+
+page.drawImage(
+image,
+{
+x:0,
+y:0,
+width:image.width,
+height:image.height
+}
+);
+
+setProgress(
+20+
+Math.round(
+((i+1)/files.length)*70
+)
+);
+
+}
+
+const output=await pdf.save();
+
+downloadBlob(
+new Blob(
+[output],
+{type:"application/pdf"}
+),
+"iLovePDF4-images.pdf"
+);
+
+setProgress(100);
+
+setStatus(
+"PDF created successfully!",
+"success"
+);
+
+processBtn.disabled=false;
+
+}
+
+
+/* MERGE */
+
+async function mergePdf(files){
+
+if(files.length<2){
+
+throw new Error(
+"Select at least 2 PDF files."
+);
+
+}
+
+const merged=
+await PDFDocument.create();
+
+for(
+let i=0;
+i<files.length;
+i++
+){
+
+const bytes=
+await files[i].arrayBuffer();
+
+const src=
+await PDFDocument.load(bytes);
+
+const pages=
+await merged.copyPages(
+src,
+src.getPageIndices()
+);
+
+pages.forEach(
+page=>merged.addPage(page)
+);
+
+setProgress(
+20+
+Math.round(
+((i+1)/files.length)*70
+)
+);
+
+}
+
+const output=await merged.save();
+
+downloadBlob(
+new Blob(
+[output],
+{type:"application/pdf"}
+),
+"iLovePDF4-merged.pdf"
+);
+
+setProgress(100);
+
+setStatus(
+"PDFs merged successfully!",
+"success"
+);
+
+processBtn.disabled=false;
+
+}
+
+
+/* SPLIT */
+
+async function splitPdf(file){
+
+const bytes=await file.arrayBuffer();
+
+const src=await PDFDocument.load(bytes);
+
+const total=src.getPageCount();
+
+for(
+let i=0;
+i<total;
+i++
+){
+
+const pdf=await PDFDocument.create();
+
+const pages=
+await pdf.copyPages(
+src,
+[i]
+);
+
+pdf.addPage(pages[0]);
+
+const output=await pdf.save();
+
+downloadBlob(
+new Blob(
+[output],
+{type:"application/pdf"}
+),
+"page-"+(i+1)+".pdf"
+);
+
+setProgress(
+Math.round(
+((i+1)/total)*100
+)
+);
+
+}
+
+setStatus(
+"PDF split successfully!",
+"success"
+);
+
+processBtn.disabled=false;
+
+}
+
+
+/* EXTRACT */
+
+async function extractPages(file){
+
+const input=prompt(
+"Enter page numbers to extract.\nExample: 1,3,5"
+);
+
+if(!input){
+
+processBtn.disabled=false;
+return;
+
+}
+
+const indexes=input
+.split(",")
+.map(x=>parseInt(x.trim())-1)
+.filter(x=>!isNaN(x));
+
+if(!indexes.length)
+throw new Error("Invalid page numbers.");
+
+const bytes=await file.arrayBuffer();
+
+const src=await PDFDocument.load(bytes);
+
+const output=await PDFDocument.create();
+
+const valid=indexes.filter(
+x=>x>=0&&x<src.getPageCount()
+);
+
+const pages=await output.copyPages(
+src,
+valid
+);
+
+pages.forEach(
+p=>output.addPage(p)
+);
+
+const result=await output.save();
+
+downloadBlob(
+new Blob(
+[result],
+{type:"application/pdf"}
+),
+"iLovePDF4-extracted.pdf"
+);
+
+setProgress(100);
+
+setStatus(
+"Pages extracted successfully!",
+"success"
+);
+
+processBtn.disabled=false;
+
+}
+
+
+/* REMOVE */
+
+async function removePages(file){
+
+const input=prompt(
+"Enter page numbers to remove.\nExample: 2,4"
+);
+
+if(!input){
+
+processBtn.disabled=false;
+return;
+
+}
+
+const remove=input
+.split(",")
+.map(x=>parseInt(x.trim())-1)
+.filter(x=>!isNaN(x));
+
+const bytes=await file.arrayBuffer();
+
+const src=await PDFDocument.load(bytes);
+
+const output=await PDFDocument.create();
+
+for(
+let i=0;
+i<src.getPageCount();
+i++
+){
+
+if(remove.includes(i))
+continue;
+
+const pages=
+await output.copyPages(
+src,
+[i]
+);
+
+output.addPage(pages[0]);
+
+}
+
+const result=await output.save();
+
+downloadBlob(
+new Blob(
+[result],
+{type:"application/pdf"}
+),
+"iLovePDF4-removed-pages.pdf"
+);
+
+setProgress(100);
+
+setStatus(
+"Pages removed successfully!",
+"success"
+);
+
+processBtn.disabled=false;
+
+}
+
+
+/* ROTATE */
+
+async function rotatePdf(file){
+
+const bytes=await file.arrayBuffer();
+
+const pdf=await PDFDocument.load(bytes);
+
+pdf.getPages().forEach(
+page=>{
+
+const current=
+page.getRotation().angle;
+
+page.setRotation(
+degrees(
+(current+90)%360
+)
+);
+
+}
+);
+
+const output=await pdf.save();
+
+downloadBlob(
+new Blob(
+[output],
+{type:"application/pdf"}
+),
+"iLovePDF4-rotated.pdf"
+);
+
+setProgress(100);
+
+setStatus(
+"PDF rotated successfully!",
+"success"
+);
+
+processBtn.disabled=false;
+
+}
+
+
+/* IMAGE CONVERT */
+
+async function imageConvert(file,format){
+
+const image=await loadImage(file);
+
+const canvas=document.createElement("canvas");
+
+canvas.width=image.width;
+canvas.height=image.height;
+
+const ctx=canvas.getContext("2d");
+
+if(format==="jpeg"){
+
+ctx.fillStyle="#fff";
+
+ctx.fillRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+}
+
+ctx.drawImage(
+image,
+0,
+0
+);
+
+const blob=
+await canvasToBlob(
+canvas,
+format==="png"
+?"image/png"
+:"image/jpeg",
+.92
+);
+
+downloadBlob(
 blob,
-name
+"iLovePDF4-image."+
+(format==="png"?"png":"jpg")
+);
+
+setProgress(100);
+
+setStatus(
+"Image converted successfully!",
+"success"
+);
+
+processBtn.disabled=false;
+
+}
+
+
+/* COMPRESS */
+
+async function compressImage(file){
+
+const image=await loadImage(file);
+
+const maxWidth=1600;
+
+const scale=Math.min(
+1,
+maxWidth/image.width
+);
+
+const canvas=document.createElement("canvas");
+
+canvas.width=
+Math.round(
+image.width*scale
+);
+
+canvas.height=
+Math.round(
+image.height*scale
+);
+
+const ctx=canvas.getContext("2d");
+
+ctx.drawImage(
+image,
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+const blob=
+await canvasToBlob(
+canvas,
+"image/jpeg",
+.65
+);
+
+downloadBlob(
+blob,
+"iLovePDF4-compressed.jpg"
+);
+
+setProgress(100);
+
+setStatus(
+"Image compressed successfully!",
+"success"
+);
+
+processBtn.disabled=false;
+
+}
+
+
+/* RESIZE */
+
+async function resizeImage(file){
+
+const image=await loadImage(file);
+
+const widthText=prompt(
+"Enter new width in pixels:",
+Math.round(image.width/2)
+);
+
+if(!widthText){
+
+processBtn.disabled=false;
+return;
+
+}
+
+const newWidth=parseInt(widthText);
+
+if(!newWidth||newWidth<1)
+throw new Error("Invalid width.");
+
+const ratio=newWidth/image.width;
+
+const newHeight=
+Math.round(
+image.height*ratio
+);
+
+const canvas=document.createElement("canvas");
+
+canvas.width=newWidth;
+canvas.height=newHeight;
+
+const ctx=canvas.getContext("2d");
+
+ctx.drawImage(
+image,
+0,
+0,
+newWidth,
+newHeight
+);
+
+const blob=
+await canvasToBlob(
+canvas,
+"image/jpeg",
+.90
+);
+
+downloadBlob(
+blob,
+"iLovePDF4-resized.jpg"
+);
+
+setProgress(100);
+
+setStatus(
+"Image resized successfully!",
+"success"
+);
+
+processBtn.disabled=false;
+
+}
+
+
+/* HELPERS */
+
+function loadImage(file){
+
+return new Promise(
+(resolve,reject)=>{
+
+const img=new Image();
+
+const url=
+URL.createObjectURL(file);
+
+img.onload=()=>{
+URL.revokeObjectURL(url);
+resolve(img);
+};
+
+img.onerror=()=>{
+URL.revokeObjectURL(url);
+reject(
+new Error(
+"Could not read image."
+)
+);
+};
+
+img.src=url;
+
+}
+);
+
+}
+
+
+function canvasToBlob(
+canvas,
+type,
+quality
 ){
 
-const url =
+return new Promise(
+resolve=>
+canvas.toBlob(
+resolve,
+type,
+quality
+)
+);
+
+}
+
+
+function downloadBlob(blob,filename){
+
+const url=
 URL.createObjectURL(blob);
 
-const a =
-document.createElement("a");
+const a=document.createElement("a");
 
 a.href=url;
-
-a.download=name;
+a.download=filename;
 
 document.body.appendChild(a);
 
@@ -653,1810 +1826,39 @@ URL.revokeObjectURL(url);
 }
 
 
-function downloadBytes(
-bytes,
-name,
-type
-){
+function sleep(ms){
 
-const blob =
-new Blob(
-[bytes],
-{type}
+return new Promise(
+resolve=>setTimeout(resolve,ms)
 );
 
-downloadBlob(
-blob,
-name
-);
-
-}
-
-
-function escapeHTML(str){
-
-return String(str)
-
-.replace(
-/&/g,
-"&amp;"
-)
-
-.replace(
-/</g,
-"&lt;"
-)
-
-.replace(
-/>/g,
-"&gt;"
-)
-
-.replace(
-/"/g,
-"&quot;"
-)
-
-.replace(
-/'/g,
-"&#039;"
-);
-
-}
-
-
-/* =========================
-   MAIN PROCESS FUNCTION
-========================= */
-
-
-async function processFile(){
-
-const files =
-[...input.files];
-
-
-if(!files.length){
-
-statusText(
-"❌ Please select a file first.",
-"error"
-);
-
-return;
-
-}
-
-
-const btn =
-document.getElementById(
-"processBtn"
-);
-
-
-btn.disabled=true;
-
-btn.textContent=
-"Processing...";
-
-
-statusText(
-"⏳ Processing your file...",
-"info"
-);
-
-
-try{
-
-
-/*
-CloudConvert supported tools
-*/
-
-const cloudConvertTools = [
-
-"pdf-to-word",
-"word-to-pdf",
-
-"pdf-to-powerpoint",
-"powerpoint-to-pdf",
-
-"pdf-to-excel",
-"excel-to-pdf"
-
-];
-
-
-if(
-cloudConvertTools.includes(
-currentTool
-)
-){
-
-await cloudConvert(
-files[0]
-);
-
-return;
-
-}
-
-
-/*
-Local tools
-*/
-
-switch(currentTool){
-
-
-case "jpg-to-pdf":
-
-case "png-to-pdf":
-
-case "image-to-pdf":
-
-case "pdf-scanner":
-
-await imagesToPDF(files);
-
-break;
-
-
-case "merge-pdf":
-
-await mergePDF(files);
-
-break;
-
-
-case "split-pdf":
-
-await splitPDF(files[0]);
-
-break;
-
-
-case "extract-pages":
-
-await extractPages(files[0]);
-
-break;
-
-
-case "remove-pages":
-
-await removePages(files[0]);
-
-break;
-
-
-case "rotate-pdf":
-
-await rotatePDF(files[0]);
-
-break;
-
-
-case "jpg-to-png":
-
-await convertImage(
-files[0],
-"png"
-);
-
-break;
-
-
-case "png-to-jpg":
-
-case "image-to-jpg":
-
-await convertImage(
-files[0],
-"jpeg"
-);
-
-break;
-
-
-case "compress-image":
-
-await compressImage(
-files[0]
-);
-
-break;
-
-
-case "resize-image":
-
-await resizeImage(
-files[0]
-);
-
-break;
-
-
-default:
-
-statusText(
-"⚠️ This tool is not connected to a processing engine yet.",
-"info"
-);
-
-}
-
-
-}catch(error){
-
-console.error(error);
-
-statusText(
-"❌ Processing failed.\n\n"+
-(error.message || error),
-"error"
-);
-
-}finally{
-
-btn.disabled=false;
-
-btn.textContent=
-"Process File";
-
-}
-
-}
-
-
-/* =========================
-   CLOUDCONVERT
-========================= */
-
-
-async function cloudConvert(file){
-
-statusText(
-"⏳ Creating conversion job...",
-"info"
-);
-
-
-/*
-Step 1:
-Create CloudConvert job
-*/
-
-const startResponse =
-await fetch(
-"/api/convert-start",
-{
-method:"POST",
-
-headers:{
-"Content-Type":
-"application/json"
-},
-
-body:JSON.stringify({
-
-tool:currentTool,
-
-filename:file.name
-
-})
-
-}
-);
-
-
-const startData =
-await startResponse.json();
-
-
-if(!startResponse.ok){
-
-throw new Error(
-startData.error ||
-"Could not create conversion job."
-);
-
-}
-
-
-if(
-!startData.jobId ||
-!startData.form
-){
-
-throw new Error(
-"CloudConvert did not return a valid upload form."
-);
-
-}
-
-
-const form =
-startData.form;
-
-
-if(
-!form.url
-){
-
-throw new Error(
-"CloudConvert upload URL is missing."
-);
-
-}
-
-
-/*
-Step 2:
-Upload original file
-*/
-
-statusText(
-"⏳ Uploading file to conversion server...",
-"info"
-);
-
-
-const uploadData =
-new FormData();
-
-
-const parameters =
-form.parameters || {};
-
-
-Object.keys(parameters)
-.forEach(
-key=>{
-
-uploadData.append(
-key,
-parameters[key]
-);
-
-}
-);
-
-
-uploadData.append(
-"file",
-file,
-file.name
-);
-
-
-const uploadResponse =
-await fetch(
-form.url,
-{
-method:"POST",
-body:uploadData
-}
-);
-
-
-if(
-!uploadResponse.ok
-){
-
-const uploadText =
-await uploadResponse.text()
-.catch(
-()=>""
-);
-
-throw new Error(
-"File upload failed."+
-(
-uploadText
-? "\n"+uploadText
-: ""
-)
-);
-
-}
-
-
-/*
-Step 3:
-Wait for conversion
-*/
-
-statusText(
-"⏳ File uploaded. Conversion is processing...",
-"info"
-);
-
-
-const result =
-await waitForConversion(
-startData.jobId
-);
-
-
-if(
-result.status!=="finished"
-){
-
-throw new Error(
-result.error ||
-"Conversion failed."
-);
-
-}
-
-
-/*
-Step 4:
-Download converted file
-*/
-
-statusText(
-"⏳ Conversion finished. Preparing download...",
-"info"
-);
-
-
-if(!result.url){
-
-throw new Error(
-"Conversion finished but download URL is missing."
-);
-
-}
-
-
-const outputName =
-result.filename ||
-getOutputFilename(
-file.name,
-currentTool
-);
-
-
-const link =
-document.createElement("a");
-
-
-link.href =
-result.url;
-
-
-link.target="_blank";
-
-link.rel="noopener";
-
-link.download =
-outputName;
-
-
-link.className =
-"download-link";
-
-
-link.textContent =
-"⬇️ Download Converted File";
-
-
-const box =
-document.getElementById(
-"status"
-);
-
-
-box.innerHTML =
-"✅ Conversion completed successfully.<br><br>";
-
-box.appendChild(link);
-
-
-box.className="success";
-
-box.style.display="block";
-
-}
-
-
-/* =========================
-   POLL CLOUDCONVERT STATUS
-========================= */
-
-
-async function waitForConversion(
-jobId
-){
-
-const maxAttempts=120;
-
-for(
-let attempt=0;
-attempt<maxAttempts;
-attempt++
-){
-
-
-const response =
-await fetch(
-"/api/convert-status?job="+
-encodeURIComponent(jobId)
-);
-
-
-const data =
-await response.json();
-
-
-if(!response.ok){
-
-throw new Error(
-data.error ||
-"Could not check conversion status."
-);
-
-}
-
-
-if(
-data.status==="finished"
-){
-
-return data;
-
-}
-
-
-if(
-data.status==="error"
-){
-
-throw new Error(
-data.error ||
-"CloudConvert conversion failed."
-);
-
-}
-
-
-if(
-data.status==="failed"
-){
-
-throw new Error(
-data.error ||
-"CloudConvert conversion failed."
-);
-
-}
-
-
-const seconds =
-Math.min(
-5,
-2 + Math.floor(attempt/10)
-);
-
-
-statusText(
-"⏳ Conversion in progress...\n\n"+
-"Please wait...",
-"info"
-);
-
-
-await new Promise(
-resolve=>
-setTimeout(
-resolve,
-seconds*1000
-)
-);
-
-}
-
-
-throw new Error(
-"Conversion timed out. Please try again."
-);
-
-}
-
-
-/* =========================
-   OUTPUT FILENAME
-========================= */
-
-
-function getOutputFilename(
-filename,
-tool
-){
-
-const base =
-filename.replace(
-/\.[^.]+$/,
-""
-);
-
-
-switch(tool){
-
-case "pdf-to-word":
-return base+".docx";
-
-case "word-to-pdf":
-return base+".pdf";
-
-case "pdf-to-powerpoint":
-return base+".pptx";
-
-case "powerpoint-to-pdf":
-return base+".pdf";
-
-case "pdf-to-excel":
-return base+".xlsx";
-
-case "excel-to-pdf":
-return base+".pdf";
-
-default:
-return base+"-converted";
-
-}
-
-}
-
-
-/* =========================
-   PDF TO WORD
-   Fallback/local function
-========================= */
-
-
-async function pdfToWord(file){
-
-statusText(
-"⏳ Reading PDF text...",
-"info"
-);
-
-
-const pdfjs =
-await import(
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs"
-);
-
-
-pdfjs.GlobalWorkerOptions.workerSrc =
-"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
-
-
-const data =
-await file.arrayBuffer();
-
-
-const pdf =
-await pdfjs.getDocument({
-data:data
-}).promise;
-
-
-let text="";
-
-
-for(
-let i=1;
-i<=pdf.numPages;
-i++
-){
-
-const page =
-await pdf.getPage(i);
-
-
-const content =
-await page.getTextContent();
-
-
-const pageText =
-content.items
-.map(
-item=>item.str
-)
-.join(" ");
-
-
-text +=
-"Page "+i+
-"\n\n";
-
-
-text +=
-pageText+
-"\n\n";
-
-}
-
-
-if(!text.trim()){
-
-throw new Error(
-"No selectable text found. This may be a scanned/image PDF."
-);
-
-}
-
-
-const html =
-
-`<!DOCTYPE html>
-
-<html>
-
-<head>
-
-<meta charset="UTF-8">
-
-<style>
-
-body{
-font-family:Arial;
-font-size:14pt;
-}
-
-</style>
-
-</head>
-
-<body>
-
-${escapeHTML(text)
-.replace(
-/\n/g,
-"<br>"
-)}
-
-</body>
-
-</html>`;
-
-
-const blob =
-new Blob(
-[html],
-{
-type:"application/msword"
-}
-);
-
-
-downloadBlob(
-blob,
-file.name.replace(
-/\.pdf$/i,
-""
-)+
-".doc"
-);
-
-
-statusText(
-"✅ PDF converted successfully.\n\n"+
-"Your Word-compatible .doc file has been downloaded.",
-"success"
-);
-
-}
-
-
-/* =========================
-   IMAGES TO PDF
-========================= */
-
-
-async function imagesToPDF(
-files
-){
-
-const {
-PDFDocument
-}=PDFLib;
-
-
-const pdf =
-await PDFDocument.create();
-
-
-for(
-const file of files
-){
-
-const bytes =
-await file.arrayBuffer();
-
-
-let image;
-
-
-if(
-file.type==="image/png"
-){
-
-image =
-await pdf.embedPng(
-bytes
-);
-
-}else if(
-file.type==="image/jpeg" ||
-file.type==="image/jpg"
-){
-
-image =
-await pdf.embedJpg(
-bytes
-);
-
-}else{
-
-throw new Error(
-"Please select JPG or PNG images."
-);
-
-}
-
-
-const width =
-image.width;
-
-
-const height =
-image.height;
-
-
-const page =
-pdf.addPage(
-[
-width,
-height
-]
-);
-
-
-page.drawImage(
-image,
-{
-x:0,
-y:0,
-width:width,
-height:height
-}
-);
-
-}
-
-
-const bytes =
-await pdf.save();
-
-
-downloadBytes(
-bytes,
-"iLovePDF4-images.pdf",
-"application/pdf"
-);
-
-
-statusText(
-"✅ PDF created successfully.",
-"success"
-);
-
-}
-
-
-/* =========================
-   MERGE PDF
-========================= */
-
-
-async function mergePDF(
-files
-){
-
-if(
-files.length<2
-){
-
-throw new Error(
-"Select at least 2 PDF files to merge."
-);
-
-}
-
-
-const {
-PDFDocument
-}=PDFLib;
-
-
-const output =
-await PDFDocument.create();
-
-
-for(
-const file of files
-){
-
-const bytes =
-await file.arrayBuffer();
-
-
-const pdf =
-await PDFDocument.load(
-bytes
-);
-
-
-const pages =
-await output.copyPages(
-pdf,
-pdf.getPageIndices()
-);
-
-
-pages.forEach(
-page=>
-output.addPage(page)
-);
-
-}
-
-
-const bytes =
-await output.save();
-
-
-downloadBytes(
-bytes,
-"iLovePDF4-merged.pdf",
-"application/pdf"
-);
-
-
-statusText(
-"✅ "+
-files.length+
-" PDF files merged successfully.",
-"success"
-);
-
-}
-
-
-/* =========================
-   SPLIT PDF
-========================= */
-
-
-async function splitPDF(
-file
-){
-
-const {
-PDFDocument
-}=PDFLib;
-
-
-const bytes =
-await file.arrayBuffer();
-
-
-const source =
-await PDFDocument.load(
-bytes
-);
-
-
-const total =
-source.getPageCount();
-
-
-for(
-let i=0;
-i<total;
-i++
-){
-
-const output =
-await PDFDocument.create();
-
-
-const [page] =
-await output.copyPages(
-source,
-[i]
-);
-
-
-output.addPage(
-page
-);
-
-
-const data =
-await output.save();
-
-
-downloadBytes(
-data,
-"page-"+(i+1)+".pdf",
-"application/pdf"
-);
-
-}
-
-
-statusText(
-"✅ PDF split successfully.\n\n"+
-total+
-" page(s) created.",
-"success"
-);
-
-}
-
-
-/* =========================
-   EXTRACT PAGES
-========================= */
-
-
-async function extractPages(
-file
-){
-
-const value =
-document
-.getElementById(
-"pageNumbers"
-)
-.value
-.trim();
-
-
-if(!value){
-
-throw new Error(
-"Enter page numbers first. Example: 1,3,5"
-);
-
-}
-
-
-const pages =
-parsePageNumbers(
-value
-);
-
-
-const {
-PDFDocument
-}=PDFLib;
-
-
-const source =
-await PDFDocument.load(
-await file.arrayBuffer()
-);
-
-
-const output =
-await PDFDocument.create();
-
-
-const indexes =
-pages
-
-.filter(
-n=>
-n>=1 &&
-n<=source.getPageCount()
-)
-
-.map(
-n=>n-1
-);
-
-
-if(!indexes.length){
-
-throw new Error(
-"No valid page numbers found."
-);
-
-}
-
-
-const copied =
-await output.copyPages(
-source,
-indexes
-);
-
-
-copied.forEach(
-page=>
-output.addPage(page)
-);
-
-
-const data =
-await output.save();
-
-
-downloadBytes(
-data,
-"extracted-pages.pdf",
-"application/pdf"
-);
-
-
-statusText(
-"✅ Selected pages extracted successfully.",
-"success"
-);
-
-}
-
-
-/* =========================
-   REMOVE PAGES
-========================= */
-
-
-async function removePages(
-file
-){
-
-const value =
-document
-.getElementById(
-"pageNumbers"
-)
-.value
-.trim();
-
-
-if(!value){
-
-throw new Error(
-"Enter page numbers to remove."
-);
-
-}
-
-
-const remove =
-parsePageNumbers(
-value
-);
-
-
-const {
-PDFDocument
-}=PDFLib;
-
-
-const source =
-await PDFDocument.load(
-await file.arrayBuffer()
-);
-
-
-const output =
-await PDFDocument.create();
-
-
-for(
-let i=0;
-i<source.getPageCount();
-i++
-){
-
-const pageNumber =
-i+1;
-
-
-if(
-!remove.includes(
-pageNumber
-)
-){
-
-const [page] =
-await output.copyPages(
-source,
-[i]
-);
-
-
-output.addPage(
-page
-);
-
-}
-
-}
-
-
-if(
-output.getPageCount()===0
-){
-
-throw new Error(
-"You cannot remove all pages."
-);
-
-}
-
-
-const data =
-await output.save();
-
-
-downloadBytes(
-data,
-"pages-removed.pdf",
-"application/pdf"
-);
-
-
-statusText(
-"✅ Selected pages removed successfully.",
-"success"
-);
-
-}
-
-
-/* =========================
-   PAGE NUMBER PARSER
-========================= */
-
-
-function parsePageNumbers(
-value
-){
-
-const result=[];
-
-
-value.split(",")
-.forEach(
-part=>{
-
-part =
-part.trim();
-
-
-if(
-!part
-){
-return;
-}
-
-
-if(
-part.includes("-")
-){
-
-const [a,b] =
-part
-.split("-")
-.map(Number);
-
-
-if(
-Number.isInteger(a) &&
-Number.isInteger(b) &&
-a>0 &&
-b>=a
-){
-
-for(
-let i=a;
-i<=b;
-i++
-){
-
-result.push(i);
-
-}
-
-}
-
-}else{
-
-const n =
-Number(part);
-
-
-if(
-Number.isInteger(n) &&
-n>0
-){
-
-result.push(n);
-
-}
-
-}
-
-}
-);
-
-
-return [
-...new Set(result)
-]
-.sort(
-(a,b)=>a-b
-);
-
-}
-
-
-/* =========================
-   ROTATE PDF
-========================= */
-
-
-async function rotatePDF(
-file
-){
-
-const {
-PDFDocument,
-degrees
-}=PDFLib;
-
-
-const pdf =
-await PDFDocument.load(
-await file.arrayBuffer()
-);
-
-
-pdf.getPages()
-.forEach(
-page=>{
-
-page.setRotation(
-degrees(
-(
-page.getRotation().angle+
-90
-)%360
-)
-);
-
-}
-);
-
-
-const bytes =
-await pdf.save();
-
-
-downloadBytes(
-bytes,
-"rotated.pdf",
-"application/pdf"
-);
-
-
-statusText(
-"✅ PDF rotated successfully.",
-"success"
-);
-
-}
-
-
-/* =========================
-   IMAGE CONVERSION
-========================= */
-
-
-async function convertImage(
-file,
-format
-){
-
-const img =
-new Image();
-
-
-const url =
-URL.createObjectURL(
-file
-);
-
-
-await new Promise(
-(resolve,reject)=>{
-
-img.onload=resolve;
-
-img.onerror=reject;
-
-img.src=url;
-
-}
-);
-
-
-const canvas =
-document.createElement(
-"canvas"
-);
-
-
-canvas.width =
-img.naturalWidth;
-
-
-canvas.height =
-img.naturalHeight;
-
-
-const ctx =
-canvas.getContext(
-"2d"
-);
-
-
-if(
-format==="jpeg"
-){
-
-ctx.fillStyle =
-"#ffffff";
-
-
-ctx.fillRect(
-0,
-0,
-canvas.width,
-canvas.height
-);
-
-}
-
-
-ctx.drawImage(
-img,
-0,
-0
-);
-
-
-const mime =
-format==="png"
-? "image/png"
-: "image/jpeg";
-
-
-const blob =
-await new Promise(
-resolve=>
-canvas.toBlob(
-resolve,
-mime,
-0.92
-)
-);
-
-
-if(!blob){
-
-URL.revokeObjectURL(
-url
-);
-
-throw new Error(
-"Could not create converted image."
-);
-
-}
-
-
-downloadBlob(
-blob,
-file.name.replace(
-/\.[^.]+$/,
-""
-)+
-"."+
-(
-format==="png"
-? "png"
-: "jpg"
-)
-);
-
-
-URL.revokeObjectURL(
-url
-);
-
-
-statusText(
-"✅ Image converted successfully.",
-"success"
-);
-
-}
-
-
-/* =========================
-   COMPRESS IMAGE
-========================= */
-
-
-async function compressImage(
-file
-){
-
-const img =
-new Image();
-
-
-const url =
-URL.createObjectURL(
-file
-);
-
-
-await new Promise(
-(resolve,reject)=>{
-
-img.onload=resolve;
-
-img.onerror=reject;
-
-img.src=url;
-
-}
-);
-
-
-const canvas =
-document.createElement(
-"canvas"
-);
-
-
-canvas.width =
-img.naturalWidth;
-
-
-canvas.height =
-img.naturalHeight;
-
-
-const ctx =
-canvas.getContext(
-"2d"
-);
-
-
-ctx.drawImage(
-img,
-0,
-0
-);
-
-
-const blob =
-await new Promise(
-resolve=>
-canvas.toBlob(
-resolve,
-"image/jpeg",
-0.65
-)
-);
-
-
-if(!blob){
-
-URL.revokeObjectURL(
-url
-);
-
-throw new Error(
-"Could not compress image."
-);
-
-}
-
-
-downloadBlob(
-blob,
-"compressed-"+
-file.name.replace(
-/\.[^.]+$/,
-".jpg"
-)
-);
-
-
-URL.revokeObjectURL(
-url
-);
-
-
-statusText(
-"✅ Image compressed successfully.",
-"success"
-);
-
-}
-
-
-/* =========================
-   RESIZE IMAGE
-========================= */
-
-
-async function resizeImage(
-file
-){
-
-const img =
-new Image();
-
-
-const url =
-URL.createObjectURL(
-file
-);
-
-
-await new Promise(
-(resolve,reject)=>{
-
-img.onload=resolve;
-
-img.onerror=reject;
-
-img.src=url;
-
-}
-);
-
-
-const width =
-Math.round(
-img.naturalWidth*0.5
-);
-
-
-const height =
-Math.round(
-img.naturalHeight*0.5
-);
-
-
-const canvas =
-document.createElement(
-"canvas"
-);
-
-
-canvas.width =
-width;
-
-
-canvas.height =
-height;
-
-
-const ctx =
-canvas.getContext(
-"2d"
-);
-
-
-ctx.drawImage(
-img,
-0,
-0,
-width,
-height
-);
-
-
-const blob =
-await new Promise(
-resolve=>
-canvas.toBlob(
-resolve,
-"image/jpeg",
-0.9
-)
-);
-
-
-if(!blob){
-
-URL.revokeObjectURL(
-url
-);
-
-throw new Error(
-"Could not resize image."
-);
-
-}
-
-
-downloadBlob(
-blob,
-"resized-"+
-file.name.replace(
-/\.[^.]+$/,
-".jpg"
-)
-);
-
-
-URL.revokeObjectURL(
-url
-);
-
-
-statusText(
-"✅ Image resized to 50% successfully.",
-"success"
-);
-
 }
 
 
-/* =========================
-   LOGOUT
-========================= */
+function escapeHtml(value){
 
+return String(value)
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
 
-async function logout(){
-
-try{
-
-await fetch(
-"/api/logout",
-{
-method:"POST"
 }
-);
 
-}catch(e){}
 
+function escapeAttribute(value){
 
-location.href =
-"/login.html";
+return String(value)
+.replace(/&/g,"&amp;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;");
 
 }
 
 </script>
 
-
 </body>
-
 </html>
