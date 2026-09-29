@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>iLovePDF4 - Admin Panel</title>
+<title>iLovePDF4 - Admin Dashboard</title>
 
 <style>
 *{
@@ -15,7 +15,7 @@
 }
 
 body{
-  background:#f5f6f8;
+  background:#f4f6f9;
   color:#222;
 }
 
@@ -28,7 +28,7 @@ header{
   align-items:center;
   position:sticky;
   top:0;
-  z-index:10;
+  z-index:100;
 }
 
 .logo{
@@ -44,7 +44,12 @@ header{
 .header-right{
   display:flex;
   align-items:center;
-  gap:10px;
+  gap:12px;
+}
+
+.admin-name{
+  font-weight:bold;
+  color:#444;
 }
 
 .logout{
@@ -54,21 +59,67 @@ header{
   padding:9px 15px;
   border-radius:7px;
   cursor:pointer;
+  font-weight:bold;
+}
+
+.logout:hover{
+  opacity:.9;
 }
 
 .container{
-  max-width:1200px;
+  max-width:1250px;
   margin:auto;
   padding:25px 15px;
 }
 
-h1{
+.top-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
   margin-bottom:20px;
+  flex-wrap:wrap;
 }
+
+h1{
+  font-size:28px;
+}
+
+.back{
+  color:#e5322d;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+.refresh{
+  border:0;
+  background:#222;
+  color:#fff;
+  padding:9px 15px;
+  border-radius:7px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.status{
+  padding:15px;
+  margin-bottom:20px;
+  border-radius:8px;
+  background:#fff3cd;
+  color:#705500;
+}
+
+.hidden{
+  display:none!important;
+}
+
+
+/* DASHBOARD CARDS */
 
 .cards{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  grid-template-columns:
+    repeat(auto-fit,minmax(200px,1fr));
   gap:15px;
   margin-bottom:25px;
 }
@@ -78,17 +129,78 @@ h1{
   padding:22px;
   border-radius:12px;
   box-shadow:0 2px 10px rgba(0,0,0,.07);
+  border-left:5px solid #e5322d;
 }
 
 .card h3{
   color:#666;
   font-size:14px;
-  margin-bottom:8px;
+  margin-bottom:10px;
 }
 
 .card strong{
-  font-size:28px;
+  font-size:30px;
 }
+
+
+/* CHART */
+
+.chart-box{
+  background:#fff;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 2px 10px rgba(0,0,0,.07);
+  margin-bottom:25px;
+}
+
+.chart-title{
+  font-size:20px;
+  font-weight:bold;
+  margin-bottom:20px;
+}
+
+.chart{
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  gap:35px;
+  height:220px;
+  padding:20px 10px 35px;
+  border-bottom:1px solid #ddd;
+}
+
+.bar-area{
+  width:80px;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-end;
+}
+
+.bar-value{
+  font-size:13px;
+  font-weight:bold;
+  margin-bottom:5px;
+}
+
+.bar{
+  width:55px;
+  min-height:5px;
+  background:#e5322d;
+  border-radius:7px 7px 0 0;
+  transition:height .4s ease;
+}
+
+.bar-label{
+  margin-top:8px;
+  font-size:13px;
+  color:#555;
+  text-align:center;
+}
+
+
+/* USER MANAGEMENT */
 
 .table-box{
   background:#fff;
@@ -98,13 +210,35 @@ h1{
   overflow-x:auto;
 }
 
+.table-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:15px;
+  flex-wrap:wrap;
+}
+
+.search{
+  padding:10px 12px;
+  border:1px solid #ccc;
+  border-radius:7px;
+  min-width:230px;
+  outline:none;
+}
+
+.search:focus{
+  border-color:#e5322d;
+}
+
 table{
   width:100%;
   border-collapse:collapse;
-  min-width:800px;
+  min-width:900px;
 }
 
-th,td{
+th,
+td{
   padding:12px;
   border-bottom:1px solid #eee;
   text-align:left;
@@ -113,12 +247,23 @@ th,td{
 
 th{
   background:#f7f7f7;
+  position:sticky;
+  top:0;
 }
 
+tr:hover{
+  background:#fafafa;
+}
+
+
+/* BADGES */
+
 .badge{
+  display:inline-block;
   padding:5px 9px;
   border-radius:20px;
   font-size:12px;
+  font-weight:bold;
 }
 
 .yes{
@@ -131,25 +276,13 @@ th{
   color:#a50000;
 }
 
-.status{
-  padding:15px;
-  margin-bottom:20px;
-  border-radius:8px;
-  background:#fff3cd;
-  color:#705500;
+.admin-badge{
+  background:#e7ddff;
+  color:#5a20a8;
 }
 
-.hidden{
-  display:none;
-}
 
-.back{
-  display:inline-block;
-  margin-bottom:20px;
-  color:#e5322d;
-  text-decoration:none;
-  font-weight:bold;
-}
+/* MOBILE */
 
 @media(max-width:600px){
 
@@ -158,16 +291,42 @@ th{
   }
 
   .logo{
-    font-size:20px;
+    font-size:19px;
+  }
+
+  .admin-name{
+    display:none;
   }
 
   .container{
-    padding:20px 10px;
+    padding:18px 10px;
+  }
+
+  h1{
+    font-size:23px;
+  }
+
+  .chart{
+    gap:15px;
+  }
+
+  .bar-area{
+    width:60px;
+  }
+
+  .bar{
+    width:42px;
+  }
+
+  .search{
+    width:100%;
+    min-width:0;
   }
 
 }
 </style>
 </head>
+
 
 <body>
 
@@ -179,7 +338,9 @@ th{
 
   <div class="header-right">
 
-    <span id="adminName">Admin</span>
+    <span id="adminName" class="admin-name">
+      Admin
+    </span>
 
     <button class="logout" onclick="logout()">
       Logout
@@ -192,216 +353,708 @@ th{
 
 <div class="container">
 
-<a href="home.html" class="back">
-← Back to Home
-</a>
+  <div class="top-bar">
 
-<h1>Admin Dashboard</h1>
+    <div>
+      <a href="home.html" class="back">
+        ← Back to Home
+      </a>
 
-<div id="status" class="status">
-Loading users...
-</div>
+      <h1 style="margin-top:10px;">
+        Admin Dashboard
+      </h1>
+    </div>
 
+    <button
+      class="refresh"
+      onclick="loadAdmin()">
+      ↻ Refresh
+    </button>
 
-<div id="dashboard" class="hidden">
-
-<div class="cards">
-
-  <div class="card">
-    <h3>Total Users</h3>
-    <strong id="totalUsers">0</strong>
   </div>
 
-  <div class="card">
-    <h3>Verified Email</h3>
-    <strong id="verifiedEmail">0</strong>
+
+  <div id="status" class="status">
+    Loading dashboard...
   </div>
 
-  <div class="card">
-    <h3>Verified Mobile</h3>
-    <strong id="verifiedMobile">0</strong>
+
+  <div id="dashboard" class="hidden">
+
+
+    <!-- DASHBOARD CARDS -->
+
+    <div class="cards">
+
+      <div class="card">
+        <h3>Total Users</h3>
+        <strong id="totalUsers">0</strong>
+      </div>
+
+      <div class="card">
+        <h3>Verified Email</h3>
+        <strong id="verifiedEmail">0</strong>
+      </div>
+
+      <div class="card">
+        <h3>Verified Mobile</h3>
+        <strong id="verifiedMobile">0</strong>
+      </div>
+
+      <div class="card">
+        <h3>Admins</h3>
+        <strong id="totalAdmins">0</strong>
+      </div>
+
+      <div class="card">
+        <h3>Today's Registration</h3>
+        <strong id="todayUsers">0</strong>
+      </div>
+
+    </div>
+
+
+    <!-- CHART -->
+
+    <div class="chart-box">
+
+      <div class="chart-title">
+        User Statistics
+      </div>
+
+      <div class="chart">
+
+        <div class="bar-area">
+
+          <div
+            class="bar-value"
+            id="chartTotalValue">
+            0
+          </div>
+
+          <div
+            class="bar"
+            id="chartTotal"
+            style="height:5px;">
+          </div>
+
+          <div class="bar-label">
+            Total Users
+          </div>
+
+        </div>
+
+
+        <div class="bar-area">
+
+          <div
+            class="bar-value"
+            id="chartVerifiedValue">
+            0
+          </div>
+
+          <div
+            class="bar"
+            id="chartVerified"
+            style="height:5px;">
+          </div>
+
+          <div class="bar-label">
+            Verified
+          </div>
+
+        </div>
+
+
+        <div class="bar-area">
+
+          <div
+            class="bar-value"
+            id="chartAdminValue">
+            0
+          </div>
+
+          <div
+            class="bar"
+            id="chartAdmin"
+            style="height:5px;">
+          </div>
+
+          <div class="bar-label">
+            Admins
+          </div>
+
+        </div>
+
+
+        <div class="bar-area">
+
+          <div
+            class="bar-value"
+            id="chartTodayValue">
+            0
+          </div>
+
+          <div
+            class="bar"
+            id="chartToday"
+            style="height:5px;">
+          </div>
+
+          <div class="bar-label">
+            Today
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- USER MANAGEMENT -->
+
+    <div class="table-box">
+
+      <div class="table-header">
+
+        <h2>
+          User Management
+        </h2>
+
+        <input
+          type="text"
+          id="searchUser"
+          class="search"
+          placeholder="Search username, mobile or email..."
+          oninput="filterUsers()">
+
+      </div>
+
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>ID</th>
+
+            <th>Username</th>
+
+            <th>Mobile</th>
+
+            <th>Email</th>
+
+            <th>Email Verified</th>
+
+            <th>Mobile Verified</th>
+
+            <th>Role</th>
+
+            <th>Created</th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody id="usersTable">
+
+        </tbody>
+
+      </table>
+
+    </div>
+
   </div>
-
-  <div class="card">
-    <h3>Admins</h3>
-    <strong id="totalAdmins">0</strong>
-  </div>
-
-</div>
-
-
-<div class="table-box">
-
-<h2 style="margin-bottom:15px;">
-Registered Users
-</h2>
-
-<table>
-
-<thead>
-
-<tr>
-<th>ID</th>
-<th>Username</th>
-<th>Mobile</th>
-<th>Email</th>
-<th>Email Verified</th>
-<th>Mobile Verified</th>
-<th>Admin</th>
-<th>Created</th>
-</tr>
-
-</thead>
-
-<tbody id="usersTable">
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
 
 </div>
 
 
 <script>
 
+let allUsers = [];
+
+
+/* =========================
+   LOAD ADMIN DASHBOARD
+========================= */
+
 async function loadAdmin(){
+
+  const status =
+    document.getElementById("status");
+
+  const dashboard =
+    document.getElementById("dashboard");
+
+  status.classList.remove("hidden");
+
+  status.textContent =
+    "Loading dashboard...";
+
 
   try{
 
-    const response = await fetch(
-      "/api/admin",
-      {
-        credentials:"include"
-      }
-    );
+    const response =
+      await fetch(
+        "/api/admin",
+        {
+          method:"GET",
+          credentials:"include",
+          cache:"no-store"
+        }
+      );
 
-    const data = await response.json();
+
+    const data =
+      await response.json();
+
 
     if(!response.ok){
 
-      document.getElementById("status").textContent =
-        data.message || "Access denied";
+      status.textContent =
+        data.message ||
+        "Admin access denied.";
+
+      dashboard.classList.add("hidden");
 
       return;
     }
 
-    document.getElementById("status")
-      .classList.add("hidden");
 
-    document.getElementById("dashboard")
-      .classList.remove("hidden");
+    if(!data.success){
 
-    document.getElementById("adminName").textContent =
-      "Admin: " + data.admin.username;
+      status.textContent =
+        data.message ||
+        "Unable to load dashboard.";
 
-    document.getElementById("totalUsers").textContent =
-      data.totalUsers;
+      return;
+    }
 
-    const users = data.users || [];
+
+    status.classList.add("hidden");
+
+    dashboard.classList.remove("hidden");
+
+
+    /* ADMIN NAME */
+
+    if(data.admin){
+
+      document.getElementById(
+        "adminName"
+      ).textContent =
+        "Admin: " +
+        (data.admin.username || "Admin");
+
+    }
+
+
+    /* USERS */
+
+    allUsers =
+      Array.isArray(data.users)
+      ? data.users
+      : [];
+
+
+    /* TOTAL */
+
+    const total =
+      Number(
+        data.totalUsers ??
+        allUsers.length
+      );
+
+
+    /* COUNTS */
 
     let emailVerified = 0;
     let mobileVerified = 0;
     let admins = 0;
+    let today = 0;
 
-    const table =
-      document.getElementById("usersTable");
 
-    table.innerHTML = "";
+    const todayDate =
+      new Date()
+        .toISOString()
+        .slice(0,10);
 
-    users.forEach(user => {
 
-      if(Number(user.email_verified) === 1){
+    allUsers.forEach(user => {
+
+      if(
+        Number(user.email_verified) === 1
+      ){
         emailVerified++;
       }
 
-      if(Number(user.mobile_verified) === 1){
+
+      if(
+        Number(user.mobile_verified) === 1
+      ){
         mobileVerified++;
       }
 
-      if(Number(user.is_admin) === 1){
+
+      if(
+        Number(user.is_admin) === 1
+      ){
         admins++;
       }
 
-      const row =
-        document.createElement("tr");
 
-      row.innerHTML = `
+      if(user.created_at){
 
-        <td>${user.id}</td>
+        const created =
+          String(user.created_at)
+            .slice(0,10);
 
-        <td>${escapeHtml(user.username)}</td>
+        if(created === todayDate){
+          today++;
+        }
 
-        <td>${escapeHtml(user.mobile)}</td>
-
-        <td>${escapeHtml(user.email)}</td>
-
-        <td>
-          ${
-            Number(user.email_verified) === 1
-            ? '<span class="badge yes">Yes</span>'
-            : '<span class="badge no">No</span>'
-          }
-        </td>
-
-        <td>
-          ${
-            Number(user.mobile_verified) === 1
-            ? '<span class="badge yes">Yes</span>'
-            : '<span class="badge no">No</span>'
-          }
-        </td>
-
-        <td>
-          ${
-            Number(user.is_admin) === 1
-            ? '<span class="badge yes">Admin</span>'
-            : '<span class="badge no">User</span>'
-          }
-        </td>
-
-        <td>${escapeHtml(user.created_at || "")}</td>
-
-      `;
-
-      table.appendChild(row);
+      }
 
     });
 
-    document.getElementById("verifiedEmail").textContent =
-      emailVerified;
 
-    document.getElementById("verifiedMobile").textContent =
-      mobileVerified;
+    /* CARDS */
 
-    document.getElementById("totalAdmins").textContent =
-      admins;
+    document.getElementById(
+      "totalUsers"
+    ).textContent = total;
+
+
+    document.getElementById(
+      "verifiedEmail"
+    ).textContent = emailVerified;
+
+
+    document.getElementById(
+      "verifiedMobile"
+    ).textContent = mobileVerified;
+
+
+    document.getElementById(
+      "totalAdmins"
+    ).textContent = admins;
+
+
+    document.getElementById(
+      "todayUsers"
+    ).textContent = today;
+
+
+    /* CHART */
+
+    updateChart(
+      total,
+      emailVerified,
+      mobileVerified,
+      admins,
+      today
+    );
+
+
+    /* TABLE */
+
+    renderUsers(allUsers);
+
 
   }catch(error){
 
-    document.getElementById("status").textContent =
+    console.error(error);
+
+    status.classList.remove("hidden");
+
+    status.textContent =
       "Unable to connect to server.";
+
+    dashboard.classList.add("hidden");
 
   }
 
 }
 
 
+/* =========================
+   CHART
+========================= */
+
+function updateChart(
+  total,
+  emailVerified,
+  mobileVerified,
+  admins,
+  today
+){
+
+  const max =
+    Math.max(
+      total,
+      emailVerified,
+      mobileVerified,
+      admins,
+      today,
+      1
+    );
+
+
+  setBar(
+    "chartTotal",
+    "chartTotalValue",
+    total,
+    max
+  );
+
+
+  setBar(
+    "chartVerified",
+    "chartVerifiedValue",
+    emailVerified,
+    max
+  );
+
+
+  setBar(
+    "chartAdmin",
+    "chartAdminValue",
+    admins,
+    max
+  );
+
+
+  setBar(
+    "chartToday",
+    "chartTodayValue",
+    today,
+    max
+  );
+
+}
+
+
+function setBar(
+  barId,
+  valueId,
+  value,
+  max
+){
+
+  const bar =
+    document.getElementById(barId);
+
+  const valueElement =
+    document.getElementById(valueId);
+
+
+  valueElement.textContent =
+    value;
+
+
+  let height =
+    (Number(value) / Number(max)) * 150;
+
+
+  if(value > 0 && height < 8){
+    height = 8;
+  }
+
+
+  bar.style.height =
+    height + "px";
+
+}
+
+
+/* =========================
+   USER TABLE
+========================= */
+
+function renderUsers(users){
+
+  const table =
+    document.getElementById(
+      "usersTable"
+    );
+
+
+  table.innerHTML = "";
+
+
+  if(!users.length){
+
+    table.innerHTML = `
+      <tr>
+        <td
+          colspan="8"
+          style="text-align:center;padding:25px;">
+          No users found.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  users.forEach(user => {
+
+    const row =
+      document.createElement("tr");
+
+
+    const emailVerified =
+      Number(user.email_verified) === 1;
+
+
+    const mobileVerified =
+      Number(user.mobile_verified) === 1;
+
+
+    const isAdmin =
+      Number(user.is_admin) === 1;
+
+
+    row.innerHTML = `
+
+      <td>
+        ${escapeHtml(user.id)}
+      </td>
+
+      <td>
+        <strong>
+          ${escapeHtml(user.username)}
+        </strong>
+      </td>
+
+      <td>
+        ${escapeHtml(user.mobile)}
+      </td>
+
+      <td>
+        ${escapeHtml(user.email)}
+      </td>
+
+      <td>
+        ${
+          emailVerified
+          ? '<span class="badge yes">Verified</span>'
+          : '<span class="badge no">Not Verified</span>'
+        }
+      </td>
+
+      <td>
+        ${
+          mobileVerified
+          ? '<span class="badge yes">Verified</span>'
+          : '<span class="badge no">Not Verified</span>'
+        }
+      </td>
+
+      <td>
+        ${
+          isAdmin
+          ? '<span class="badge admin-badge">ADMIN</span>'
+          : '<span class="badge no">USER</span>'
+        }
+      </td>
+
+      <td>
+        ${escapeHtml(user.created_at || "")}
+      </td>
+
+    `;
+
+
+    table.appendChild(row);
+
+  });
+
+}
+
+
+/* =========================
+   SEARCH USERS
+========================= */
+
+function filterUsers(){
+
+  const search =
+    document.getElementById(
+      "searchUser"
+    ).value
+    .toLowerCase()
+    .trim();
+
+
+  if(!search){
+
+    renderUsers(allUsers);
+
+    return;
+  }
+
+
+  const filtered =
+    allUsers.filter(user => {
+
+      const username =
+        String(user.username || "")
+          .toLowerCase();
+
+
+      const mobile =
+        String(user.mobile || "")
+          .toLowerCase();
+
+
+      const email =
+        String(user.email || "")
+          .toLowerCase();
+
+
+      return (
+        username.includes(search) ||
+        mobile.includes(search) ||
+        email.includes(search)
+      );
+
+    });
+
+
+  renderUsers(filtered);
+
+}
+
+
+/* =========================
+   HTML SECURITY
+========================= */
+
 function escapeHtml(text){
 
   const div =
     document.createElement("div");
 
+
   div.textContent =
-    text == null ? "" : String(text);
+    text == null
+    ? ""
+    : String(text);
+
 
   return div.innerHTML;
 
 }
 
+
+/* =========================
+   LOGOUT
+========================= */
 
 async function logout(){
 
@@ -417,11 +1070,16 @@ async function logout(){
 
   }catch(error){}
 
+
   window.location.href =
     "login.html";
 
 }
 
+
+/* =========================
+   START
+========================= */
 
 loadAdmin();
 
