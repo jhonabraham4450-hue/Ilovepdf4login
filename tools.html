@@ -3,1861 +3,532 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>iLovePDF4 Tool</title>
 
-<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<title>iLovePDF4 - All PDF Tools</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
 
 body{
-margin:0;
-font-family:Arial,Helvetica,sans-serif;
-background:#f5f7fb;
-color:#222;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f5f7fb;
+  color:#222;
 }
 
-.header{
-background:#e5322d;
-color:#fff;
-padding:18px;
-text-align:center;
+header{
+  background:#fff;
+  border-bottom:1px solid #e5e7eb;
+  position:sticky;
+  top:0;
+  z-index:100;
 }
 
-.header h1{
-margin:0;
-font-size:25px;
+.nav{
+  max-width:1200px;
+  margin:auto;
+  padding:16px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
 }
 
-.header p{
-margin:7px 0 0;
-font-size:14px;
+.logo{
+  font-size:25px;
+  font-weight:800;
+  color:#e5322d;
+  text-decoration:none;
+}
+
+.nav-right{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.nav-btn{
+  text-decoration:none;
+  color:#333;
+  padding:9px 15px;
+  border-radius:8px;
+  font-weight:600;
+}
+
+.nav-btn:hover{
+  background:#f1f3f5;
+}
+
+.hero{
+  text-align:center;
+  padding:48px 20px 30px;
+}
+
+.hero h1{
+  font-size:38px;
+  margin-bottom:12px;
+}
+
+.hero p{
+  color:#666;
+  font-size:17px;
 }
 
 .container{
-max-width:850px;
-margin:25px auto;
-padding:0 15px;
+  max-width:1200px;
+  margin:auto;
+  padding:20px;
+}
+
+.section-title{
+  font-size:25px;
+  margin:35px 0 18px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
 }
 
 .card{
-background:#fff;
-border-radius:16px;
-padding:25px;
-box-shadow:0 5px 25px rgba(0,0,0,.08);
+  background:#fff;
+  border:1px solid #e4e7ec;
+  border-radius:14px;
+  padding:24px 18px;
+  min-height:180px;
+  cursor:pointer;
+  transition:.2s;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.04);
 }
 
-.tool-title{
-font-size:25px;
-font-weight:700;
-margin-bottom:8px;
+.card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 8px 22px rgba(0,0,0,.10);
+  border-color:#e5322d;
 }
 
-.tool-description{
-color:#666;
-margin-bottom:22px;
+.icon{
+  width:65px;
+  height:65px;
+  border-radius:16px;
+  background:#fff1f0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:32px;
+  margin-bottom:15px;
 }
 
-.dropzone{
-display:block;
-border:2px dashed #e5322d;
-border-radius:14px;
-padding:35px 20px;
-text-align:center;
-background:#fff8f8;
-cursor:pointer;
+.card h3{
+  font-size:17px;
+  margin-bottom:8px;
 }
 
-.dropzone:hover{
-background:#fff1f1;
+.card p{
+  font-size:13px;
+  color:#777;
+  line-height:1.4;
 }
 
-.dropzone strong{
-display:block;
-font-size:18px;
-margin-bottom:8px;
+.badge{
+  margin-top:10px;
+  display:inline-block;
+  padding:4px 9px;
+  border-radius:20px;
+  font-size:11px;
+  font-weight:700;
+  background:#eaf7ed;
+  color:#22863a;
 }
 
-#fileInput{
-display:none;
+footer{
+  margin-top:60px;
+  background:#222;
+  color:#aaa;
+  text-align:center;
+  padding:30px 20px;
 }
 
-.scanner-box{
-display:none;
-margin-top:18px;
+footer strong{
+  color:#fff;
 }
 
-.camera{
-width:100%;
-max-height:450px;
-background:#111;
-border-radius:12px;
-object-fit:cover;
+@media(max-width:900px){
+  .grid{
+    grid-template-columns:repeat(3,1fr);
+  }
 }
 
-.scanner-actions{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-margin-top:12px;
-}
+@media(max-width:650px){
+  .hero h1{
+    font-size:30px;
+  }
 
-.scanner-actions button{
-flex:1;
-}
+  .grid{
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+  }
 
-.scan-pages{
-display:flex;
-gap:10px;
-overflow-x:auto;
-margin-top:15px;
-padding-bottom:5px;
-}
+  .card{
+    min-height:165px;
+    padding:18px 10px;
+  }
 
-.scan-thumb{
-width:90px;
-height:110px;
-object-fit:cover;
-border-radius:8px;
-border:2px solid #ddd;
-flex-shrink:0;
-}
+  .icon{
+    width:55px;
+    height:55px;
+    font-size:27px;
+  }
 
-.file-list{
-margin-top:18px;
-}
+  .card h3{
+    font-size:15px;
+  }
 
-.file-item{
-background:#f3f4f6;
-padding:12px;
-border-radius:9px;
-margin-bottom:8px;
-font-size:14px;
-word-break:break-word;
-}
+  .card p{
+    font-size:12px;
+  }
 
-.actions{
-margin-top:20px;
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-}
+  .nav{
+    padding:13px 12px;
+  }
 
-button{
-border:0;
-border-radius:9px;
-padding:13px 20px;
-font-size:15px;
-font-weight:700;
-cursor:pointer;
-}
+  .logo{
+    font-size:21px;
+  }
 
-.process-btn{
-background:#e5322d;
-color:#fff;
-flex:1;
-}
-
-.back-btn{
-background:#e8e8e8;
-color:#222;
-}
-
-.camera-btn{
-background:#222;
-color:#fff;
-}
-
-.add-scan-btn{
-background:#e5322d;
-color:#fff;
-}
-
-.finish-scan-btn{
-background:#16883b;
-color:#fff;
-}
-
-button:disabled{
-opacity:.55;
-cursor:not-allowed;
-}
-
-.status{
-margin-top:20px;
-padding:14px;
-border-radius:9px;
-background:#f0f4ff;
-display:none;
-line-height:1.5;
-}
-
-.status.success{
-background:#eaf8ee;
-color:#176b31;
-}
-
-.status.error{
-background:#fff0f0;
-color:#a51d1d;
-}
-
-.progress{
-margin-top:15px;
-width:100%;
-height:9px;
-background:#ddd;
-border-radius:10px;
-overflow:hidden;
-display:none;
-}
-
-.progress-bar{
-height:100%;
-width:0%;
-background:#e5322d;
-transition:width .3s;
-}
-
-.download-btn{
-display:inline-block;
-margin-top:12px;
-background:#16883b;
-color:#fff;
-text-decoration:none;
-padding:12px 18px;
-border-radius:8px;
-font-weight:bold;
-}
-
-.note{
-margin-top:18px;
-font-size:12px;
-color:#777;
-}
-
-@media(max-width:600px){
-.card{padding:18px}
-.tool-title{font-size:21px}
-.dropzone{padding:28px 15px}
+  .nav-btn{
+    padding:7px 9px;
+    font-size:13px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-<h1>iLovePDF4</h1>
-<p>Online PDF & Document Tools</p>
-</div>
+<header>
+  <div class="nav">
+    <a href="home.html" class="logo">iLovePDF4</a>
 
-<div class="container">
+    <div class="nav-right">
+      <a href="home.html" class="nav-btn">Home</a>
+      <a href="tools.html" class="nav-btn">All Tools</a>
+    </div>
+  </div>
+</header>
 
-<div class="card">
+<section class="hero">
+  <h1>All PDF Tools</h1>
+  <p>Everything you need to work with PDF, Office files and images.</p>
+</section>
 
-<div class="tool-title" id="toolTitle">PDF Tool</div>
+<main class="container">
 
-<div class="tool-description" id="toolDescription">
-Upload your file and process it.
-</div>
+  <!-- PDF CONVERTER -->
+  <h2 class="section-title">PDF Converter</h2>
 
-<label class="dropzone" id="dropzone" for="fileInput">
-<strong>Choose File</strong>
-<span>Tap here to select a file from your phone</span>
-</label>
+  <div class="grid">
 
-<input type="file" id="fileInput" multiple>
+    <div class="card" onclick="openTool('pdf-to-word')">
+      <div class="icon">📄</div>
+      <h3>PDF to Word</h3>
+      <p>Convert PDF files to editable Word documents.</p>
+      <span class="badge">Converter</span>
+    </div>
 
-<!-- SCANNER -->
+    <div class="card" onclick="openTool('word-to-pdf')">
+      <div class="icon">📝</div>
+      <h3>Word to PDF</h3>
+      <p>Convert Word documents to PDF.</p>
+      <span class="badge">Converter</span>
+    </div>
 
-<div class="scanner-box" id="scannerBox">
+    <div class="card" onclick="openTool('pdf-to-powerpoint')">
+      <div class="icon">📊</div>
+      <h3>PDF to PowerPoint</h3>
+      <p>Convert PDF files to PowerPoint presentations.</p>
+      <span class="badge">Converter</span>
+    </div>
 
-<video
-id="camera"
-class="camera"
-autoplay
-playsinline>
-</video>
+    <div class="card" onclick="openTool('powerpoint-to-pdf')">
+      <div class="icon">📽️</div>
+      <h3>PowerPoint to PDF</h3>
+      <p>Convert presentations into PDF files.</p>
+      <span class="badge">Converter</span>
+    </div>
 
-<div class="scanner-actions">
+    <div class="card" onclick="openTool('pdf-to-excel')">
+      <div class="icon">📗</div>
+      <h3>PDF to Excel</h3>
+      <p>Convert PDF tables into Excel files.</p>
+      <span class="badge">Converter</span>
+    </div>
 
-<button
-class="camera-btn"
-id="startCameraBtn"
-type="button">
-Start Camera
-</button>
+    <div class="card" onclick="openTool('excel-to-pdf')">
+      <div class="icon">📈</div>
+      <h3>Excel to PDF</h3>
+      <p>Convert Excel spreadsheets into PDF.</p>
+      <span class="badge">Converter</span>
+    </div>
 
-<button
-class="add-scan-btn"
-id="captureBtn"
-type="button">
-Capture Page
-</button>
+    <div class="card" onclick="openTool('jpg-to-pdf')">
+      <div class="icon">🖼️</div>
+      <h3>JPG to PDF</h3>
+      <p>Convert JPG images into PDF.</p>
+      <span class="badge">Free</span>
+    </div>
 
-<button
-class="finish-scan-btn"
-id="finishScanBtn"
-type="button">
-Create PDF
-</button>
+    <div class="card" onclick="openTool('png-to-pdf')">
+      <div class="icon">🖼️</div>
+      <h3>PNG to PDF</h3>
+      <p>Convert PNG images into PDF.</p>
+      <span class="badge">Free</span>
+    </div>
 
-</div>
+    <div class="card" onclick="openTool('image-to-pdf')">
+      <div class="icon">📷</div>
+      <h3>Image to PDF</h3>
+      <p>Convert images into PDF documents.</p>
+      <span class="badge">Free</span>
+    </div>
 
-<div class="scan-pages" id="scanPages"></div>
+  </div>
 
-</div>
 
-<div class="file-list" id="fileList"></div>
+  <!-- PDF ORGANIZER -->
+  <h2 class="section-title">Organize PDF</h2>
 
-<div class="progress" id="progress">
-<div class="progress-bar" id="progressBar"></div>
-</div>
+  <div class="grid">
 
-<div class="actions">
+    <div class="card" onclick="openTool('merge-pdf')">
+      <div class="icon">🔗</div>
+      <h3>Merge PDF</h3>
+      <p>Combine multiple PDF files into one.</p>
+      <span class="badge">Free</span>
+    </div>
 
-<button
-class="process-btn"
-id="processBtn"
-disabled>
-Process File
-</button>
+    <div class="card" onclick="openTool('split-pdf')">
+      <div class="icon">✂️</div>
+      <h3>Split PDF</h3>
+      <p>Split a PDF into separate files.</p>
+      <span class="badge">Free</span>
+    </div>
 
-<button
-class="back-btn"
-onclick="goBack()">
-Back
-</button>
+    <div class="card" onclick="openTool('remove-pages')">
+      <div class="icon">🗑️</div>
+      <h3>Remove Pages</h3>
+      <p>Remove unwanted pages from a PDF.</p>
+      <span class="badge">Free</span>
+    </div>
 
-</div>
+    <div class="card" onclick="openTool('extract-pages')">
+      <div class="icon">📑</div>
+      <h3>Extract Pages</h3>
+      <p>Extract selected pages from a PDF.</p>
+      <span class="badge">Free</span>
+    </div>
 
-<div class="status" id="status"></div>
+    <div class="card" onclick="openTool('rotate-pdf')">
+      <div class="icon">🔄</div>
+      <h3>Rotate PDF</h3>
+      <p>Rotate PDF pages easily.</p>
+      <span class="badge">Free</span>
+    </div>
 
-<div class="note">
-iLovePDF4 — PDF, document and image tools.
-</div>
+    <div class="card" onclick="openTool('resize-pdf')">
+      <div class="icon">↔️</div>
+      <h3>Resize PDF</h3>
+      <p>Resize PDF pages and documents.</p>
+      <span class="badge">Free</span>
+    </div>
 
-</div>
-</div>
+    <div class="card" onclick="openTool('crop-pdf')">
+      <div class="icon">✂️</div>
+      <h3>Crop PDF</h3>
+      <p>Crop PDF pages to the required area.</p>
+      <span class="badge">PDF</span>
+    </div>
+
+  </div>
+
+
+  <!-- PDF SECURITY -->
+  <h2 class="section-title">PDF Security</h2>
+
+  <div class="grid">
+
+    <div class="card" onclick="openTool('protect-pdf')">
+      <div class="icon">🔐</div>
+      <h3>Protect PDF</h3>
+      <p>Add password protection to PDF files.</p>
+      <span class="badge">Security</span>
+    </div>
+
+    <div class="card" onclick="openTool('unlock-pdf')">
+      <div class="icon">🔓</div>
+      <h3>Unlock PDF</h3>
+      <p>Remove PDF restrictions where permitted.</p>
+      <span class="badge">Security</span>
+    </div>
+
+    <div class="card" onclick="openTool('redact-pdf')">
+      <div class="icon">⬛</div>
+      <h3>Redact PDF</h3>
+      <p>Hide sensitive information in PDF files.</p>
+      <span class="badge">Security</span>
+    </div>
+
+    <div class="card" onclick="openTool('sign-pdf')">
+      <div class="icon">✍️</div>
+      <h3>Sign PDF</h3>
+      <p>Add a signature to your PDF.</p>
+      <span class="badge">Security</span>
+    </div>
+
+    <div class="card" onclick="openTool('watermark-pdf')">
+      <div class="icon">💧</div>
+      <h3>Watermark PDF</h3>
+      <p>Add a watermark to PDF pages.</p>
+      <span class="badge">PDF</span>
+    </div>
+
+    <div class="card" onclick="openTool('page-numbers')">
+      <div class="icon">🔢</div>
+      <h3>Page Numbers</h3>
+      <p>Add page numbers to PDF documents.</p>
+      <span class="badge">PDF</span>
+    </div>
+
+  </div>
+
+
+  <!-- PDF OPTIMIZATION -->
+  <h2 class="section-title">PDF Optimization</h2>
+
+  <div class="grid">
+
+    <div class="card" onclick="openTool('compress-pdf')">
+      <div class="icon">📦</div>
+      <h3>Compress PDF</h3>
+      <p>Reduce PDF file size.</p>
+      <span class="badge">Free</span>
+    </div>
+
+    <div class="card" onclick="openTool('ocr-pdf')">
+      <div class="icon">🔎</div>
+      <h3>OCR PDF</h3>
+      <p>Recognize text inside PDF documents.</p>
+      <span class="badge">OCR</span>
+    </div>
+
+  </div>
+
+
+  <!-- SCANNER -->
+  <h2 class="section-title">Scanner</h2>
+
+  <div class="grid">
+
+    <div class="card" onclick="openTool('pdf-scanner')">
+      <div class="icon">📷</div>
+      <h3>PDF Scanner</h3>
+      <p>Scan documents with your phone camera and create PDF.</p>
+      <span class="badge">Scanner</span>
+    </div>
+
+  </div>
+
+
+  <!-- IMAGE TOOLS -->
+  <h2 class="section-title">Image Tools</h2>
+
+  <div class="grid">
+
+    <div class="card" onclick="openTool('jpg-to-png')">
+      <div class="icon">🖼️</div>
+      <h3>JPG to PNG</h3>
+      <p>Convert JPG images to PNG.</p>
+      <span class="badge">Image</span>
+    </div>
+
+    <div class="card" onclick="openTool('png-to-jpg')">
+      <div class="icon">🖼️</div>
+      <h3>PNG to JPG</h3>
+      <p>Convert PNG images to JPG.</p>
+      <span class="badge">Image</span>
+    </div>
+
+    <div class="card" onclick="openTool('image-to-jpg')">
+      <div class="icon">📷</div>
+      <h3>Image to JPG</h3>
+      <p>Convert images into JPG format.</p>
+      <span class="badge">Image</span>
+    </div>
+
+    <div class="card" onclick="openTool('resize-image')">
+      <div class="icon">↔️</div>
+      <h3>Resize Image</h3>
+      <p>Resize images to your required dimensions.</p>
+      <span class="badge">Image</span>
+    </div>
+
+    <div class="card" onclick="openTool('compress-image')">
+      <div class="icon">📦</div>
+      <h3>Compress Image</h3>
+      <p>Reduce image file size.</p>
+      <span class="badge">Image</span>
+    </div>
+
+  </div>
+
+
+  <!-- OTHER TOOLS -->
+  <h2 class="section-title">More Tools</h2>
+
+  <div class="grid">
+
+    <div class="card" onclick="openTool('pdf-scanner')">
+      <div class="icon">📱</div>
+      <h3>Document Scanner</h3>
+      <p>Use your phone camera to scan documents.</p>
+      <span class="badge">Scanner</span>
+    </div>
+
+    <div class="card" onclick="openTool('image-ocr')">
+      <div class="icon">🔤</div>
+      <h3>Image OCR</h3>
+      <p>Extract text from images.</p>
+      <span class="badge">OCR</span>
+    </div>
+
+  </div>
+
+</main>
+
+
+<footer>
+  <p><strong>iLovePDF4</strong></p>
+  <p style="margin-top:8px;">All your PDF and document tools in one place.</p>
+  <p style="margin-top:12px;">© 2026 iLovePDF4. All rights reserved.</p>
+</footer>
 
 
 <script>
+function openTool(tool){
 
-const {PDFDocument,degrees}=PDFLib;
+  window.location.href =
+    "tool.html?tool=" +
+    encodeURIComponent(tool);
 
-const params=new URLSearchParams(
-window.location.search
-);
-
-const tool=params.get("tool")||"pdf-to-word";
-
-const fileInput=document.getElementById("fileInput");
-const fileList=document.getElementById("fileList");
-const processBtn=document.getElementById("processBtn");
-const statusBox=document.getElementById("status");
-const progress=document.getElementById("progress");
-const progressBar=document.getElementById("progressBar");
-const dropzone=document.getElementById("dropzone");
-
-const scannerBox=document.getElementById("scannerBox");
-const camera=document.getElementById("camera");
-const startCameraBtn=document.getElementById("startCameraBtn");
-const captureBtn=document.getElementById("captureBtn");
-const finishScanBtn=document.getElementById("finishScanBtn");
-const scanPages=document.getElementById("scanPages");
-
-let selectedFiles=[];
-let scanImages=[];
-let cameraStream=null;
-
-
-const toolInfo={
-
-"pdf-to-word":{
-title:"PDF to Word",
-description:"Convert PDF files to editable Word documents.",
-accept:".pdf"
-},
-
-"word-to-pdf":{
-title:"Word to PDF",
-description:"Convert Word documents to PDF.",
-accept:".doc,.docx"
-},
-
-"pdf-to-powerpoint":{
-title:"PDF to PowerPoint",
-description:"Convert PDF files to PowerPoint.",
-accept:".pdf"
-},
-
-"powerpoint-to-pdf":{
-title:"PowerPoint to PDF",
-description:"Convert PowerPoint files to PDF.",
-accept:".ppt,.pptx"
-},
-
-"pdf-to-excel":{
-title:"PDF to Excel",
-description:"Convert PDF files to Excel.",
-accept:".pdf"
-},
-
-"excel-to-pdf":{
-title:"Excel to PDF",
-description:"Convert Excel files to PDF.",
-accept:".xls,.xlsx"
-},
-
-"jpg-to-pdf":{
-title:"JPG to PDF",
-description:"Convert JPG images into PDF.",
-accept:"image/jpeg"
-},
-
-"png-to-pdf":{
-title:"PNG to PDF",
-description:"Convert PNG images into PDF.",
-accept:"image/png"
-},
-
-"image-to-pdf":{
-title:"Image to PDF",
-description:"Convert images into PDF.",
-accept:"image/*"
-},
-
-"pdf-scanner":{
-title:"PDF Scanner",
-description:"Scan documents using your camera and create a PDF.",
-accept:"image/*"
-},
-
-"merge-pdf":{
-title:"Merge PDF",
-description:"Combine multiple PDF files into one PDF.",
-accept:".pdf"
-},
-
-"split-pdf":{
-title:"Split PDF",
-description:"Split a PDF into separate pages.",
-accept:".pdf"
-},
-
-"extract-pages":{
-title:"Extract Pages",
-description:"Extract selected pages from a PDF.",
-accept:".pdf"
-},
-
-"remove-pages":{
-title:"Remove Pages",
-description:"Remove selected pages from a PDF.",
-accept:".pdf"
-},
-
-"rotate-pdf":{
-title:"Rotate PDF",
-description:"Rotate PDF pages.",
-accept:".pdf"
-},
-
-"jpg-to-png":{
-title:"JPG to PNG",
-description:"Convert JPG images to PNG.",
-accept:"image/jpeg"
-},
-
-"png-to-jpg":{
-title:"PNG to JPG",
-description:"Convert PNG images to JPG.",
-accept:"image/png"
-},
-
-"image-to-jpg":{
-title:"Image to JPG",
-description:"Convert images to JPG.",
-accept:"image/*"
-},
-
-"compress-image":{
-title:"Compress Image",
-description:"Reduce image file size.",
-accept:"image/*"
-},
-
-"resize-image":{
-title:"Resize Image",
-description:"Resize your image.",
-accept:"image/*"
-}
-
-};
-
-
-const info=toolInfo[tool]||toolInfo["pdf-to-word"];
-
-document.getElementById("toolTitle").textContent=info.title;
-document.getElementById("toolDescription").textContent=info.description;
-
-fileInput.accept=info.accept;
-
-
-/* SCANNER UI */
-
-if(tool==="pdf-scanner"){
-
-dropzone.style.display="none";
-fileInput.style.display="none";
-processBtn.style.display="none";
-
-scannerBox.style.display="block";
-
-startCameraBtn.onclick=startCamera;
-captureBtn.onclick=capturePage;
-finishScanBtn.onclick=createScannedPdf;
-
-}else{
-
-scannerBox.style.display="none";
-
-}
-
-
-fileInput.addEventListener(
-"change",
-function(){
-
-selectedFiles=Array.from(this.files);
-
-showFiles();
-
-}
-);
-
-
-function showFiles(){
-
-fileList.innerHTML="";
-
-if(!selectedFiles.length){
-
-processBtn.disabled=true;
-return;
-
-}
-
-selectedFiles.forEach(
-(file,index)=>{
-
-const div=document.createElement("div");
-
-div.className="file-item";
-
-div.textContent=
-(index+1)+". "+
-file.name+
-" — "+
-formatSize(file.size);
-
-fileList.appendChild(div);
-
-}
-);
-
-processBtn.disabled=false;
-
-}
-
-
-function formatSize(bytes){
-
-if(bytes<1024)
-return bytes+" B";
-
-if(bytes<1024*1024)
-return (bytes/1024).toFixed(1)+" KB";
-
-return (bytes/1024/1024).toFixed(2)+" MB";
-
-}
-
-
-function setStatus(message,type="normal"){
-
-statusBox.style.display="block";
-
-statusBox.className="status "+type;
-
-statusBox.innerHTML=message;
-
-}
-
-
-function setProgress(percent){
-
-progress.style.display="block";
-
-progressBar.style.width=percent+"%";
-
-}
-
-
-function goBack(){
-
-if(cameraStream){
-
-cameraStream.getTracks().forEach(
-track=>track.stop()
-);
-
-}
-
-window.location.href="/tools.html";
-
-}
-
-
-/* CAMERA */
-
-async function startCamera(){
-
-try{
-
-cameraStream=await navigator.mediaDevices.getUserMedia({
-
-video:{
-facingMode:{
-ideal:"environment"
-}
-},
-
-audio:false
-
-});
-
-camera.srcObject=cameraStream;
-
-setStatus(
-"Camera started. Point the camera at the document and press Capture Page."
-);
-
-}catch(error){
-
-setStatus(
-"Camera could not be started. Please allow camera permission or use Gallery.",
-"error"
-);
-
-}
-
-}
-
-
-function capturePage(){
-
-if(!cameraStream){
-
-setStatus(
-"Please press Start Camera first.",
-"error"
-);
-
-return;
-
-}
-
-
-const canvas=document.createElement("canvas");
-
-canvas.width=camera.videoWidth;
-canvas.height=camera.videoHeight;
-
-const ctx=canvas.getContext("2d");
-
-ctx.drawImage(
-camera,
-0,
-0,
-canvas.width,
-canvas.height
-);
-
-canvas.toBlob(
-blob=>{
-
-if(!blob)return;
-
-scanImages.push(blob);
-
-const url=URL.createObjectURL(blob);
-
-const img=document.createElement("img");
-
-img.className="scan-thumb";
-
-img.src=url;
-
-scanPages.appendChild(img);
-
-setStatus(
-"Page "+scanImages.length+" captured. You can capture another page."
-);
-
-},
-"image/jpeg",
-0.92
-);
-
-}
-
-
-async function createScannedPdf(){
-
-if(!scanImages.length){
-
-setStatus(
-"Please capture at least one page.",
-"error"
-);
-
-return;
-
-}
-
-try{
-
-setStatus(
-"Creating scanned PDF..."
-);
-
-setProgress(20);
-
-const pdf=await PDFDocument.create();
-
-for(
-let i=0;
-i<scanImages.length;
-i++
-){
-
-const bytes=await scanImages[i].arrayBuffer();
-
-const image=await pdf.embedJpg(bytes);
-
-const page=pdf.addPage([
-image.width,
-image.height
-]);
-
-page.drawImage(
-image,
-{
-x:0,
-y:0,
-width:image.width,
-height:image.height
-}
-);
-
-setProgress(
-20+
-Math.round(
-((i+1)/scanImages.length)*70
-)
-);
-
-}
-
-const output=await pdf.save();
-
-downloadBlob(
-new Blob(
-[output],
-{type:"application/pdf"}
-),
-"iLovePDF4-scanned-document.pdf"
-);
-
-setProgress(100);
-
-setStatus(
-"Scanned PDF created successfully!<br>"+
-"Your document is ready to download.",
-"success"
-);
-
-if(cameraStream){
-
-cameraStream.getTracks().forEach(
-track=>track.stop()
-);
-
-cameraStream=null;
-
-}
-
-}catch(error){
-
-setStatus(
-"Scanner error: "+
-escapeHtml(error.message),
-"error"
-);
-
-}
-
-}
-
-
-/* PROCESS */
-
-processBtn.addEventListener(
-"click",
-async function(){
-
-if(!selectedFiles.length){
-
-setStatus(
-"Please select a file first.",
-"error"
-);
-
-return;
-
-}
-
-processBtn.disabled=true;
-
-try{
-
-if(isCloudConvertTool()){
-
-await cloudConvert(selectedFiles[0]);
-return;
-
-}
-
-
-switch(tool){
-
-case"jpg-to-pdf":
-case"png-to-pdf":
-case"image-to-pdf":
-
-await imagesToPdf(selectedFiles);
-break;
-
-
-case"merge-pdf":
-
-await mergePdf(selectedFiles);
-break;
-
-
-case"split-pdf":
-
-await splitPdf(selectedFiles[0]);
-break;
-
-
-case"extract-pages":
-
-await extractPages(selectedFiles[0]);
-break;
-
-
-case"remove-pages":
-
-await removePages(selectedFiles[0]);
-break;
-
-
-case"rotate-pdf":
-
-await rotatePdf(selectedFiles[0]);
-break;
-
-
-case"jpg-to-png":
-
-await imageConvert(
-selectedFiles[0],
-"png"
-);
-
-break;
-
-
-case"png-to-jpg":
-case"image-to-jpg":
-
-await imageConvert(
-selectedFiles[0],
-"jpeg"
-);
-
-break;
-
-
-case"compress-image":
-
-await compressImage(
-selectedFiles[0]
-);
-
-break;
-
-
-case"resize-image":
-
-await resizeImage(
-selectedFiles[0]
-);
-
-break;
-
-
-default:
-
-setStatus(
-"This tool is not connected yet.",
-"error"
-);
-
-processBtn.disabled=false;
-
-}
-
-}catch(error){
-
-console.error(error);
-
-setStatus(
-"Error: "+
-escapeHtml(
-error.message||
-"Something went wrong."
-),
-"error"
-);
-
-processBtn.disabled=false;
-
-}
-
-});
-
-
-/* CLOUDCONVERT */
-
-function isCloudConvertTool(){
-
-return[
-"word-to-pdf",
-"powerpoint-to-pdf",
-"excel-to-pdf",
-"pdf-to-word",
-"pdf-to-powerpoint",
-"pdf-to-excel"
-].includes(tool);
-
-}
-
-
-async function cloudConvert(file){
-
-setStatus(
-"Starting conversion..."
-);
-
-setProgress(10);
-
-const response=await fetch(
-"/api/convert-start",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-tool:tool,
-filename:file.name
-})
-}
-);
-
-const data=await response.json();
-
-if(!response.ok){
-
-throw new Error(
-data.error||
-"Could not start conversion."
-);
-
-}
-
-if(
-!data.jobId||
-!data.form||
-!data.form.url
-){
-
-throw new Error(
-"Upload information was not returned."
-);
-
-}
-
-setStatus(
-"Uploading file..."
-);
-
-setProgress(30);
-
-const formData=new FormData();
-
-const parameters=
-data.form.parameters||{};
-
-Object.keys(parameters).forEach(
-key=>{
-formData.append(
-key,
-parameters[key]
-);
-}
-);
-
-formData.append(
-"file",
-file,
-file.name
-);
-
-const uploadResponse=await fetch(
-data.form.url,
-{
-method:"POST",
-body:formData
-}
-);
-
-if(!uploadResponse.ok){
-
-throw new Error(
-"File upload failed."
-);
-
-}
-
-setStatus(
-"File uploaded. Processing..."
-);
-
-setProgress(55);
-
-const result=
-await waitForConversion(
-data.jobId
-);
-
-if(result.status!=="finished"){
-
-throw new Error(
-result.error||
-"Conversion failed."
-);
-
-}
-
-setProgress(100);
-
-const outputName=
-result.filename||
-createOutputName(
-file.name,
-tool
-);
-
-setStatus(
-"Conversion completed successfully!<br>"+
-"<a class='download-btn' href='"+
-escapeAttribute(result.url)+
-"' target='_blank' download='"+
-escapeAttribute(outputName)+
-"'>Download File</a>",
-"success"
-);
-
-processBtn.disabled=false;
-
-}
-
-
-async function waitForConversion(jobId){
-
-for(
-let attempt=0;
-attempt<120;
-attempt++
-){
-
-const response=await fetch(
-"/api/convert-status?job="+
-encodeURIComponent(jobId),
-{
-cache:"no-store"
-}
-);
-
-const data=await response.json();
-
-if(!response.ok){
-
-throw new Error(
-data.error||
-"Could not read conversion status."
-);
-
-}
-
-if(data.status==="finished")
-return data;
-
-if(data.status==="error")
-return data;
-
-setProgress(
-Math.min(
-95,
-55+
-Math.round(
-(attempt/120)*40
-)
-)
-);
-
-setStatus(
-"Processing... Please wait.<br>"+
-"Status: "+
-escapeHtml(
-data.status||
-"processing"
-)
-);
-
-await sleep(2000);
-
-}
-
-throw new Error(
-"Conversion is taking too long. Please try again."
-);
-
-}
-
-
-function createOutputName(original,currentTool){
-
-const base=original.replace(
-/\.[^/.]+$/,
-""
-);
-
-const map={
-
-"word-to-pdf":".pdf",
-"powerpoint-to-pdf":".pdf",
-"excel-to-pdf":".pdf",
-"pdf-to-word":".docx",
-"pdf-to-powerpoint":".pptx",
-"pdf-to-excel":".xlsx"
-
-};
-
-return base+(map[currentTool]||".file");
-
-}
-
-
-/* IMAGES TO PDF */
-
-async function imagesToPdf(files){
-
-setStatus("Creating PDF...");
-setProgress(20);
-
-const pdf=await PDFDocument.create();
-
-for(
-let i=0;
-i<files.length;
-i++
-){
-
-const file=files[i];
-
-const bytes=await file.arrayBuffer();
-
-let image;
-
-if(
-file.type==="image/jpeg"||
-file.type==="image/jpg"
-){
-
-image=await pdf.embedJpg(bytes);
-
-}else{
-
-image=await pdf.embedPng(bytes);
-
-}
-
-const page=pdf.addPage([
-image.width,
-image.height
-]);
-
-page.drawImage(
-image,
-{
-x:0,
-y:0,
-width:image.width,
-height:image.height
-}
-);
-
-setProgress(
-20+
-Math.round(
-((i+1)/files.length)*70
-)
-);
-
-}
-
-const output=await pdf.save();
-
-downloadBlob(
-new Blob(
-[output],
-{type:"application/pdf"}
-),
-"iLovePDF4-images.pdf"
-);
-
-setProgress(100);
-
-setStatus(
-"PDF created successfully!",
-"success"
-);
-
-processBtn.disabled=false;
-
-}
-
-
-/* MERGE */
-
-async function mergePdf(files){
-
-if(files.length<2){
-
-throw new Error(
-"Select at least 2 PDF files."
-);
-
-}
-
-const merged=
-await PDFDocument.create();
-
-for(
-let i=0;
-i<files.length;
-i++
-){
-
-const bytes=
-await files[i].arrayBuffer();
-
-const src=
-await PDFDocument.load(bytes);
-
-const pages=
-await merged.copyPages(
-src,
-src.getPageIndices()
-);
-
-pages.forEach(
-page=>merged.addPage(page)
-);
-
-setProgress(
-20+
-Math.round(
-((i+1)/files.length)*70
-)
-);
-
-}
-
-const output=await merged.save();
-
-downloadBlob(
-new Blob(
-[output],
-{type:"application/pdf"}
-),
-"iLovePDF4-merged.pdf"
-);
-
-setProgress(100);
-
-setStatus(
-"PDFs merged successfully!",
-"success"
-);
-
-processBtn.disabled=false;
-
-}
-
-
-/* SPLIT */
-
-async function splitPdf(file){
-
-const bytes=await file.arrayBuffer();
-
-const src=await PDFDocument.load(bytes);
-
-const total=src.getPageCount();
-
-for(
-let i=0;
-i<total;
-i++
-){
-
-const pdf=await PDFDocument.create();
-
-const pages=
-await pdf.copyPages(
-src,
-[i]
-);
-
-pdf.addPage(pages[0]);
-
-const output=await pdf.save();
-
-downloadBlob(
-new Blob(
-[output],
-{type:"application/pdf"}
-),
-"page-"+(i+1)+".pdf"
-);
-
-setProgress(
-Math.round(
-((i+1)/total)*100
-)
-);
-
-}
-
-setStatus(
-"PDF split successfully!",
-"success"
-);
-
-processBtn.disabled=false;
-
-}
-
-
-/* EXTRACT */
-
-async function extractPages(file){
-
-const input=prompt(
-"Enter page numbers to extract.\nExample: 1,3,5"
-);
-
-if(!input){
-
-processBtn.disabled=false;
-return;
-
-}
-
-const indexes=input
-.split(",")
-.map(x=>parseInt(x.trim())-1)
-.filter(x=>!isNaN(x));
-
-if(!indexes.length)
-throw new Error("Invalid page numbers.");
-
-const bytes=await file.arrayBuffer();
-
-const src=await PDFDocument.load(bytes);
-
-const output=await PDFDocument.create();
-
-const valid=indexes.filter(
-x=>x>=0&&x<src.getPageCount()
-);
-
-const pages=await output.copyPages(
-src,
-valid
-);
-
-pages.forEach(
-p=>output.addPage(p)
-);
-
-const result=await output.save();
-
-downloadBlob(
-new Blob(
-[result],
-{type:"application/pdf"}
-),
-"iLovePDF4-extracted.pdf"
-);
-
-setProgress(100);
-
-setStatus(
-"Pages extracted successfully!",
-"success"
-);
-
-processBtn.disabled=false;
-
-}
-
-
-/* REMOVE */
-
-async function removePages(file){
-
-const input=prompt(
-"Enter page numbers to remove.\nExample: 2,4"
-);
-
-if(!input){
-
-processBtn.disabled=false;
-return;
-
-}
-
-const remove=input
-.split(",")
-.map(x=>parseInt(x.trim())-1)
-.filter(x=>!isNaN(x));
-
-const bytes=await file.arrayBuffer();
-
-const src=await PDFDocument.load(bytes);
-
-const output=await PDFDocument.create();
-
-for(
-let i=0;
-i<src.getPageCount();
-i++
-){
-
-if(remove.includes(i))
-continue;
-
-const pages=
-await output.copyPages(
-src,
-[i]
-);
-
-output.addPage(pages[0]);
-
-}
-
-const result=await output.save();
-
-downloadBlob(
-new Blob(
-[result],
-{type:"application/pdf"}
-),
-"iLovePDF4-removed-pages.pdf"
-);
-
-setProgress(100);
-
-setStatus(
-"Pages removed successfully!",
-"success"
-);
-
-processBtn.disabled=false;
-
-}
-
-
-/* ROTATE */
-
-async function rotatePdf(file){
-
-const bytes=await file.arrayBuffer();
-
-const pdf=await PDFDocument.load(bytes);
-
-pdf.getPages().forEach(
-page=>{
-
-const current=
-page.getRotation().angle;
-
-page.setRotation(
-degrees(
-(current+90)%360
-)
-);
-
-}
-);
-
-const output=await pdf.save();
-
-downloadBlob(
-new Blob(
-[output],
-{type:"application/pdf"}
-),
-"iLovePDF4-rotated.pdf"
-);
-
-setProgress(100);
-
-setStatus(
-"PDF rotated successfully!",
-"success"
-);
-
-processBtn.disabled=false;
-
-}
-
-
-/* IMAGE CONVERT */
-
-async function imageConvert(file,format){
-
-const image=await loadImage(file);
-
-const canvas=document.createElement("canvas");
-
-canvas.width=image.width;
-canvas.height=image.height;
-
-const ctx=canvas.getContext("2d");
-
-if(format==="jpeg"){
-
-ctx.fillStyle="#fff";
-
-ctx.fillRect(
-0,
-0,
-canvas.width,
-canvas.height
-);
-
-}
-
-ctx.drawImage(
-image,
-0,
-0
-);
-
-const blob=
-await canvasToBlob(
-canvas,
-format==="png"
-?"image/png"
-:"image/jpeg",
-.92
-);
-
-downloadBlob(
-blob,
-"iLovePDF4-image."+
-(format==="png"?"png":"jpg")
-);
-
-setProgress(100);
-
-setStatus(
-"Image converted successfully!",
-"success"
-);
-
-processBtn.disabled=false;
-
-}
-
-
-/* COMPRESS */
-
-async function compressImage(file){
-
-const image=await loadImage(file);
-
-const maxWidth=1600;
-
-const scale=Math.min(
-1,
-maxWidth/image.width
-);
-
-const canvas=document.createElement("canvas");
-
-canvas.width=
-Math.round(
-image.width*scale
-);
-
-canvas.height=
-Math.round(
-image.height*scale
-);
-
-const ctx=canvas.getContext("2d");
-
-ctx.drawImage(
-image,
-0,
-0,
-canvas.width,
-canvas.height
-);
-
-const blob=
-await canvasToBlob(
-canvas,
-"image/jpeg",
-.65
-);
-
-downloadBlob(
-blob,
-"iLovePDF4-compressed.jpg"
-);
-
-setProgress(100);
-
-setStatus(
-"Image compressed successfully!",
-"success"
-);
-
-processBtn.disabled=false;
-
-}
-
-
-/* RESIZE */
-
-async function resizeImage(file){
-
-const image=await loadImage(file);
-
-const widthText=prompt(
-"Enter new width in pixels:",
-Math.round(image.width/2)
-);
-
-if(!widthText){
-
-processBtn.disabled=false;
-return;
-
-}
-
-const newWidth=parseInt(widthText);
-
-if(!newWidth||newWidth<1)
-throw new Error("Invalid width.");
-
-const ratio=newWidth/image.width;
-
-const newHeight=
-Math.round(
-image.height*ratio
-);
-
-const canvas=document.createElement("canvas");
-
-canvas.width=newWidth;
-canvas.height=newHeight;
-
-const ctx=canvas.getContext("2d");
-
-ctx.drawImage(
-image,
-0,
-0,
-newWidth,
-newHeight
-);
-
-const blob=
-await canvasToBlob(
-canvas,
-"image/jpeg",
-.90
-);
-
-downloadBlob(
-blob,
-"iLovePDF4-resized.jpg"
-);
-
-setProgress(100);
-
-setStatus(
-"Image resized successfully!",
-"success"
-);
-
-processBtn.disabled=false;
-
-}
-
-
-/* HELPERS */
-
-function loadImage(file){
-
-return new Promise(
-(resolve,reject)=>{
-
-const img=new Image();
-
-const url=
-URL.createObjectURL(file);
-
-img.onload=()=>{
-URL.revokeObjectURL(url);
-resolve(img);
-};
-
-img.onerror=()=>{
-URL.revokeObjectURL(url);
-reject(
-new Error(
-"Could not read image."
-)
-);
-};
-
-img.src=url;
-
-}
-);
-
-}
-
-
-function canvasToBlob(
-canvas,
-type,
-quality
-){
-
-return new Promise(
-resolve=>
-canvas.toBlob(
-resolve,
-type,
-quality
-)
-);
-
-}
-
-
-function downloadBlob(blob,filename){
-
-const url=
-URL.createObjectURL(blob);
-
-const a=document.createElement("a");
-
-a.href=url;
-a.download=filename;
-
-document.body.appendChild(a);
-
-a.click();
-
-a.remove();
-
-setTimeout(
-()=>{
-URL.revokeObjectURL(url);
-},
-2000
-);
-
-}
-
-
-function sleep(ms){
-
-return new Promise(
-resolve=>setTimeout(resolve,ms)
-);
-
-}
-
-
-function escapeHtml(value){
-
-return String(value)
-.replace(/&/g,"&amp;")
-.replace(/</g,"&lt;")
-.replace(/>/g,"&gt;")
-.replace(/"/g,"&quot;")
-.replace(/'/g,"&#039;");
-
-}
-
-
-function escapeAttribute(value){
-
-return String(value)
-.replace(/&/g,"&amp;")
-.replace(/"/g,"&quot;")
-.replace(/'/g,"&#039;")
-.replace(/</g,"&lt;")
-.replace(/>/g,"&gt;");
-
 }
-
 </script>
 
 </body>
