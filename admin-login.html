@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - iLovePDF4</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .box {
+      width: 100%;
+      max-width: 400px;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.12);
+    }
+
+    h1 {
+      text-align: center;
+      color: #222;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    .admin-badge {
+      text-align: center;
+      font-size: 13px;
+      font-weight: bold;
+      color: #e5322d;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 7px;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 13px;
+      background: #222;
+      color: white;
+      border: none;
+      border-radius: 7px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #000;
+    }
+
+    #message {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+
+    .links {
+      text-align: center;
+      margin-top: 20px;
+      line-height: 2;
+    }
+
+    .links a {
+      color: #e5322d;
+      text-decoration: none;
+      margin: 0 5px;
+      font-size: 14px;
+    }
+
+    .links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="box">
+
+    <h1>Admin Login</h1>
+
+    <div class="subtitle">
+      iLovePDF4 Administration
+    </div>
+
+    <div class="admin-badge">
+      ADMINISTRATOR ACCESS
+    </div>
+
+    <form id="adminLoginForm">
+
+      <input
+        type="text"
+        id="username"
+        placeholder="Admin Username"
+        required
+      >
+
+      <input
+        type="password"
+        id="password"
+        placeholder="Admin Password"
+        required
+      >
+
+      <button type="submit">
+        Admin Login
+      </button>
+
+    </form>
+
+    <div id="message"></div>
+
+    <div class="links">
+      <a href="login.html">User Login</a>
+      |
+      <a href="register.html">Register</a>
+    </div>
+
+  </div>
+
+  <script>
+
+    const form =
+      document.getElementById("adminLoginForm");
+
+    const message =
+      document.getElementById("message");
+
+    form.addEventListener(
+      "submit",
+      async function(event) {
+
+        event.preventDefault();
+
+        const username =
+          document.getElementById("username")
+            .value.trim();
+
+        const password =
+          document.getElementById("password")
+            .value;
+
+        message.textContent = "Checking...";
+        message.style.color = "#666";
+
+        try {
+
+          const response =
+            await fetch("/api/login", {
+              method: "POST",
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+              credentials: "include",
+              body: JSON.stringify({
+                username: username,
+                password: password
+              })
+            });
+
+          const data =
+            await response.json();
+
+          if (!data.success) {
+
+            message.textContent =
+              data.message ||
+              "Invalid username or password.";
+
+            message.style.color = "red";
+
+            return;
+          }
+
+          if (
+            !data.user ||
+            Number(data.user.is_admin) !== 1
+          ) {
+
+            await fetch("/api/logout", {
+              method: "POST",
+              credentials: "include"
+            });
+
+            message.textContent =
+              "Admin access denied.";
+
+            message.style.color = "red";
+
+            return;
+          }
+
+          message.textContent =
+            "Admin login successful!";
+
+          message.style.color = "green";
+
+          setTimeout(() => {
+
+            window.location.href =
+              "/admin";
+
+          }, 700);
+
+        } catch (error) {
+
+          message.textContent =
+            "Server connection failed.";
+
+          message.style.color = "red";
+        }
+
+      }
+    );
+
+  </script>
+
+</body>
+</html>
