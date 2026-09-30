@@ -14,102 +14,118 @@
   font-family:Arial,Helvetica,sans-serif;
 }
 
+html,
 body{
-  background:
-    linear-gradient(
-      rgba(8,35,55,.55),
-      rgba(8,55,75,.55)
-    ),
-    radial-gradient(
-      circle at 20% 20%,
-      #75c7d8 0%,
-      #287b91 35%,
-      #123d55 70%,
-      #071d2d 100%
-    );
-  background-attachment:fixed;
-  background-size:cover;
-  color:#222;
-  min-height:100vh;
+  min-height:100%;
 }
 
-/* subtle mountain / sea effect */
+body{
+  color:#fff;
+  min-height:100vh;
+  overflow-x:hidden;
+
+  background:
+    radial-gradient(circle at 15% 20%,rgba(0,220,255,.20),transparent 30%),
+    radial-gradient(circle at 85% 15%,rgba(0,120,255,.22),transparent 35%),
+    linear-gradient(
+      180deg,
+      #031b35 0%,
+      #063d5c 38%,
+      #07556b 65%,
+      #032b43 100%
+    );
+
+  position:relative;
+}
+
+
+/* =========================
+   DEEP SEA / HILL EFFECT
+========================= */
 
 body::before{
   content:"";
   position:fixed;
-  left:0;
-  right:0;
-  bottom:0;
-  height:42%;
+  left:-10%;
+  right:-10%;
+  bottom:-80px;
+  height:330px;
   z-index:-1;
+
   background:
-    linear-gradient(
-      135deg,
-      transparent 0 18%,
-      rgba(5,35,45,.75) 19% 32%,
-      transparent 33% 45%,
-      rgba(6,42,52,.8) 46% 62%,
-      transparent 63%
+    radial-gradient(
+      ellipse at 20% 70%,
+      #021b2d 0%,
+      #06334a 45%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse at 70% 75%,
+      #011827 0%,
+      #052c40 48%,
+      transparent 72%
     );
-  clip-path:polygon(
-    0 65%,
-    10% 48%,
-    20% 60%,
-    32% 25%,
-    45% 58%,
-    58% 35%,
-    70% 60%,
-    82% 30%,
-    100% 55%,
-    100% 100%,
-    0 100%
-  );
-  opacity:.75;
+
+  border-radius:50% 50% 0 0;
+  transform:rotate(-2deg);
 }
+
 
 body::after{
   content:"";
   position:fixed;
-  left:0;
-  right:0;
+  left:-15%;
+  right:-15%;
   bottom:0;
-  height:32%;
+  height:190px;
   z-index:-1;
+
   background:
-    repeating-linear-gradient(
-      170deg,
-      rgba(255,255,255,.08) 0 2px,
-      transparent 2px 18px
+    linear-gradient(
+      145deg,
+      transparent 0 18%,
+      rgba(1,20,35,.95) 18% 38%,
+      transparent 38% 48%,
+      rgba(1,25,40,.95) 48% 70%,
+      transparent 70%
     );
-  opacity:.35;
+
+  opacity:.9;
 }
 
 
-/* HEADER */
+/* =========================
+   HEADER
+========================= */
 
 header{
-  background:rgba(255,255,255,.94);
-  backdrop-filter:blur(12px);
+  background:rgba(0,18,35,.72);
   padding:15px 20px;
-  border-bottom:1px solid rgba(255,255,255,.5);
+  border-bottom:1px solid rgba(255,255,255,.18);
+
   display:flex;
   justify-content:space-between;
   align-items:center;
+
   position:sticky;
   top:0;
   z-index:100;
-  box-shadow:0 3px 18px rgba(0,0,0,.15);
+
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+
+  box-shadow:0 4px 20px rgba(0,0,0,.25);
 }
 
 .logo{
   font-size:24px;
   font-weight:bold;
-  color:#e5322d;
+  color:#ff4b45;
+  text-shadow:0 2px 10px rgba(255,60,60,.25);
 }
 
 .logo span{
-  color:#222;
+  color:#fff;
 }
 
 .header-right{
@@ -120,7 +136,7 @@ header{
 
 .admin-name{
   font-weight:bold;
-  color:#444;
+  color:#fff;
 }
 
 .logout{
@@ -138,7 +154,9 @@ header{
 }
 
 
-/* CONTAINER */
+/* =========================
+   CONTAINER
+========================= */
 
 .container{
   max-width:1250px;
@@ -158,19 +176,22 @@ header{
 h1{
   font-size:28px;
   color:#fff;
-  text-shadow:0 2px 5px rgba(0,0,0,.35);
+  text-shadow:0 2px 8px rgba(0,0,0,.3);
 }
 
 .back{
   color:#fff;
   text-decoration:none;
   font-weight:bold;
-  text-shadow:0 2px 4px rgba(0,0,0,.35);
+}
+
+.back:hover{
+  text-decoration:underline;
 }
 
 .refresh{
-  border:0;
-  background:#222;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(0,0,0,.35);
   color:#fff;
   padding:9px 15px;
   border-radius:7px;
@@ -178,12 +199,27 @@ h1{
   font-weight:bold;
 }
 
+.refresh:hover{
+  background:rgba(255,255,255,.12);
+}
+
+
+/* =========================
+   STATUS
+========================= */
+
 .status{
   padding:15px;
   margin-bottom:20px;
-  border-radius:8px;
-  background:#fff3cd;
-  color:#705500;
+  border-radius:10px;
+
+  background:rgba(255,255,255,.13);
+  color:#fff;
+
+  border:1px solid rgba(255,255,255,.15);
+
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
 }
 
 .hidden{
@@ -191,44 +227,77 @@ h1{
 }
 
 
-/* DASHBOARD CARDS */
+/* =========================
+   DASHBOARD CARDS
+========================= */
 
 .cards{
   display:grid;
   grid-template-columns:
     repeat(auto-fit,minmax(200px,1fr));
+
   gap:15px;
   margin-bottom:25px;
 }
 
 .card{
-  background:rgba(255,255,255,.93);
-  backdrop-filter:blur(10px);
+  background:rgba(255,255,255,.12);
+
   padding:22px;
-  border-radius:12px;
-  box-shadow:0 8px 25px rgba(0,0,0,.18);
-  border-left:5px solid #e5322d;
+  border-radius:14px;
+
+  border:1px solid rgba(255,255,255,.18);
+
+  box-shadow:
+    0 8px 25px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.12);
+
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+
+  border-left:5px solid #ff4b45;
+
+  transition:
+    transform .2s ease,
+    background .2s ease;
+}
+
+.card:hover{
+  transform:translateY(-3px);
+  background:rgba(255,255,255,.16);
 }
 
 .card h3{
-  color:#666;
+  color:#dcefff;
   font-size:14px;
   margin-bottom:10px;
 }
 
 .card strong{
   font-size:30px;
+  color:#fff;
 }
 
 
-/* CHART */
+/* =========================
+   CHART
+========================= */
 
 .chart-box{
-  background:rgba(255,255,255,.93);
-  backdrop-filter:blur(10px);
+  background:rgba(255,255,255,.10);
+
   padding:20px;
-  border-radius:12px;
-  box-shadow:0 8px 25px rgba(0,0,0,.18);
+  border-radius:14px;
+
+  border:1px solid rgba(255,255,255,.18);
+
+  box-shadow:
+    0 8px 25px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.10);
+
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+
   margin-bottom:25px;
 }
 
@@ -236,6 +305,7 @@ h1{
   font-size:20px;
   font-weight:bold;
   margin-bottom:20px;
+  color:#fff;
 }
 
 .chart{
@@ -245,7 +315,8 @@ h1{
   gap:35px;
   height:220px;
   padding:20px 10px 35px;
-  border-bottom:1px solid #ddd;
+
+  border-bottom:1px solid rgba(255,255,255,.22);
 }
 
 .bar-area{
@@ -261,32 +332,55 @@ h1{
   font-size:13px;
   font-weight:bold;
   margin-bottom:5px;
+  color:#fff;
 }
 
 .bar{
   width:55px;
   min-height:5px;
-  background:#e5322d;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ff625c,
+      #e5322d
+    );
+
   border-radius:7px 7px 0 0;
+
+  box-shadow:
+    0 0 12px rgba(255,70,60,.35);
+
   transition:height .4s ease;
 }
 
 .bar-label{
   margin-top:8px;
   font-size:13px;
-  color:#555;
+  color:#e4f4ff;
   text-align:center;
 }
 
 
-/* USER MANAGEMENT */
+/* =========================
+   USER MANAGEMENT
+========================= */
 
 .table-box{
-  background:rgba(255,255,255,.95);
-  backdrop-filter:blur(10px);
+  background:rgba(255,255,255,.10);
+
   padding:20px;
-  border-radius:12px;
-  box-shadow:0 8px 25px rgba(0,0,0,.18);
+  border-radius:14px;
+
+  border:1px solid rgba(255,255,255,.18);
+
+  box-shadow:
+    0 8px 25px rgba(0,0,0,.22),
+    inset 0 1px 0 rgba(255,255,255,.10);
+
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+
   overflow-x:auto;
 }
 
@@ -299,16 +393,32 @@ h1{
   flex-wrap:wrap;
 }
 
+.table-header h2{
+  color:#fff;
+}
+
 .search{
   padding:10px 12px;
-  border:1px solid #ccc;
+
+  background:rgba(255,255,255,.14);
+
+  border:1px solid rgba(255,255,255,.25);
+
+  color:#fff;
+
   border-radius:7px;
+
   min-width:230px;
   outline:none;
 }
 
+.search::placeholder{
+  color:#d8e8f2;
+}
+
 .search:focus{
-  border-color:#e5322d;
+  border-color:#7de7ff;
+  box-shadow:0 0 0 2px rgba(125,231,255,.12);
 }
 
 table{
@@ -320,23 +430,30 @@ table{
 th,
 td{
   padding:12px;
-  border-bottom:1px solid #eee;
+
+  border-bottom:1px solid rgba(255,255,255,.12);
+
   text-align:left;
   font-size:14px;
+
+  color:#fff;
 }
 
 th{
-  background:#f7f7f7;
+  background:rgba(0,20,40,.45);
   position:sticky;
   top:0;
+  color:#dff5ff;
 }
 
 tr:hover{
-  background:#fafafa;
+  background:rgba(255,255,255,.07);
 }
 
 
-/* BADGES */
+/* =========================
+   BADGES
+========================= */
 
 .badge{
   display:inline-block;
@@ -347,22 +464,27 @@ tr:hover{
 }
 
 .yes{
-  background:#d9f7df;
-  color:#16752a;
+  background:rgba(50,220,100,.18);
+  color:#8cffaa;
+  border:1px solid rgba(100,255,140,.25);
 }
 
 .no{
-  background:#ffe0e0;
-  color:#a50000;
+  background:rgba(255,80,80,.16);
+  color:#ffb0b0;
+  border:1px solid rgba(255,100,100,.22);
 }
 
 .admin-badge{
-  background:#e7ddff;
-  color:#5a20a8;
+  background:rgba(170,110,255,.20);
+  color:#e0c4ff;
+  border:1px solid rgba(190,130,255,.25);
 }
 
 
-/* MOBILE */
+/* =========================
+   MOBILE
+========================= */
 
 @media(max-width:600px){
 
@@ -372,6 +494,11 @@ tr:hover{
 
   .logo{
     font-size:19px;
+  }
+
+  .admin-name{
+    display:block;
+    font-size:12px;
   }
 
   .container{
@@ -399,16 +526,8 @@ tr:hover{
     min-width:0;
   }
 
-  .admin-name{
-    font-size:12px;
-  }
-
-  .header-right{
-    gap:7px;
-  }
-
   .logout{
-    padding:8px 10px;
+    padding:8px 11px;
     font-size:12px;
   }
 
@@ -445,7 +564,6 @@ tr:hover{
   <div class="top-bar">
 
     <div>
-
       <a href="home.html" class="back">
         ← Back to Home
       </a>
@@ -453,7 +571,6 @@ tr:hover{
       <h1 style="margin-top:10px;">
         Admin Dashboard
       </h1>
-
     </div>
 
     <button
@@ -618,7 +735,7 @@ tr:hover{
           id="searchUser"
           class="search"
           placeholder="Search username, mobile or email..."
-          oninput="filterUsers">
+          oninput="filterUsers()">
 
       </div>
 
