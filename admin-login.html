@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Admin Login - iLovePDF4</title>
 
   <style>
@@ -23,7 +24,7 @@
     .box {
       width: 100%;
       max-width: 400px;
-      background: #fff;
+      background: #ffffff;
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 5px 25px rgba(0,0,0,0.12);
@@ -31,37 +32,53 @@
 
     h1 {
       text-align: center;
-      color: #222;
-      margin-bottom: 8px;
+      color: #222222;
+      margin: 0 0 8px;
     }
 
     .subtitle {
       text-align: center;
-      color: #666;
-      margin-bottom: 25px;
+      color: #666666;
+      margin-bottom: 20px;
     }
 
     .admin-badge {
       text-align: center;
+      background: #f5f5f5;
+      color: #e5322d;
       font-size: 13px;
       font-weight: bold;
-      color: #e5322d;
-      margin-bottom: 20px;
+      padding: 9px;
+      border-radius: 6px;
+      margin-bottom: 22px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      color: #333333;
+      font-size: 14px;
+      font-weight: bold;
     }
 
     input {
       width: 100%;
       padding: 13px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
+      margin-bottom: 16px;
+      border: 1px solid #cccccc;
       border-radius: 7px;
       font-size: 15px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #e5322d;
     }
 
     button {
       width: 100%;
       padding: 13px;
-      background: #222;
+      background: #222222;
       color: white;
       border: none;
       border-radius: 7px;
@@ -70,13 +87,19 @@
     }
 
     button:hover {
-      background: #000;
+      background: #000000;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
     #message {
       text-align: center;
       margin-top: 15px;
       font-size: 14px;
+      min-height: 20px;
     }
 
     .links {
@@ -114,21 +137,35 @@
 
     <form id="adminLoginForm">
 
+      <label for="username">
+        Admin Username
+      </label>
+
       <input
         type="text"
         id="username"
-        placeholder="Admin Username"
+        value="imran4199"
+        placeholder="Enter admin username"
         required
+        autocomplete="username"
       >
+
+      <label for="password">
+        Admin Password
+      </label>
 
       <input
         type="password"
         id="password"
-        placeholder="Admin Password"
+        placeholder="Enter admin password"
         required
+        autocomplete="current-password"
       >
 
-      <button type="submit">
+      <button
+        type="submit"
+        id="loginButton"
+      >
         Admin Login
       </button>
 
@@ -137,12 +174,21 @@
     <div id="message"></div>
 
     <div class="links">
-      <a href="login.html">User Login</a>
+
+      <a href="/login">
+        User Login
+      </a>
+
       |
-      <a href="register.html">Register</a>
+
+      <a href="/register.html">
+        Register
+      </a>
+
     </div>
 
   </div>
+
 
   <script>
 
@@ -151,6 +197,10 @@
 
     const message =
       document.getElementById("message");
+
+    const loginButton =
+      document.getElementById("loginButton");
+
 
     form.addEventListener(
       "submit",
@@ -166,75 +216,108 @@
           document.getElementById("password")
             .value;
 
-        message.textContent = "Checking...";
-        message.style.color = "#666";
+
+        message.textContent =
+          "Checking admin account...";
+
+        message.style.color =
+          "#666666";
+
+        loginButton.disabled =
+          true;
+
 
         try {
 
           const response =
             await fetch("/api/login", {
               method: "POST",
+
               headers: {
                 "Content-Type":
                   "application/json"
               },
+
               credentials: "include",
+
               body: JSON.stringify({
                 username: username,
                 password: password
               })
             });
 
+
           const data =
             await response.json();
+
 
           if (!data.success) {
 
             message.textContent =
               data.message ||
-              "Invalid username or password.";
+              "Username or password is incorrect.";
 
-            message.style.color = "red";
+            message.style.color =
+              "red";
+
+            loginButton.disabled =
+              false;
 
             return;
           }
+
 
           if (
             !data.user ||
             Number(data.user.is_admin) !== 1
           ) {
 
-            await fetch("/api/logout", {
-              method: "POST",
-              credentials: "include"
-            });
+            await fetch(
+              "/api/logout",
+              {
+                method: "POST",
+                credentials: "include"
+              }
+            );
 
             message.textContent =
               "Admin access denied.";
 
-            message.style.color = "red";
+            message.style.color =
+              "red";
+
+            loginButton.disabled =
+              false;
 
             return;
           }
 
+
           message.textContent =
             "Admin login successful!";
 
-          message.style.color = "green";
+          message.style.color =
+            "green";
 
-          setTimeout(() => {
+
+          setTimeout(function() {
 
             window.location.href =
               "/admin";
 
           }, 700);
 
+
         } catch (error) {
 
           message.textContent =
             "Server connection failed.";
 
-          message.style.color = "red";
+          message.style.color =
+            "red";
+
+          loginButton.disabled =
+            false;
         }
 
       }
