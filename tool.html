@@ -91,13 +91,14 @@ body{
 }
 
 #fileInput{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
+  position:fixed;
+  left:-10000px;
+  top:0;
+  width:1px;
+  height:1px;
   opacity:0;
-  cursor:pointer;
-  z-index:2;
+  overflow:hidden;
+  pointer-events:none;
 }
 
 .file-list{
@@ -212,6 +213,7 @@ Select your file to continue.
 <div class="file-picker">
 
 <button
+  id="selectFileBtn"
   class="select-btn"
   type="button"
 >
@@ -418,6 +420,11 @@ document.getElementById(
 "fileInput"
 );
 
+const selectFileBtn =
+document.getElementById(
+"selectFileBtn"
+);
+
 const fileList =
 document.getElementById(
 "fileList"
@@ -443,6 +450,15 @@ let selectedFiles = [];
 /* =========================
    FILE SELECT
 ========================= */
+
+selectFileBtn.addEventListener(
+"click",
+function(){
+
+fileInput.click();
+
+}
+);
 
 fileInput.addEventListener(
 "change",
