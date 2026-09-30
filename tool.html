@@ -76,16 +76,22 @@ body{
 
 .select-btn{
   display:inline-block;
+  border:0;
   background:#e53232;
   color:#fff;
   padding:13px 24px;
   border-radius:8px;
   cursor:pointer;
   font-weight:bold;
+  font-size:16px;
 }
 
 #fileInput{
-  display:none;
+  position:absolute;
+  width:1px;
+  height:1px;
+  opacity:0;
+  pointer-events:none;
 }
 
 .file-list{
@@ -173,6 +179,7 @@ iLovePDF4
 <button
   class="back-btn"
   onclick="goBack()"
+  type="button"
 >
 ← All Tools
 </button>
@@ -198,12 +205,13 @@ Select your file to continue.
 
 <div class="upload-box">
 
-<label
+<button
   class="select-btn"
-  for="fileInput"
+  id="selectFileBtn"
+  type="button"
 >
 Select File
-</label>
+</button>
 
 <input
   id="fileInput"
@@ -413,6 +421,11 @@ document.getElementById(
 "fileInput"
 );
 
+const selectFileBtn =
+document.getElementById(
+"selectFileBtn"
+);
+
 const fileList =
 document.getElementById(
 "fileList"
@@ -438,8 +451,45 @@ let selectedFiles = [];
 
 
 /* =========================
-   FILE SELECT
+   FIXED FILE SELECT
 ========================= */
+
+selectFileBtn.addEventListener(
+"click",
+function(){
+
+fileInput.click();
+
+}
+);
+
+
+/*
+Android/mobile keyboard support
+*/
+
+selectFileBtn.addEventListener(
+"keydown",
+function(event){
+
+if(
+event.key === "Enter" ||
+event.key === " "
+){
+
+event.preventDefault();
+
+fileInput.click();
+
+}
+
+}
+);
+
+
+/*
+When user selects file
+*/
 
 fileInput.addEventListener(
 "change",
@@ -662,8 +712,7 @@ return;
 
 /*
 OTHER OFFICE TOOLS
-USE EXISTING
-CLOUDCONVERT BACKEND
+USE CLOUDCONVERT
 */
 
 if(isCloudConvertTool()){
@@ -684,11 +733,8 @@ IMAGE TO PDF
 if(
 
 tool === "jpg-to-pdf" ||
-
 tool === "png-to-pdf" ||
-
 tool === "image-to-pdf" ||
-
 tool === "pdf-scanner"
 
 ){
@@ -724,11 +770,8 @@ PDF LOCAL TOOLS
 if(
 
 tool === "split-pdf" ||
-
 tool === "extract-pages" ||
-
 tool === "remove-pages" ||
-
 tool === "rotate-pdf"
 
 ){
@@ -749,9 +792,7 @@ IMAGE CONVERSION
 if(
 
 tool === "jpg-to-png" ||
-
 tool === "png-to-jpg" ||
-
 tool === "image-to-jpg"
 
 ){
@@ -1081,7 +1122,6 @@ return;
 if(
 
 data.status === "error" ||
-
 data.status === "failed"
 
 ){
@@ -1617,7 +1657,6 @@ SPLIT / EXTRACT
 if(
 
 tool === "split-pdf" ||
-
 tool === "extract-pages"
 
 ){
@@ -1778,7 +1817,6 @@ document.createElement(
 canvas.width =
 img.naturalWidth;
 
-
 canvas.height =
 img.naturalHeight;
 
@@ -1868,7 +1906,6 @@ document.createElement(
 canvas.width =
 img.naturalWidth;
 
-
 canvas.height =
 img.naturalHeight;
 
@@ -1940,7 +1977,6 @@ Math.round(
 img.naturalWidth *
 ratio
 );
-
 
 canvas.height =
 Math.round(
