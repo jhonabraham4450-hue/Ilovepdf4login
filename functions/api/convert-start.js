@@ -1,8 +1,14 @@
+const CONVERTER_URL =
+  "https://ilovepdf4-converter.onrender.com";
+
 export async function onRequestPost({ request }) {
   try {
     const body = await request.json();
 
-    const tool = String(body.tool || "");
+    const tool = String(body.tool || "")
+      .trim()
+      .toLowerCase();
+
     const filename = String(body.filename || "file");
 
     const allowedTools = [
@@ -14,7 +20,7 @@ export async function onRequestPost({ request }) {
     if (!allowedTools.includes(tool)) {
       return json({
         success: false,
-        error: "This conversion is not available on the free engine yet."
+        error: "Unsupported conversion tool: " + tool
       }, 400);
     }
 
@@ -24,7 +30,7 @@ export async function onRequestPost({ request }) {
       success: true,
       jobId,
       form: {
-        url: "https://ilovepdf4-converter.onrender.com/convert",
+        url: `${CONVERTER_URL}/convert`,
         parameters: {
           tool,
           jobId,
