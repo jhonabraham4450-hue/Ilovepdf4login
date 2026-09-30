@@ -76,22 +76,28 @@ body{
 
 .select-btn{
   display:inline-block;
-  border:0;
   background:#e53232;
   color:#fff;
   padding:13px 24px;
   border-radius:8px;
   cursor:pointer;
   font-weight:bold;
-  font-size:16px;
+  border:0;
+}
+
+.file-picker{
+  position:relative;
+  display:inline-block;
 }
 
 #fileInput{
   position:absolute;
-  width:1px;
-  height:1px;
+  inset:0;
+  width:100%;
+  height:100%;
   opacity:0;
-  pointer-events:none;
+  cursor:pointer;
+  z-index:2;
 }
 
 .file-list{
@@ -186,7 +192,6 @@ iLovePDF4
 
 </header>
 
-
 <main class="container">
 
 <div class="card">
@@ -202,12 +207,12 @@ PDF Tool
 Select your file to continue.
 </div>
 
-
 <div class="upload-box">
+
+<div class="file-picker">
 
 <button
   class="select-btn"
-  id="selectFileBtn"
   type="button"
 >
 Select File
@@ -219,18 +224,18 @@ Select File
   multiple
 >
 
+</div>
+
 <div class="note">
 Select your file and then press Process File.
 </div>
 
 </div>
 
-
 <div
   id="fileList"
   class="file-list"
 ></div>
-
 
 <div class="buttons">
 
@@ -254,7 +259,6 @@ Process File
 
 </div>
 
-
 <div id="message"></div>
 
 <div id="downloadArea"></div>
@@ -263,11 +267,9 @@ Process File
 
 </main>
 
-
 <script>
 
 "use strict";
-
 
 /* =========================
    GET TOOL
@@ -281,7 +283,6 @@ window.location.search
 const tool =
 params.get("tool") ||
 "pdf-to-word";
-
 
 /* =========================
    TOOL INFORMATION
@@ -391,7 +392,6 @@ description:"Resize an image."
 
 };
 
-
 const info =
 toolInfo[tool] ||
 {
@@ -399,18 +399,15 @@ title:"PDF Tool",
 description:"Select a file to continue."
 };
 
-
 document.getElementById(
 "toolTitle"
 ).textContent =
 info.title;
 
-
 document.getElementById(
 "description"
 ).textContent =
 info.description;
-
 
 /* =========================
    ELEMENTS
@@ -419,11 +416,6 @@ info.description;
 const fileInput =
 document.getElementById(
 "fileInput"
-);
-
-const selectFileBtn =
-document.getElementById(
-"selectFileBtn"
 );
 
 const fileList =
@@ -446,50 +438,11 @@ document.getElementById(
 "downloadArea"
 );
 
-
 let selectedFiles = [];
 
-
 /* =========================
-   FIXED FILE SELECT
+   FILE SELECT
 ========================= */
-
-selectFileBtn.addEventListener(
-"click",
-function(){
-
-fileInput.click();
-
-}
-);
-
-
-/*
-Android/mobile keyboard support
-*/
-
-selectFileBtn.addEventListener(
-"keydown",
-function(event){
-
-if(
-event.key === "Enter" ||
-event.key === " "
-){
-
-event.preventDefault();
-
-fileInput.click();
-
-}
-
-}
-);
-
-
-/*
-When user selects file
-*/
 
 fileInput.addEventListener(
 "change",
@@ -504,7 +457,6 @@ showFiles();
 
 }
 );
-
 
 /* =========================
    SHOW FILES
@@ -521,7 +473,6 @@ downloadArea.innerHTML =
 message.textContent =
 "";
 
-
 if(!selectedFiles.length){
 
 processBtn.disabled =
@@ -530,7 +481,6 @@ true;
 return;
 
 }
-
 
 selectedFiles.forEach(
 function(file,index){
@@ -558,12 +508,10 @@ div
 }
 );
 
-
 processBtn.disabled =
 false;
 
 }
-
 
 /* =========================
    CLEAR
@@ -584,7 +532,6 @@ message.textContent = "";
 processBtn.disabled = true;
 
 }
-
 
 /* =========================
    SIZE
@@ -613,7 +560,6 @@ bytes /
 
 }
 
-
 /* =========================
    BACK
 ========================= */
@@ -625,7 +571,6 @@ window.location.href =
 
 }
 
-
 /* =========================
    MESSAGE
 ========================= */
@@ -636,7 +581,6 @@ message.textContent =
 text;
 
 }
-
 
 /* =========================
    CLOUDCONVERT TOOLS
@@ -662,7 +606,6 @@ return [
 
 }
 
-
 /* =========================
    PROCESS
 ========================= */
@@ -679,7 +622,6 @@ return;
 
 }
 
-
 processBtn.disabled =
 true;
 
@@ -690,9 +632,7 @@ setMessage(
 "Processing... Please wait."
 );
 
-
 try{
-
 
 /*
 PDF TO WORD
@@ -709,10 +649,10 @@ return;
 
 }
 
-
 /*
 OTHER OFFICE TOOLS
-USE CLOUDCONVERT
+USE EXISTING
+CLOUDCONVERT BACKEND
 */
 
 if(isCloudConvertTool()){
@@ -725,7 +665,6 @@ return;
 
 }
 
-
 /*
 IMAGE TO PDF
 */
@@ -733,8 +672,11 @@ IMAGE TO PDF
 if(
 
 tool === "jpg-to-pdf" ||
+
 tool === "png-to-pdf" ||
+
 tool === "image-to-pdf" ||
+
 tool === "pdf-scanner"
 
 ){
@@ -746,7 +688,6 @@ selectedFiles
 return;
 
 }
-
 
 /*
 MERGE
@@ -762,7 +703,6 @@ return;
 
 }
 
-
 /*
 PDF LOCAL TOOLS
 */
@@ -770,8 +710,11 @@ PDF LOCAL TOOLS
 if(
 
 tool === "split-pdf" ||
+
 tool === "extract-pages" ||
+
 tool === "remove-pages" ||
+
 tool === "rotate-pdf"
 
 ){
@@ -784,7 +727,6 @@ return;
 
 }
 
-
 /*
 IMAGE CONVERSION
 */
@@ -792,7 +734,9 @@ IMAGE CONVERSION
 if(
 
 tool === "jpg-to-png" ||
+
 tool === "png-to-jpg" ||
+
 tool === "image-to-jpg"
 
 ){
@@ -804,7 +748,6 @@ selectedFiles[0]
 return;
 
 }
-
 
 /*
 COMPRESS
@@ -820,7 +763,6 @@ return;
 
 }
 
-
 /*
 RESIZE
 */
@@ -835,11 +777,9 @@ return;
 
 }
 
-
 throw new Error(
 "This tool is not configured yet."
 );
-
 
 }catch(error){
 
@@ -857,7 +797,6 @@ false;
 
 }
 
-
 /* =========================
    CLOUDCONVERT START
 ========================= */
@@ -867,7 +806,6 @@ async function cloudConvert(file){
 setMessage(
 "Starting conversion..."
 );
-
 
 const response =
 await fetch(
@@ -893,13 +831,10 @@ filename:file.name
 }
 );
 
-
 const text =
 await response.text();
 
-
 let data;
-
 
 try{
 
@@ -914,7 +849,6 @@ throw new Error(
 
 }
 
-
 if(!response.ok){
 
 throw new Error(
@@ -924,7 +858,6 @@ data.error ||
 
 }
 
-
 if(!data.jobId){
 
 throw new Error(
@@ -933,7 +866,6 @@ data.error ||
 );
 
 }
-
 
 if(
 !data.form ||
@@ -946,10 +878,8 @@ throw new Error(
 
 }
 
-
 const formData =
 new FormData();
-
 
 if(data.form.parameters){
 
@@ -968,17 +898,14 @@ data.form.parameters[key]
 
 }
 
-
 formData.append(
 "file",
 file
 );
 
-
 setMessage(
 "Uploading file..."
 );
-
 
 const uploadResponse =
 await fetch(
@@ -989,7 +916,6 @@ body:formData
 }
 );
 
-
 if(!uploadResponse.ok){
 
 throw new Error(
@@ -998,18 +924,15 @@ throw new Error(
 
 }
 
-
 setMessage(
 "Converting..."
 );
-
 
 await pollConversion(
 data.jobId
 );
 
 }
-
 
 /* =========================
    CLOUDCONVERT STATUS
@@ -1019,7 +942,6 @@ async function pollConversion(jobId){
 
 const maxAttempts =
 120;
-
 
 for(
 let attempt = 1;
@@ -1035,7 +957,6 @@ resolve,
 )
 );
 
-
 const response =
 await fetch(
 "/api/convert-status?job=" +
@@ -1047,13 +968,10 @@ cache:"no-store"
 }
 );
 
-
 const text =
 await response.text();
 
-
 let data;
-
 
 try{
 
@@ -1068,7 +986,6 @@ throw new Error(
 
 }
 
-
 if(!response.ok){
 
 throw new Error(
@@ -1077,7 +994,6 @@ data.error ||
 );
 
 }
-
 
 if(
 data.status === "finished"
@@ -1088,7 +1004,6 @@ data.url ||
 data.resultUrl ||
 data.result?.url;
 
-
 if(!resultUrl){
 
 throw new Error(
@@ -1097,7 +1012,6 @@ throw new Error(
 
 }
 
-
 showDownload(
 resultUrl,
 "Download " + info.title,
@@ -1105,11 +1019,9 @@ data.filename ||
 getOutputFilename()
 );
 
-
 setMessage(
 "Conversion completed successfully."
 );
-
 
 processBtn.disabled =
 false;
@@ -1118,10 +1030,10 @@ return;
 
 }
 
-
 if(
 
 data.status === "error" ||
+
 data.status === "failed"
 
 ){
@@ -1134,20 +1046,17 @@ data.error ||
 
 }
 
-
 setMessage(
 "Converting... Please wait."
 );
 
 }
 
-
 throw new Error(
 "Conversion timed out. Please try again."
 );
 
 }
-
 
 /* =========================
    OUTPUT FILENAME
@@ -1177,12 +1086,10 @@ const names = {
 
 };
 
-
 return names[tool] ||
 "converted-file";
 
 }
-
 
 /* =========================
    LOCAL PDF TO WORD
@@ -1194,7 +1101,6 @@ setMessage(
 "Reading PDF text locally..."
 );
 
-
 if(!window.pdfjsLib){
 
 throw new Error(
@@ -1203,18 +1109,15 @@ throw new Error(
 
 }
 
-
 const bytes =
 new Uint8Array(
 await file.arrayBuffer()
 );
 
-
 const pdf =
 await pdfjsLib.getDocument({
 data:bytes
 }).promise;
-
 
 let html =
 "<html>" +
@@ -1222,7 +1125,6 @@ let html =
 "<meta charset='utf-8'>" +
 "</head>" +
 "<body>";
-
 
 for(
 let pageNo = 1;
@@ -1235,14 +1137,11 @@ await pdf.getPage(
 pageNo
 );
 
-
 const content =
 await page.getTextContent();
 
-
 let lastY =
 null;
-
 
 for(
 const item of content.items
@@ -1252,7 +1151,6 @@ const y =
 Math.round(
 item.transform[5]
 );
-
 
 if(
 lastY !== null &&
@@ -1264,18 +1162,15 @@ html +=
 
 }
 
-
 html +=
 escapeHtml(
 item.str
 ) + " ";
 
-
 lastY =
 y;
 
 }
-
 
 if(
 pageNo < pdf.numPages
@@ -1288,10 +1183,8 @@ html +=
 
 }
 
-
 html +=
 "</body></html>";
-
 
 const blob =
 new Blob(
@@ -1301,24 +1194,20 @@ type:"application/msword"
 }
 );
 
-
 showBlobDownload(
 blob,
 "converted.doc",
 "Download Word"
 );
 
-
 setMessage(
 "PDF converted to a Word-compatible document. Text/layout may differ from the original."
 );
-
 
 processBtn.disabled =
 false;
 
 }
-
 
 function escapeHtml(text){
 
@@ -1346,7 +1235,6 @@ return String(text)
 
 }
 
-
 /* =========================
    IMAGES TO PDF
 ========================= */
@@ -1356,9 +1244,7 @@ async function imagesToPdf(files){
 const pdfDoc =
 await PDFLib.PDFDocument.create();
 
-
 let count = 0;
-
 
 for(
 const file of files
@@ -1374,13 +1260,10 @@ continue;
 
 }
 
-
 const bytes =
 await file.arrayBuffer();
 
-
 let image;
-
 
 if(
 file.type ===
@@ -1401,7 +1284,6 @@ bytes
 
 }
 
-
 const page =
 pdfDoc.addPage(
 [
@@ -1409,7 +1291,6 @@ image.width,
 image.height
 ]
 );
-
 
 page.drawImage(
 image,
@@ -1421,11 +1302,9 @@ height:image.height
 }
 );
 
-
 count++;
 
 }
-
 
 if(!count){
 
@@ -1435,10 +1314,8 @@ throw new Error(
 
 }
 
-
 const bytes =
 await pdfDoc.save();
-
 
 showBlobDownload(
 new Blob(
@@ -1451,17 +1328,14 @@ type:"application/pdf"
 "Download PDF"
 );
 
-
 setMessage(
 "PDF created successfully."
 );
-
 
 processBtn.disabled =
 false;
 
 }
-
 
 /* =========================
    MERGE PDF
@@ -1477,10 +1351,8 @@ throw new Error(
 
 }
 
-
 const merged =
 await PDFLib.PDFDocument.create();
-
 
 for(
 const file of files
@@ -1491,13 +1363,11 @@ await PDFLib.PDFDocument.load(
 await file.arrayBuffer()
 );
 
-
 const pages =
 await merged.copyPages(
 pdf,
 pdf.getPageIndices()
 );
-
 
 pages.forEach(
 page =>
@@ -1506,10 +1376,8 @@ merged.addPage(page)
 
 }
 
-
 const bytes =
 await merged.save();
-
 
 showBlobDownload(
 new Blob(
@@ -1522,17 +1390,14 @@ type:"application/pdf"
 "Download Merged PDF"
 );
 
-
 setMessage(
 "PDF files merged successfully."
 );
-
 
 processBtn.disabled =
 false;
 
 }
-
 
 /* =========================
    LOCAL PDF TOOLS
@@ -1544,7 +1409,6 @@ const pdf =
 await PDFLib.PDFDocument.load(
 await file.arrayBuffer()
 );
-
 
 /*
 ROTATE
@@ -1559,7 +1423,6 @@ const current =
 page.getRotation().angle ||
 0;
 
-
 page.setRotation(
 PDFLib.degrees(
 (current + 90) % 360
@@ -1569,10 +1432,8 @@ PDFLib.degrees(
 }
 );
 
-
 const output =
 await pdf.save();
-
 
 showBlobDownload(
 new Blob(
@@ -1585,11 +1446,9 @@ type:"application/pdf"
 "Download PDF"
 );
 
-
 setMessage(
 "PDF rotated successfully."
 );
-
 
 processBtn.disabled =
 false;
@@ -1597,7 +1456,6 @@ false;
 return;
 
 }
-
 
 /*
 REMOVE LAST PAGE
@@ -1615,15 +1473,12 @@ throw new Error(
 
 }
 
-
 pdf.removePage(
 pdf.getPageCount() - 1
 );
 
-
 const output =
 await pdf.save();
-
 
 showBlobDownload(
 new Blob(
@@ -1636,11 +1491,9 @@ type:"application/pdf"
 "Download PDF"
 );
 
-
 setMessage(
 "Last page removed successfully."
 );
-
 
 processBtn.disabled =
 false;
@@ -1649,7 +1502,6 @@ return;
 
 }
 
-
 /*
 SPLIT / EXTRACT
 */
@@ -1657,6 +1509,7 @@ SPLIT / EXTRACT
 if(
 
 tool === "split-pdf" ||
+
 tool === "extract-pages"
 
 ){
@@ -1664,23 +1517,19 @@ tool === "extract-pages"
 const newPdf =
 await PDFLib.PDFDocument.create();
 
-
 const pages =
 await newPdf.copyPages(
 pdf,
 [0]
 );
 
-
 pages.forEach(
 page =>
 newPdf.addPage(page)
 );
 
-
 const output =
 await newPdf.save();
-
 
 showBlobDownload(
 new Blob(
@@ -1699,11 +1548,9 @@ tool === "split-pdf"
 "Download PDF"
 );
 
-
 setMessage(
 "First page extracted successfully."
 );
-
 
 processBtn.disabled =
 false;
@@ -1712,10 +1559,8 @@ return;
 
 }
 
-
 const output =
 await pdf.save();
-
 
 showBlobDownload(
 new Blob(
@@ -1728,17 +1573,14 @@ type:"application/pdf"
 "Download PDF"
 );
 
-
 setMessage(
 "PDF processed successfully."
 );
-
 
 processBtn.disabled =
 false;
 
 }
-
 
 /* =========================
    LOAD IMAGE
@@ -1752,12 +1594,10 @@ function(resolve,reject){
 const img =
 new Image();
 
-
 const url =
 URL.createObjectURL(
 file
 );
-
 
 img.onload =
 function(){
@@ -1769,7 +1609,6 @@ url
 resolve(img);
 
 };
-
 
 img.onerror =
 function(){
@@ -1786,7 +1625,6 @@ new Error(
 
 };
 
-
 img.src =
 url;
 
@@ -1794,7 +1632,6 @@ url;
 );
 
 }
-
 
 /* =========================
    IMAGE CONVERT
@@ -1807,12 +1644,10 @@ await loadImage(
 file
 );
 
-
 const canvas =
 document.createElement(
 "canvas"
 );
-
 
 canvas.width =
 img.naturalWidth;
@@ -1820,12 +1655,10 @@ img.naturalWidth;
 canvas.height =
 img.naturalHeight;
 
-
 const ctx =
 canvas.getContext(
 "2d"
 );
-
 
 if(
 tool === "png-to-jpg"
@@ -1833,7 +1666,6 @@ tool === "png-to-jpg"
 
 ctx.fillStyle =
 "#fff";
-
 
 ctx.fillRect(
 0,
@@ -1844,13 +1676,11 @@ canvas.height
 
 }
 
-
 ctx.drawImage(
 img,
 0,
 0
 );
-
 
 if(
 tool === "jpg-to-png"
@@ -1873,17 +1703,14 @@ canvas,
 
 }
 
-
 setMessage(
 "Image converted successfully."
 );
-
 
 processBtn.disabled =
 false;
 
 }
-
 
 /* =========================
    COMPRESS IMAGE
@@ -1896,12 +1723,10 @@ await loadImage(
 file
 );
 
-
 const canvas =
 document.createElement(
 "canvas"
 );
-
 
 canvas.width =
 img.naturalWidth;
@@ -1909,19 +1734,16 @@ img.naturalWidth;
 canvas.height =
 img.naturalHeight;
 
-
 const ctx =
 canvas.getContext(
 "2d"
 );
-
 
 ctx.drawImage(
 img,
 0,
 0
 );
-
 
 await canvasToDownload(
 canvas,
@@ -1930,17 +1752,14 @@ canvas,
 .65
 );
 
-
 setMessage(
 "Image compressed successfully."
 );
-
 
 processBtn.disabled =
 false;
 
 }
-
 
 /* =========================
    RESIZE IMAGE
@@ -1953,10 +1772,8 @@ await loadImage(
 file
 );
 
-
 const maxWidth =
 1200;
-
 
 const ratio =
 Math.min(
@@ -1965,12 +1782,10 @@ maxWidth /
 img.naturalWidth
 );
 
-
 const canvas =
 document.createElement(
 "canvas"
 );
-
 
 canvas.width =
 Math.round(
@@ -1984,12 +1799,10 @@ img.naturalHeight *
 ratio
 );
 
-
 const ctx =
 canvas.getContext(
 "2d"
 );
-
 
 ctx.drawImage(
 img,
@@ -1999,7 +1812,6 @@ canvas.width,
 canvas.height
 );
 
-
 await canvasToDownload(
 canvas,
 "image/jpeg",
@@ -2007,17 +1819,14 @@ canvas,
 .90
 );
 
-
 setMessage(
 "Image resized successfully."
 );
-
 
 processBtn.disabled =
 false;
 
 }
-
 
 /* =========================
    CANVAS DOWNLOAD
@@ -2048,13 +1857,11 @@ return;
 
 }
 
-
 showBlobDownload(
 blob,
 filename,
 "Download File"
 );
-
 
 resolve();
 
@@ -2065,7 +1872,6 @@ quality
 
 }
 );
-
 
 /* =========================
    BLOB DOWNLOAD
@@ -2082,7 +1888,6 @@ URL.createObjectURL(
 blob
 );
 
-
 showDownload(
 url,
 text,
@@ -2090,7 +1895,6 @@ filename
 );
 
 }
-
 
 /* =========================
    DOWNLOAD
@@ -2105,25 +1909,20 @@ filename
 downloadArea.innerHTML =
 "";
 
-
 const link =
 document.createElement(
 "a"
 );
 
-
 link.href =
 url;
-
 
 link.className =
 "download-btn";
 
-
 link.textContent =
 text ||
 "Download";
-
 
 if(filename){
 
@@ -2132,10 +1931,8 @@ filename;
 
 }
 
-
 link.target =
 "_blank";
-
 
 downloadArea.appendChild(
 link
