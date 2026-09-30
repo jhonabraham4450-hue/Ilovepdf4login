@@ -1,3 +1,6 @@
+const CONVERTER_URL =
+  "https://ilovepdf4-converter.onrender.com";
+
 export async function onRequestGet({ request }) {
   try {
     const url = new URL(request.url);
@@ -10,10 +13,13 @@ export async function onRequestGet({ request }) {
       }, 400);
     }
 
-    return json({
-      status: "processing",
-      jobId
-    });
+    const response = await fetch(
+      `${CONVERTER_URL}/status/${encodeURIComponent(jobId)}`
+    );
+
+    const data = await response.json();
+
+    return json(data, response.status);
 
   } catch (error) {
     return json({
