@@ -1,3 +1,4 @@
+```javascript
 const CONVERTER_URL =
   "https://ilovepdf4-converter.onrender.com";
 
@@ -7,22 +8,45 @@ export async function onRequestGet({ request }) {
     const jobId = url.searchParams.get("job");
 
     if (!jobId) {
-      return new Response("Missing job id.", {
-        status: 400
-      });
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Missing job id."
+        }),
+        {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store"
+          }
+        }
+      );
     }
 
     const response = await fetch(
-      `${CONVERTER_URL}/download/${encodeURIComponent(jobId)}`
+      `${CONVERTER_URL}/download/${encodeURIComponent(jobId)}`,
+      {
+        method: "GET",
+        headers: {
+          "Cache-Control": "no-cache"
+        }
+      }
     );
 
     if (!response.ok) {
       const text = await response.text();
 
       return new Response(
-        text || "File is not ready.",
+        JSON.stringify({
+          success: false,
+          error: text || "File is not ready."
+        }),
         {
-          status: response.status
+          status: response.status,
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store"
+          }
         }
       );
     }
@@ -33,6 +57,16 @@ export async function onRequestGet({ request }) {
       "Content-Type",
       response.headers.get("Content-Type") ||
       "application/pdf"
+    );
+
+    headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate"
+    );
+
+    headers.set(
+      "Pragma",
+      "no-cache"
     );
 
     const disposition =
@@ -60,10 +94,20 @@ export async function onRequestGet({ request }) {
 
   } catch (error) {
     return new Response(
-      error?.message || "Download failed.",
+      JSON.stringify({
+        success: false,
+        error:
+          error?.message ||
+          "Download failed."
+      }),
       {
-        status: 500
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store"
+        }
       }
     );
   }
 }
+```
