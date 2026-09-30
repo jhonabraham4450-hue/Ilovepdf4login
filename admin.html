@@ -15,20 +15,91 @@
 }
 
 body{
-  background:#f4f6f9;
+  background:
+    linear-gradient(
+      rgba(8,35,55,.55),
+      rgba(8,55,75,.55)
+    ),
+    radial-gradient(
+      circle at 20% 20%,
+      #75c7d8 0%,
+      #287b91 35%,
+      #123d55 70%,
+      #071d2d 100%
+    );
+  background-attachment:fixed;
+  background-size:cover;
   color:#222;
+  min-height:100vh;
 }
 
+/* subtle mountain / sea effect */
+
+body::before{
+  content:"";
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  height:42%;
+  z-index:-1;
+  background:
+    linear-gradient(
+      135deg,
+      transparent 0 18%,
+      rgba(5,35,45,.75) 19% 32%,
+      transparent 33% 45%,
+      rgba(6,42,52,.8) 46% 62%,
+      transparent 63%
+    );
+  clip-path:polygon(
+    0 65%,
+    10% 48%,
+    20% 60%,
+    32% 25%,
+    45% 58%,
+    58% 35%,
+    70% 60%,
+    82% 30%,
+    100% 55%,
+    100% 100%,
+    0 100%
+  );
+  opacity:.75;
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  height:32%;
+  z-index:-1;
+  background:
+    repeating-linear-gradient(
+      170deg,
+      rgba(255,255,255,.08) 0 2px,
+      transparent 2px 18px
+    );
+  opacity:.35;
+}
+
+
+/* HEADER */
+
 header{
-  background:#fff;
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(12px);
   padding:15px 20px;
-  border-bottom:1px solid #ddd;
+  border-bottom:1px solid rgba(255,255,255,.5);
   display:flex;
   justify-content:space-between;
   align-items:center;
   position:sticky;
   top:0;
   z-index:100;
+  box-shadow:0 3px 18px rgba(0,0,0,.15);
 }
 
 .logo{
@@ -66,6 +137,9 @@ header{
   opacity:.9;
 }
 
+
+/* CONTAINER */
+
 .container{
   max-width:1250px;
   margin:auto;
@@ -83,12 +157,15 @@ header{
 
 h1{
   font-size:28px;
+  color:#fff;
+  text-shadow:0 2px 5px rgba(0,0,0,.35);
 }
 
 .back{
-  color:#e5322d;
+  color:#fff;
   text-decoration:none;
   font-weight:bold;
+  text-shadow:0 2px 4px rgba(0,0,0,.35);
 }
 
 .refresh{
@@ -125,10 +202,11 @@ h1{
 }
 
 .card{
-  background:#fff;
+  background:rgba(255,255,255,.93);
+  backdrop-filter:blur(10px);
   padding:22px;
   border-radius:12px;
-  box-shadow:0 2px 10px rgba(0,0,0,.07);
+  box-shadow:0 8px 25px rgba(0,0,0,.18);
   border-left:5px solid #e5322d;
 }
 
@@ -146,10 +224,11 @@ h1{
 /* CHART */
 
 .chart-box{
-  background:#fff;
+  background:rgba(255,255,255,.93);
+  backdrop-filter:blur(10px);
   padding:20px;
   border-radius:12px;
-  box-shadow:0 2px 10px rgba(0,0,0,.07);
+  box-shadow:0 8px 25px rgba(0,0,0,.18);
   margin-bottom:25px;
 }
 
@@ -203,10 +282,11 @@ h1{
 /* USER MANAGEMENT */
 
 .table-box{
-  background:#fff;
+  background:rgba(255,255,255,.95);
+  backdrop-filter:blur(10px);
   padding:20px;
   border-radius:12px;
-  box-shadow:0 2px 10px rgba(0,0,0,.07);
+  box-shadow:0 8px 25px rgba(0,0,0,.18);
   overflow-x:auto;
 }
 
@@ -319,6 +399,19 @@ tr:hover{
     min-width:0;
   }
 
+  .admin-name{
+    font-size:12px;
+  }
+
+  .header-right{
+    gap:7px;
+  }
+
+  .logout{
+    padding:8px 10px;
+    font-size:12px;
+  }
+
 }
 </style>
 </head>
@@ -352,6 +445,7 @@ tr:hover{
   <div class="top-bar">
 
     <div>
+
       <a href="home.html" class="back">
         ← Back to Home
       </a>
@@ -359,6 +453,7 @@ tr:hover{
       <h1 style="margin-top:10px;">
         Admin Dashboard
       </h1>
+
     </div>
 
     <button
@@ -523,7 +618,7 @@ tr:hover{
           id="searchUser"
           class="search"
           placeholder="Search username, mobile or email..."
-          oninput="filterUsers()">
+          oninput="filterUsers">
 
       </div>
 
