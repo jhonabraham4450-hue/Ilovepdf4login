@@ -19,16 +19,6 @@ export async function onRequestGet({ request }) {
 
     const data = await response.json();
 
-    if (data.status === "finished") {
-      return json({
-        status: "finished",
-        url:
-          `${url.origin}/api/convert-download?job=` +
-          encodeURIComponent(jobId),
-        filename: data.filename
-      });
-    }
-
     return json(data, response.status);
 
   } catch (error) {
