@@ -1,4 +1,3 @@
-```javascript
 const FREE_ENGINE_URL =
   "https://free-conversion-engine.onrender.com";
 
@@ -31,32 +30,26 @@ export async function onRequestPost({ request }) {
 
     const conversions = {
       "word-to-pdf": {
-        input: "docx",
         output: "pdf"
       },
 
       "powerpoint-to-pdf": {
-        input: "pptx",
         output: "pdf"
       },
 
       "excel-to-pdf": {
-        input: "xlsx",
         output: "pdf"
       },
 
       "pdf-to-word": {
-        input: "pdf",
         output: "docx"
       },
 
       "pdf-to-powerpoint": {
-        input: "pdf",
         output: "pptx"
       },
 
       "pdf-to-excel": {
-        input: "pdf",
         output: "xlsx"
       }
     };
@@ -71,11 +64,6 @@ export async function onRequestPost({ request }) {
       }, 400);
     }
 
-    /*
-     * Create a unique job ID.
-     * The Render engine uses this same ID
-     * for status and download.
-     */
     const jobId =
       "job-" +
       Date.now() +
@@ -84,12 +72,7 @@ export async function onRequestPost({ request }) {
         .toString(36)
         .slice(2, 10);
 
-    /*
-     * Send the uploaded file to the
-     * Render conversion engine.
-     */
-    const engineForm =
-      new FormData();
+    const engineForm = new FormData();
 
     engineForm.append(
       "file",
@@ -159,18 +142,10 @@ export async function onRequestPost({ request }) {
 
     return json({
       success: true,
-
-      jobId:
-        data.jobId || jobId,
-
-      status:
-        data.status || "processing",
-
-      filename:
-        file.name || "file",
-
-      outputFormat:
-        conversion.output
+      jobId: data.jobId || jobId,
+      status: data.status || "processing",
+      filename: file.name || "file",
+      outputFormat: conversion.output
     });
 
   } catch (error) {
@@ -183,30 +158,18 @@ export async function onRequestPost({ request }) {
   }
 }
 
-
-function json(
-  data,
-  status = 200
-) {
+function json(data, status = 200) {
   return new Response(
     JSON.stringify(data),
     {
       status,
-
       headers: {
-        "Content-Type":
-          "application/json",
-
+        "Content-Type": "application/json",
         "Cache-Control":
           "no-store, no-cache, must-revalidate",
-
-        "Pragma":
-          "no-cache",
-
-        "Expires":
-          "0"
+        "Pragma": "no-cache",
+        "Expires": "0"
       }
     }
   );
 }
-```
