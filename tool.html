@@ -523,8 +523,8 @@ async function pollConversion(jobId){
     if(data.status === "finished"){
 
       const resultUrl =
-        "/api/convert-download?job=" +
-        encodeURIComponent(jobId);
+  "https://ilovepdf4-converter.onrender.com/download/" +
+  encodeURIComponent(jobId);
 
       showDownload(
         resultUrl,
