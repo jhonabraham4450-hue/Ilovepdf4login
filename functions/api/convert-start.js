@@ -12,15 +12,29 @@ export async function onRequestPost({ request, env }) {
       }, 500);
     }
 
-    const body = await request.json();
+    const contentType =
+      request.headers.get("content-type") || "";
 
-    const tool = String(body.tool || "")
-      .trim()
-      .toLowerCase();
+    if (!contentType.includes("multipart/form-data")) {
+      return json({
+        success: false,
+        error: "File upload request is required."
+      }, 400);
+    }
 
-    const filename = String(
-      body.filename || "file"
-    ).trim();
+    const formData = await request.formData();
+
+    const file = formData.get("file");
+    const tool = String(
+      formData.get("tool") || ""
+    ).trim().toLowerCase();
+
+    if (!file || typeof file === "string") {
+      return json({
+        success: false,
+        error: "No file was uploaded."
+      }, 400);
+    }
 
     const conversions = {
       "word-to-pdf": {
@@ -63,32 +77,46 @@ export async function onRequestPost({ request, env }) {
 
     const conversion = conversions[tool];
 
+    /* Create CloudConvert job */
+
     const jobResponse = await fetch(
       CLOUDCONVERT_API,
       {
         method: "POST",
 
         headers: {
-          "Authorization": `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-          "Accept": "application/json"
+          "Authorization":
+            `Bearer ${apiKey}`,
+
+          "Content-Type":
+            "application/json",
+
+          "Accept":
+            "application/json"
         },
 
         body: JSON.stringify({
           tasks: {
+
             "upload-file": {
               operation: "import/upload"
             },
 
             "convert-file": {
               operation: "convert",
+
               input: "upload-file",
-              input_format: conversion.input,
-              output_format: conversion.output
+
+              input_format:
+                conversion.input,
+
+              output_format:
+                conversion.output
             },
 
             "export-file": {
               operation: "export/url",
+
               input: "convert-file"
             }
           }
@@ -107,17 +135,20 @@ export async function onRequestPost({ request, env }) {
       return json({
         success: false,
         error:
-          "Invalid response from CloudConvert."
+          "Invalid response from CloudConvert.",
+        raw: responseText
       }, 502);
     }
 
     if (!jobResponse.ok) {
       return json({
         success: false,
+
         error:
           data?.message ||
           data?.data?.message ||
           "CloudConvert job creation failed.",
+
         details: data
       }, jobResponse.status);
     }
@@ -127,7 +158,9 @@ export async function onRequestPost({ request, env }) {
     if (!job?.id) {
       return json({
         success: false,
-        error: "CloudConvert did not return a job ID."
+        error:
+          "CloudConvert did not return a job ID.",
+        details: data
       }, 502);
     }
 
@@ -140,10 +173,13 @@ export async function onRequestPost({ request, env }) {
           )
         : null;
 
-    const form =
+    const uploadForm =
       uploadTask?.result?.form;
 
-    if (!form?.url || !form?.parameters) {
+    if (
+      !uploadForm?.url ||
+      !uploadForm?.parameters
+    ) {
       return json({
         success: false,
         error:
@@ -152,25 +188,70 @@ export async function onRequestPost({ request, env }) {
       }, 502);
     }
 
+    /*
+     * Worker uploads the user's file
+     * directly to CloudConvert.
+     */
+
+    const cloudForm =
+      new FormData();
+
+    for (
+      const [key, value]
+      of Object.entries(uploadForm.parameters)
+    ) {
+      cloudForm.append(
+        key,
+        String(value)
+      );
+    }
+
+    cloudForm.append(
+      "file",
+      file,
+      file.name || "upload"
+    );
+
+    const uploadResponse =
+      await fetch(
+        uploadForm.url,
+        {
+          method: "POST",
+          body: cloudForm
+        }
+      );
+
+    if (!uploadResponse.ok) {
+      const uploadText =
+        await uploadResponse.text();
+
+      return json({
+        success: false,
+
+        error:
+          "CloudConvert file upload failed.",
+
+        details: uploadText
+      }, 502);
+    }
+
     return json({
       success: true,
 
       jobId: job.id,
 
-      form: {
-        url: form.url,
-        parameters: form.parameters
-      },
+      filename:
+        file.name || "file",
 
-      filename: filename,
-
-      outputFormat: conversion.output
+      outputFormat:
+        conversion.output
     });
 
   } catch (error) {
 
     return json({
       success: false,
+
       error:
         error?.message ||
         "Unable to start CloudConvert conversion."
@@ -179,15 +260,27 @@ export async function onRequestPost({ request, env }) {
 }
 
 
-function json(data, status = 200) {
+function json(
+  data,
+  status = 200
+) {
   return new Response(
     JSON.stringify(data),
     {
       status,
+
       headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-store, no-cache, must-revalidate",
-        "Pragma": "no-cache"
+        "Content-Type":
+          "application/json",
+
+        "Cache-Control":
+          "no-store, no-cache, must-revalidate",
+
+        "Pragma":
+          "no-cache",
+
+        "Expires":
+          "0"
       }
     }
   );
