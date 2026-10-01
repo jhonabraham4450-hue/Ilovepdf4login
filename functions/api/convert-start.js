@@ -1,17 +1,9 @@
-const CLOUDCONVERT_API =
-  "https://api.cloudconvert.com/v2/jobs";
+```javascript
+const FREE_ENGINE_URL =
+  "https://free-conversion-engine.onrender.com";
 
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request }) {
   try {
-    const apiKey = env.CLOUDCONVERT_API_KEY;
-
-    if (!apiKey) {
-      return json({
-        success: false,
-        error: "CLOUDCONVERT_API_KEY is not configured."
-      }, 500);
-    }
-
     const contentType =
       request.headers.get("content-type") || "";
 
@@ -69,7 +61,9 @@ export async function onRequestPost({ request, env }) {
       }
     };
 
-    if (!conversions[tool]) {
+    const conversion = conversions[tool];
+
+    if (!conversion) {
       return json({
         success: false,
         error:
@@ -77,54 +71,58 @@ export async function onRequestPost({ request, env }) {
       }, 400);
     }
 
-    const conversion =
-      conversions[tool];
+    /*
+     * Create a unique job ID.
+     * The Render engine uses this same ID
+     * for status and download.
+     */
+    const jobId =
+      "job-" +
+      Date.now() +
+      "-" +
+      Math.random()
+        .toString(36)
+        .slice(2, 10);
 
-    const jobResponse =
+    /*
+     * Send the uploaded file to the
+     * Render conversion engine.
+     */
+    const engineForm =
+      new FormData();
+
+    engineForm.append(
+      "file",
+      file,
+      file.name || "upload"
+    );
+
+    engineForm.append(
+      "tool",
+      tool
+    );
+
+    engineForm.append(
+      "jobId",
+      jobId
+    );
+
+    engineForm.append(
+      "filename",
+      file.name || "file"
+    );
+
+    const engineResponse =
       await fetch(
-        CLOUDCONVERT_API,
+        FREE_ENGINE_URL + "/convert",
         {
           method: "POST",
-
-          headers: {
-            "Authorization":
-              `Bearer ${apiKey}`,
-
-            "Content-Type":
-              "application/json",
-
-            "Accept":
-              "application/json"
-          },
-
-          body: JSON.stringify({
-            tasks: {
-
-              "upload-file": {
-                operation: "import/upload"
-              },
-
-              "convert-file": {
-                operation: "convert",
-                input: "upload-file",
-                input_format:
-                  conversion.input,
-                output_format:
-                  conversion.output
-              },
-
-              "export-file": {
-                operation: "export/url",
-                input: "convert-file"
-              }
-
-            }
-          })
+          body: engineForm
         }
       );
 
     const responseText =
-      await jobResponse.text();
+      await engineResponse.text();
 
     let data;
 
@@ -134,107 +132,39 @@ export async function onRequestPost({ request, env }) {
       return json({
         success: false,
         error:
-          "Invalid response from CloudConvert.",
+          "Invalid response from free conversion engine.",
         raw: responseText
       }, 502);
     }
 
-    if (!jobResponse.ok) {
+    if (!engineResponse.ok) {
       return json({
         success: false,
-
         error:
-          data?.message ||
-          data?.data?.message ||
-          "CloudConvert job creation failed.",
-
+          data?.error ||
+          "Free conversion engine failed.",
         details: data
-      }, jobResponse.status);
+      }, engineResponse.status);
     }
 
-    const job = data?.data;
-
-    if (!job?.id) {
+    if (!data?.success) {
       return json({
         success: false,
         error:
-          "CloudConvert did not return a job ID.",
+          data?.error ||
+          "Conversion could not be started.",
         details: data
-      }, 502);
-    }
-
-    const uploadTask =
-      Array.isArray(job.tasks)
-        ? job.tasks.find(
-            task =>
-              task.name === "upload-file" ||
-              task.operation === "import/upload"
-          )
-        : null;
-
-    const uploadForm =
-      uploadTask?.result?.form;
-
-    if (
-      !uploadForm?.url ||
-      !uploadForm?.parameters
-    ) {
-      return json({
-        success: false,
-        error:
-          "CloudConvert upload form was not returned.",
-        details: job
-      }, 502);
-    }
-
-    const cloudForm =
-      new FormData();
-
-    for (
-      const [key, value]
-      of Object.entries(
-        uploadForm.parameters
-      )
-    ) {
-      cloudForm.append(
-        key,
-        String(value)
-      );
-    }
-
-    cloudForm.append(
-      "file",
-      file,
-      file.name || "upload"
-    );
-
-    const uploadResponse =
-      await fetch(
-        uploadForm.url,
-        {
-          method: "POST",
-          body: cloudForm
-        }
-      );
-
-    if (!uploadResponse.ok) {
-      const uploadText =
-        await uploadResponse.text();
-
-      return json({
-        success: false,
-
-        error:
-          "CloudConvert file upload failed.",
-
-        details: uploadText
       }, 502);
     }
 
     return json({
       success: true,
 
-      jobId: job.id,
+      jobId:
+        data.jobId || jobId,
+
+      status:
+        data.status || "processing",
 
       filename:
         file.name || "file",
@@ -244,13 +174,11 @@ export async function onRequestPost({ request, env }) {
     });
 
   } catch (error) {
-
     return json({
       success: false,
-
       error:
         error?.message ||
-        "Unable to start CloudConvert conversion."
+        "Unable to start conversion."
     }, 500);
   }
 }
@@ -281,3 +209,4 @@ function json(
     }
   );
 }
+```
