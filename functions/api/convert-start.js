@@ -1,3 +1,4 @@
+```js
 const CONVERTER_URL =
   "https://ilovepdf4-converter.onrender.com";
 
@@ -14,7 +15,10 @@ export async function onRequestPost({ request }) {
     const allowedTools = [
       "word-to-pdf",
       "powerpoint-to-pdf",
-      "excel-to-pdf"
+      "excel-to-pdf",
+      "pdf-to-word",
+      "pdf-to-powerpoint",
+      "pdf-to-excel"
     ];
 
     if (!allowedTools.includes(tool)) {
@@ -59,3 +63,4 @@ function json(data, status = 200) {
     }
   );
 }
+```
