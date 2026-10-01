@@ -25,6 +25,7 @@ export async function onRequestPost({ request, env }) {
     const formData = await request.formData();
 
     const file = formData.get("file");
+
     const tool = String(
       formData.get("tool") || ""
     ).trim().toLowerCase();
@@ -71,58 +72,56 @@ export async function onRequestPost({ request, env }) {
     if (!conversions[tool]) {
       return json({
         success: false,
-        error: "Unsupported conversion tool: " + tool
+        error:
+          "Unsupported conversion tool: " + tool
       }, 400);
     }
 
-    const conversion = conversions[tool];
+    const conversion =
+      conversions[tool];
 
-    /* Create CloudConvert job */
+    const jobResponse =
+      await fetch(
+        CLOUDCONVERT_API,
+        {
+          method: "POST",
 
-    const jobResponse = await fetch(
-      CLOUDCONVERT_API,
-      {
-        method: "POST",
+          headers: {
+            "Authorization":
+              `Bearer ${apiKey}`,
 
-        headers: {
-          "Authorization":
-            `Bearer ${apiKey}`,
+            "Content-Type":
+              "application/json",
 
-          "Content-Type":
-            "application/json",
+            "Accept":
+              "application/json"
+          },
 
-          "Accept":
-            "application/json"
-        },
+          body: JSON.stringify({
+            tasks: {
 
-        body: JSON.stringify({
-          tasks: {
+              "upload-file": {
+                operation: "import/upload"
+              },
 
-            "upload-file": {
-              operation: "import/upload"
-            },
+              "convert-file": {
+                operation: "convert",
+                input: "upload-file",
+                input_format:
+                  conversion.input,
+                output_format:
+                  conversion.output
+              },
 
-            "convert-file": {
-              operation: "convert",
+              "export-file": {
+                operation: "export/url",
+                input: "convert-file"
+              }
 
-              input: "upload-file",
-
-              input_format:
-                conversion.input,
-
-              output_format:
-                conversion.output
-            },
-
-            "export-file": {
-              operation: "export/url",
-
-              input: "convert-file"
             }
-          }
-        })
-      }
-    );
+          })
+        }
+      );
 
     const responseText =
       await jobResponse.text();
@@ -188,17 +187,14 @@ export async function onRequestPost({ request, env }) {
       }, 502);
     }
 
-    /*
-     * Worker uploads the user's file
-     * directly to CloudConvert.
-     */
-
     const cloudForm =
       new FormData();
 
     for (
       const [key, value]
-      of Object.entries(uploadForm.parameters)
+      of Object.entries(
+        uploadForm.parameters
+      )
     ) {
       cloudForm.append(
         key,
