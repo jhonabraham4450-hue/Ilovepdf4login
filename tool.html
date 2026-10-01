@@ -741,28 +741,50 @@ async function pollConversion(jobId){
 
     }
 
-    if(data.status === "finished"){
+   if(data.status === "finished"){
 
-      const downloadUrl =
-        "/api/convert-download?job=" +
-        encodeURIComponent(jobId) +
-        "&v=2";
+  if(!data.downloadUrl){
 
-      showDownload(
-        downloadUrl,
-        "Download " + info.title,
-        getOutputFilename()
-      );
+    throw new Error(
+      "CloudConvert did not return the download URL."
+    );
 
-      setMessage(
-        "Conversion completed successfully."
-      );
+  }
 
-      processBtn.disabled = false;
+  const downloadUrl =
+    data.downloadUrl;
 
-      return;
+  downloadArea.innerHTML = "";
 
-    }
+  const a =
+    document.createElement("a");
+
+  a.href =
+    downloadUrl;
+
+  a.className =
+    "download";
+
+  a.textContent =
+    "Download " + info.title;
+
+  a.target =
+    "_blank";
+
+  a.rel =
+    "noopener";
+
+  downloadArea.appendChild(a);
+
+  setMessage(
+    "Conversion completed successfully."
+  );
+
+  processBtn.disabled =
+    false;
+
+  return;
+} 
 
     if(
       data.status === "error" ||
