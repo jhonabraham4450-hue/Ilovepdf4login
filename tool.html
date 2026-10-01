@@ -562,119 +562,106 @@ async function processFiles(){
 
 async function cloudConvert(file){
 
-  setMessage("Starting CloudConvert...");
-
-  const startResponse = await fetch(
-    "/api/convert-start?v=2",
-    {
-      method:"POST",
-
-      headers:{
-        "Content-Type":"application/json",
-        "Cache-Control":"no-cache"
-      },
-
-      credentials:"include",
-
-      cache:"no-store",
-
-      body:JSON.stringify({
-        tool:tool,
-        filename:file.name
-      })
-    }
-  );
-
-  const startText = await startResponse.text();
-
-  let data;
-
   try{
 
-    data = JSON.parse(startText);
+    setMessage("Uploading file to CloudConvert...");
 
-  }catch(e){
+    /*
+      Send the actual selected file
+      to our Worker.
 
-    throw new Error(
-      startText ||
-      "Invalid conversion server response."
+      The Worker will:
+      1. Create the CloudConvert job
+      2. Upload the file to CloudConvert
+      3. Return the job ID
+    */
+
+    const formData = new FormData();
+
+    formData.append(
+      "file",
+      file,
+      file.name
     );
 
-  }
-
-  if(!startResponse.ok){
-
-    throw new Error(
-      data.error ||
-      "Unable to start conversion."
+    formData.append(
+      "tool",
+      tool
     );
 
-  }
+    const startResponse = await fetch(
+      "/api/convert-start?v=3",
+      {
+        method:"POST",
 
-  if(!data.jobId){
+        body:formData,
 
-    throw new Error(
-      data.error ||
-      "CloudConvert job was not created."
-    );
+        credentials:"include",
 
-  }
+        cache:"no-store",
 
-  if(!data.form || !data.form.url){
-
-    throw new Error(
-      "CloudConvert upload form was not returned."
-    );
-
-  }
-
-  const formData = new FormData();
-
-  if(data.form.parameters){
-
-    Object.keys(data.form.parameters).forEach(
-      function(key){
-
-        const value =
-          data.form.parameters[key];
-
-        formData.append(
-          key,
-          value == null ? "" : String(value)
-        );
-
+        headers:{
+          "Cache-Control":"no-cache"
+        }
       }
     );
 
-  }
+    const startText =
+      await startResponse.text();
 
-  formData.append("file",file,file.name);
+    let data;
 
-  setMessage("Uploading file to CloudConvert...");
+    try{
 
-  const uploadResponse = await fetch(
-    data.form.url,
-    {
-      method:"POST",
-      body:formData
+      data = JSON.parse(startText);
+
+    }catch(e){
+
+      throw new Error(
+        startText ||
+        "Invalid conversion server response."
+      );
+
     }
-  );
 
-  if(!uploadResponse.ok){
+    if(!startResponse.ok || !data.success){
 
-    const uploadText =
-      await uploadResponse.text();
+      throw new Error(
+        data.error ||
+        "Unable to start conversion."
+      );
 
-    throw new Error(
-      uploadText ||
-      "File upload to CloudConvert failed."
+    }
+
+    if(!data.jobId){
+
+      throw new Error(
+        "CloudConvert did not return a job ID."
+      );
+
+    }
+
+    setMessage(
+      "File uploaded successfully. CloudConvert is converting..."
     );
 
+    await pollConversion(data.jobId);
+
+  }catch(error){
+
+    console.error(
+      "CloudConvert error:",
+      error
+    );
+
+    setMessage(
+      error.message ||
+      "Conversion failed."
+    );
+
+    processBtn.disabled = false;
+
   }
-
-  setMessage("CloudConvert is converting the file...");
-
-  await pollConversion(data.jobId);
 
 }
 
@@ -699,7 +686,7 @@ async function pollConversion(jobId){
     const response = await fetch(
       "/api/convert-status?job=" +
       encodeURIComponent(jobId) +
-      "&v=2",
+      "&v=3",
       {
         method:"GET",
 
@@ -741,50 +728,60 @@ async function pollConversion(jobId){
 
     }
 
-   if(data.status === "finished"){
+    if(data.status === "finished"){
 
-  if(!data.downloadUrl){
+      if(!data.downloadUrl){
 
-    throw new Error(
-      "CloudConvert did not return the download URL."
-    );
+        throw new Error(
+          "CloudConvert did not return the download URL."
+        );
 
-  }
+      }
 
-  const downloadUrl =
-    data.downloadUrl;
+      const downloadUrl =
+        data.downloadUrl;
 
-  downloadArea.innerHTML = "";
+      downloadArea.innerHTML = "";
 
-  const a =
-    document.createElement("a");
+      const a =
+        document.createElement("a");
 
-  a.href =
-    downloadUrl;
+      a.href =
+        downloadUrl;
 
-  a.className =
-    "download";
+      a.className =
+        "download";
 
-  a.textContent =
-    "Download " + info.title;
+      a.textContent =
+        "Download " + info.title;
 
-  a.target =
-    "_blank";
+      /*
+        CloudConvert gives a temporary
+        cross-origin download URL.
 
-  a.rel =
-    "noopener";
+        Do not use the download attribute
+        here because Chrome may ignore it
+        for cross-origin URLs.
+      */
 
-  downloadArea.appendChild(a);
+      a.target =
+        "_blank";
 
-  setMessage(
-    "Conversion completed successfully."
-  );
+      a.rel =
+        "noopener";
 
-  processBtn.disabled =
-    false;
+      downloadArea.appendChild(a);
 
-  return;
-} 
+      setMessage(
+        "Conversion completed successfully."
+      );
+
+      processBtn.disabled =
+        false;
+
+      return;
+
+    }
 
     if(
       data.status === "error" ||
@@ -1355,10 +1352,10 @@ function showDownload(
   }
 
   /*
-    CloudConvert download endpoint
-    is same-origin and must be opened
-    normally so the server attachment
-    response controls the file.
+    CloudConvert download URL is handled
+    separately above.
+
+    Local Blob URLs open normally.
   */
 
   if(url.startsWith("/api/convert-download")){
