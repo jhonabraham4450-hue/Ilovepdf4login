@@ -1,19 +1,13 @@
-const CLOUDCONVERT_API =
-  "https://api.cloudconvert.com/v2/jobs";
+const FREE_ENGINE_URL =
+  "https://free-conversion-engine.onrender.com";
 
-export async function onRequestGet({ request, env }) {
+export async function onRequestGet({ request }) {
   try {
-    const apiKey = env.CLOUDCONVERT_API_KEY;
-
-    if (!apiKey) {
-      return json({
-        status: "error",
-        error: "CLOUDCONVERT_API_KEY is not configured."
-      }, 500);
-    }
-
     const url = new URL(request.url);
-    const jobId = url.searchParams.get("job");
+
+    const jobId =
+      url.searchParams.get("job") ||
+      url.searchParams.get("jobId");
 
     if (!jobId) {
       return json({
@@ -23,17 +17,14 @@ export async function onRequestGet({ request, env }) {
     }
 
     const response = await fetch(
-      `${CLOUDCONVERT_API}/${encodeURIComponent(jobId)}`,
+      FREE_ENGINE_URL +
+        "/status/" +
+        encodeURIComponent(jobId),
       {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${apiKey}`,
           "Accept": "application/json",
           "Cache-Control": "no-cache"
-        },
-        cf: {
-          cacheTtl: 0,
-          cacheEverything: false
         }
       }
     );
@@ -47,7 +38,8 @@ export async function onRequestGet({ request, env }) {
     } catch {
       return json({
         status: "error",
-        error: "Invalid response from CloudConvert."
+        error:
+          "Invalid response from free conversion engine."
       }, 502);
     }
 
@@ -55,57 +47,35 @@ export async function onRequestGet({ request, env }) {
       return json({
         status: "error",
         error:
-          data?.message ||
-          data?.data?.message ||
-          "Unable to get CloudConvert job status.",
+          data?.error ||
+          "Unable to get conversion status.",
         details: data
       }, response.status);
     }
 
-    const job = data?.data;
-
-    if (!job) {
+    if (!data) {
       return json({
         status: "error",
-        error: "CloudConvert job data was not returned."
+        error:
+          "Conversion engine returned no status."
       }, 502);
     }
 
-    const exportTask =
-      Array.isArray(job.tasks)
-        ? job.tasks.find(
-            task =>
-              task.name === "export-file" ||
-              task.operation === "export/url"
-          )
-        : null;
-
-    let downloadUrl = null;
-
-    if (
-      exportTask &&
-      exportTask.status === "finished" &&
-      exportTask.result &&
-      Array.isArray(exportTask.result.files) &&
-      exportTask.result.files.length > 0
-    ) {
-      downloadUrl =
-        exportTask.result.files[0].url || null;
-    }
-
     return json({
-      status: job.status || "unknown",
-      jobId: job.id,
+      status:
+        data.status || "unknown",
 
-      downloadUrl: downloadUrl,
+      jobId:
+        data.jobId || jobId,
+
+      downloadUrl:
+        data.url || null,
 
       filename:
-        exportTask?.result?.files?.[0]?.filename ||
-        null,
+        data.filename || null,
 
       contentType:
-        exportTask?.result?.files?.[0]?.mime ||
-        null
+        data.contentType || null
     });
 
   } catch (error) {
@@ -113,11 +83,10 @@ export async function onRequestGet({ request, env }) {
       status: "error",
       error:
         error?.message ||
-        "Unable to connect to CloudConvert."
+        "Unable to connect to free conversion engine."
     }, 500);
   }
 }
-
 
 function json(data, status = 200) {
   return new Response(
