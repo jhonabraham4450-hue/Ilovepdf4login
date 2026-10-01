@@ -419,6 +419,7 @@ async function processFiles(){
   }
 }
 
+
 /* =========================
    CLOUD CONVERT
 ========================= */
@@ -485,7 +486,11 @@ async function cloudConvert(file){
   await pollConversion(data.jobId);
 }
 
+
 async function pollConversion(jobId){
+
+  const CONVERTER_URL =
+    "https://ilovepdf4-converter.onrender.com";
 
   let attempts = 0;
 
@@ -498,10 +503,14 @@ async function pollConversion(jobId){
     );
 
     const response = await fetch(
-      "/api/convert-status?job=" +
-      encodeURIComponent(jobId),
+      CONVERTER_URL +
+      "/status/" +
+      encodeURIComponent(jobId) +
+      "?t=" +
+      Date.now(),
       {
-        credentials:"include"
+        method:"GET",
+        cache:"no-store"
       }
     );
 
@@ -514,17 +523,13 @@ async function pollConversion(jobId){
     if(data.status === "finished"){
 
       const resultUrl =
-        data.url ||
-        data.resultUrl ||
-        data.result?.url;
-
-      if(!resultUrl){
-        throw new Error("Conversion finished but download link was not returned.");
-      }
+        "/api/convert-download?job=" +
+        encodeURIComponent(jobId);
 
       showDownload(
         resultUrl,
-        "Download " + info.title
+        "Download " + info.title,
+        data.filename || "converted.pdf"
       );
 
       setMessage("Conversion completed successfully.");
@@ -536,6 +541,7 @@ async function pollConversion(jobId){
        data.status === "failed"){
 
       throw new Error(
+        data.error ||
         data.message ||
         "Conversion failed."
       );
@@ -550,6 +556,7 @@ async function pollConversion(jobId){
 
   throw new Error("Conversion timed out. Please try again.");
 }
+
 
 /* =========================
    IMAGE TO PDF
@@ -608,6 +615,7 @@ async function imagesToPdf(files){
   processBtn.disabled = false;
 }
 
+
 /* =========================
    MERGE PDF
 ========================= */
@@ -655,6 +663,7 @@ async function mergePdf(files){
   processBtn.disabled = false;
 }
 
+
 /* =========================
    LOCAL PDF TOOLS
 ========================= */
@@ -670,6 +679,7 @@ async function pdfLocalTool(file){
   if(tool === "rotate-pdf"){
 
     pdf.getPages().forEach(page=>{
+
       const rotation =
         page.getRotation().angle || 0;
 
@@ -782,6 +792,7 @@ async function pdfLocalTool(file){
   processBtn.disabled = false;
 }
 
+
 /* =========================
    IMAGE CONVERSION
 ========================= */
@@ -804,14 +815,19 @@ async function imageConvert(file){
     canvas.getContext("2d");
 
   if(tool === "jpg-to-png"){
+
     ctx.drawImage(img,0,0);
+
     await canvasToDownload(
       canvas,
       "image/png",
       "converted.png"
     );
+
   }else{
+
     ctx.fillStyle = "#fff";
+
     ctx.fillRect(
       0,
       0,
@@ -831,6 +847,7 @@ async function imageConvert(file){
   setMessage("Image converted successfully.");
   processBtn.disabled = false;
 }
+
 
 async function compressImage(file){
 
@@ -861,6 +878,7 @@ async function compressImage(file){
   setMessage("Image compressed successfully.");
   processBtn.disabled = false;
 }
+
 
 async function resizeImage(file){
 
@@ -910,6 +928,7 @@ async function resizeImage(file){
   processBtn.disabled = false;
 }
 
+
 function loadImage(file){
 
   return new Promise((resolve,reject)=>{
@@ -927,6 +946,7 @@ function loadImage(file){
 
     img.onerror = ()=>{
       URL.revokeObjectURL(url);
+
       reject(
         new Error("Unable to read image.")
       );
@@ -935,6 +955,7 @@ function loadImage(file){
     img.src = url;
   });
 }
+
 
 function canvasToDownload(
   canvas,
@@ -959,6 +980,7 @@ function canvasToDownload(
   });
 }
 
+
 /* =========================
    DOWNLOAD HELPERS
 ========================= */
@@ -979,6 +1001,7 @@ function showBlobDownload(
   );
 }
 
+
 function showDownload(
   url,
   text,
@@ -991,8 +1014,11 @@ function showDownload(
     document.createElement("a");
 
   a.href = url;
+
   a.className = "download";
-  a.textContent = text || "Download";
+
+  a.textContent =
+    text || "Download";
 
   if(filename){
     a.download = filename;
