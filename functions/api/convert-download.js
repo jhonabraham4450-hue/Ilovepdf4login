@@ -5,24 +5,20 @@ export async function onRequestGet({ request }) {
 
   try {
 
-    const url =
-      new URL(request.url);
+    const url = new URL(request.url);
+    const jobId = url.searchParams.get("job");
 
-    const jobId =
-      url.searchParams.get("job");
-
-    if(!jobId){
-
+    if (!jobId) {
       return new Response(
         JSON.stringify({
-          success:false,
-          error:"Missing job id."
+          success: false,
+          error: "Missing job id."
         }),
         {
-          status:400,
-          headers:{
-            "Content-Type":"application/json",
-            "Cache-Control":"no-store"
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store"
           }
         }
       );
@@ -33,39 +29,107 @@ export async function onRequestGet({ request }) {
       "/download/" +
       encodeURIComponent(jobId);
 
-    /*
-      Send the browser directly to the Render
-      download endpoint.
+    const upstreamResponse = await fetch(downloadUrl, {
+      method: "GET",
+      redirect: "follow",
+      cf: {
+        cacheTtl: 0,
+        cacheEverything: false
+      }
+    });
 
-      Render already sets:
-      Content-Type
-      Content-Disposition
-      Content-Length
-    */
+    if (!upstreamResponse.ok) {
 
-    return Response.redirect(
-      downloadUrl,
-      302
+      const errorText =
+        await upstreamResponse.text();
+
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error:
+            errorText ||
+            "Unable to download converted file."
+        }),
+        {
+          status: upstreamResponse.status,
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store"
+          }
+        }
+      );
+    }
+
+    const headers = new Headers();
+
+    const contentType =
+      upstreamResponse.headers.get("Content-Type");
+
+    const contentDisposition =
+      upstreamResponse.headers.get("Content-Disposition");
+
+    const contentLength =
+      upstreamResponse.headers.get("Content-Length");
+
+    headers.set(
+      "Content-Type",
+      contentType ||
+      "application/octet-stream"
     );
 
-  }catch(error){
+    if (contentDisposition) {
+      headers.set(
+        "Content-Disposition",
+        contentDisposition
+      );
+    } else {
+      headers.set(
+        "Content-Disposition",
+        'attachment; filename="converted-file"'
+      );
+    }
+
+    if (contentLength) {
+      headers.set(
+        "Content-Length",
+        contentLength
+      );
+    }
+
+    headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate"
+    );
+
+    headers.set(
+      "Pragma",
+      "no-cache"
+    );
+
+    return new Response(
+      upstreamResponse.body,
+      {
+        status: 200,
+        headers
+      }
+    );
+
+  } catch (error) {
 
     return new Response(
       JSON.stringify({
-        success:false,
+        success: false,
         error:
           error?.message ||
           "Download failed."
       }),
       {
-        status:500,
-        headers:{
-          "Content-Type":"application/json",
-          "Cache-Control":"no-store"
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store"
         }
       }
     );
-
   }
-
 }
