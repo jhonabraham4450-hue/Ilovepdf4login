@@ -68,8 +68,15 @@ export async function onRequestGet({ request }) {
     const contentDisposition =
       upstreamResponse.headers.get("Content-Disposition");
 
-    const contentLength =
-      upstreamResponse.headers.get("Content-Length");
+    /*
+     IMPORTANT:
+     Do NOT forward Content-Length.
+
+     Cloudflare/Render may change the streamed
+     response size/encoding. Sending the old
+     Content-Length can cause mobile browsers
+     to report "Failed" when saving.
+    */
 
     headers.set(
       "Content-Type",
@@ -78,22 +85,19 @@ export async function onRequestGet({ request }) {
     );
 
     if (contentDisposition) {
+
       headers.set(
         "Content-Disposition",
         contentDisposition
       );
+
     } else {
+
       headers.set(
         "Content-Disposition",
         'attachment; filename="converted-file"'
       );
-    }
 
-    if (contentLength) {
-      headers.set(
-        "Content-Length",
-        contentLength
-      );
     }
 
     headers.set(
@@ -104,6 +108,21 @@ export async function onRequestGet({ request }) {
     headers.set(
       "Pragma",
       "no-cache"
+    );
+
+    headers.set(
+      "Expires",
+      "0"
+    );
+
+    /*
+     Allow the browser to receive the streamed file
+     correctly through the same-origin download URL.
+    */
+
+    headers.set(
+      "X-Content-Type-Options",
+      "nosniff"
     );
 
     return new Response(
