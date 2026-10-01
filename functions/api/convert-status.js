@@ -11,7 +11,7 @@ export async function onRequestGet({ request }) {
       return json({
         status: "error",
         error: "Missing job id."
-      }, 400);
+      });
     }
 
     const response = await fetch(
@@ -31,30 +31,45 @@ export async function onRequestGet({ request }) {
     try {
       data = JSON.parse(text);
     } catch {
-      return json({
+      data = {
         status: "error",
-        error: "Conversion server returned an invalid response."
-      }, 502);
+        error:
+          "Conversion server returned invalid response. HTTP " +
+          response.status
+      };
     }
 
-    return json(data, response.status);
+    if (!response.ok) {
+      return json({
+        status: "error",
+        error:
+          data.error ||
+          data.message ||
+          ("Conversion server returned HTTP " + response.status)
+      });
+    }
+
+    return json(data);
 
   } catch (error) {
     return json({
       status: "error",
-      error: error?.message || "Unable to check conversion status."
-    }, 500);
+      error:
+        error?.message ||
+        "Unable to check conversion status."
+    });
   }
 }
 
-function json(data, status = 200) {
+function json(data) {
   return new Response(
     JSON.stringify(data),
     {
-      status,
+      status: 200,
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "no-store, no-cache, must-revalidate"
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Pragma": "no-cache"
       }
     }
   );
