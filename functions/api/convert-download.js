@@ -33,15 +33,33 @@ export async function onRequestGet({ request }) {
     );
 
     if (!response.ok) {
-      const text = await response.text();
+      const errorText = await response.text();
 
       return new Response(
         JSON.stringify({
           success: false,
-          error: text || "File is not ready."
+          error: errorText || "File is not ready."
         }),
         {
           status: response.status,
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store"
+          }
+        }
+      );
+    }
+
+    const fileBuffer = await response.arrayBuffer();
+
+    if (!fileBuffer || fileBuffer.byteLength === 0) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Downloaded file is empty."
+        }),
+        {
+          status: 500,
           headers: {
             "Content-Type": "application/json",
             "Cache-Control": "no-store"
@@ -55,7 +73,21 @@ export async function onRequestGet({ request }) {
     headers.set(
       "Content-Type",
       response.headers.get("Content-Type") ||
-      "application/pdf"
+        "application/octet-stream"
+    );
+
+    const disposition =
+      response.headers.get("Content-Disposition");
+
+    headers.set(
+      "Content-Disposition",
+      disposition ||
+        'attachment; filename="converted-file"'
+    );
+
+    headers.set(
+      "Content-Length",
+      String(fileBuffer.byteLength)
     );
 
     headers.set(
@@ -65,22 +97,10 @@ export async function onRequestGet({ request }) {
 
     headers.set("Pragma", "no-cache");
 
-    const disposition =
-      response.headers.get("Content-Disposition");
-
-    headers.set(
-      "Content-Disposition",
-      disposition ||
-      'attachment; filename="converted.pdf"'
-    );
-
-    return new Response(
-      response.body,
-      {
-        status: 200,
-        headers
-      }
-    );
+    return new Response(fileBuffer, {
+      status: 200,
+      headers
+    });
 
   } catch (error) {
     return new Response(
