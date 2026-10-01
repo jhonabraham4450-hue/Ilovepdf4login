@@ -31,12 +31,12 @@ export async function onRequestGet({ request }) {
     try {
       data = JSON.parse(text);
     } catch {
-      data = {
+      return json({
         status: "error",
         error:
           "Conversion server returned invalid response. HTTP " +
           response.status
-      };
+      });
     }
 
     if (!response.ok) {
@@ -45,7 +45,8 @@ export async function onRequestGet({ request }) {
         error:
           data.error ||
           data.message ||
-          ("Conversion server returned HTTP " + response.status)
+          "Conversion server returned HTTP " +
+          response.status
       });
     }
 
