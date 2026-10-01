@@ -1,15 +1,11 @@
 ```js
-const CONVERTER_URL =
-  "https://ilovepdf4-converter.onrender.com";
+const CONVERTER_URL = "https://ilovepdf4-converter.onrender.com";
 
 export async function onRequestPost({ request }) {
   try {
     const body = await request.json();
 
-    const tool = String(body.tool || "")
-      .trim()
-      .toLowerCase();
-
+    const tool = String(body.tool || "").trim().toLowerCase();
     const filename = String(body.filename || "file");
 
     const allowedTools = [
@@ -22,51 +18,61 @@ export async function onRequestPost({ request }) {
     ];
 
     if (!allowedTools.includes(tool)) {
-      return json(
-        {
+      return new Response(
+        JSON.stringify({
           success: false,
           error: "Unsupported conversion tool: " + tool
-        },
-        400
+        }),
+        {
+          status: 400,
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store"
+          }
+        }
       );
     }
 
     const jobId = crypto.randomUUID();
 
-    return json({
-      success: true,
-      jobId: jobId,
-      form: {
-        url: CONVERTER_URL + "/convert",
-        parameters: {
-          tool: tool,
-          jobId: jobId,
-          filename: filename
+    return new Response(
+      JSON.stringify({
+        success: true,
+        jobId: jobId,
+        form: {
+          url: CONVERTER_URL + "/convert",
+          parameters: {
+            tool: tool,
+            jobId: jobId,
+            filename: filename
+          }
+        }
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store"
         }
       }
-    });
+    );
 
   } catch (error) {
-    return json(
-      {
+    return new Response(
+      JSON.stringify({
         success: false,
-        error: error?.message || "Server error."
-      },
-      500
+        error: error && error.message
+          ? error.message
+          : "Server error."
+      }),
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store"
+        }
+      }
     );
   }
-}
-
-function json(data, status = 200) {
-  return new Response(
-    JSON.stringify(data),
-    {
-      status: status,
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-store"
-      }
-    }
-  );
 }
 ```
