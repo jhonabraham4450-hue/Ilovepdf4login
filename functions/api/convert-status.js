@@ -68,8 +68,10 @@ export async function onRequestGet({ request }) {
       jobId:
         data.jobId || jobId,
 
-      downloadUrl:
-        data.url || null,
+    downloadUrl:
+  data.url
+    ? data.url.replace(/^http:/i, "https:")
+    : null,
 
       filename:
         data.filename || null,
