@@ -22,32 +22,38 @@ export async function onRequestPost({ request }) {
     ];
 
     if (!allowedTools.includes(tool)) {
-      return json({
-        success: false,
-        error: "Unsupported conversion tool: " + tool
-      }, 400);
+      return json(
+        {
+          success: false,
+          error: "Unsupported conversion tool: " + tool
+        },
+        400
+      );
     }
 
     const jobId = crypto.randomUUID();
 
     return json({
       success: true,
-      jobId,
+      jobId: jobId,
       form: {
-        url: `${CONVERTER_URL}/convert`,
+        url: CONVERTER_URL + "/convert",
         parameters: {
-          tool,
-          jobId,
-          filename
+          tool: tool,
+          jobId: jobId,
+          filename: filename
         }
       }
     });
 
   } catch (error) {
-    return json({
-      success: false,
-      error: error?.message || "Server error."
-    }, 500);
+    return json(
+      {
+        success: false,
+        error: error?.message || "Server error."
+      },
+      500
+    );
   }
 }
 
@@ -55,7 +61,7 @@ function json(data, status = 200) {
   return new Response(
     JSON.stringify(data),
     {
-      status,
+      status: status,
       headers: {
         "Content-Type": "application/json",
         "Cache-Control": "no-store"
