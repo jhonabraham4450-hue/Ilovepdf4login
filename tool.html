@@ -183,7 +183,6 @@ iLovePDF4
 
 </header>
 
-
 <main class="container">
 
 <div class="card">
@@ -198,7 +197,6 @@ PDF Tool
 >
 Select your file to continue.
 </div>
-
 
 <div class="upload-box">
 
@@ -222,12 +220,10 @@ Select your file and then press Process File.
 
 </div>
 
-
 <div
   id="fileList"
   class="file-list"
 ></div>
-
 
 <div class="buttons">
 
@@ -251,7 +247,6 @@ Process File
 
 </div>
 
-
 <div id="message"></div>
 
 <div id="downloadArea"></div>
@@ -259,7 +254,6 @@ Process File
 </div>
 
 </main>
-
 
 <script>
 
@@ -650,25 +644,10 @@ try{
 
 
 /*
-PDF TO WORD
-LOCAL FALLBACK
-*/
-
-if(tool === "pdf-to-word"){
-
-await pdfToWordLocal(
-selectedFiles[0]
-);
-
-return;
-
-}
-
-
-/*
-OTHER OFFICE TOOLS
-USE EXISTING
-CLOUDCONVERT BACKEND
+IMPORTANT:
+ALL OFFICE CONVERSION TOOLS,
+INCLUDING PDF TO WORD,
+USE CLOUDCONVERT.
 */
 
 if(isCloudConvertTool()){
@@ -1040,10 +1019,7 @@ data.status === "finished"
 ){
 
 /*
-IMPORTANT:
-Use Cloudflare download proxy.
-Do NOT use the Render download URL
-directly from the browser.
+Cloudflare download proxy.
 */
 
 const resultUrl =
@@ -1138,170 +1114,7 @@ return names[tool] ||
 
 
 /* =========================
-   LOCAL PDF TO WORD
-========================= */
-
-async function pdfToWordLocal(file){
-
-setMessage(
-"Reading PDF text locally..."
-);
-
-
-if(!window.pdfjsLib){
-
-throw new Error(
-"PDF reader library could not be loaded."
-);
-
-}
-
-
-const bytes =
-new Uint8Array(
-await file.arrayBuffer()
-);
-
-
-const pdf =
-await pdfjsLib.getDocument({
-data:bytes
-}).promise;
-
-
-let html =
-"<html>" +
-"<head>" +
-"<meta charset='utf-8'>" +
-"</head>" +
-"<body>";
-
-
-for(
-let pageNo = 1;
-pageNo <= pdf.numPages;
-pageNo++
-){
-
-const page =
-await pdf.getPage(
-pageNo
-);
-
-
-const content =
-await page.getTextContent();
-
-
-let lastY =
-null;
-
-
-for(
-const item of content.items
-){
-
-const y =
-Math.round(
-item.transform[5]
-);
-
-
-if(
-lastY !== null &&
-Math.abs(y-lastY) > 8
-){
-
-html +=
-"<br>";
-
-}
-
-
-html +=
-escapeHtml(
-item.str
-) + " ";
-
-
-lastY =
-y;
-
-}
-
-
-if(
-pageNo < pdf.numPages
-){
-
-html +=
-"<br><br><hr><br>";
-
-}
-
-}
-
-
-html +=
-"</body></html>";
-
-
-const blob =
-new Blob(
-[html],
-{
-type:"application/msword"
-}
-);
-
-
-showBlobDownload(
-blob,
-"converted.doc",
-"Download Word"
-);
-
-
-setMessage(
-"PDF converted to a Word-compatible document. Text/layout may differ from the original."
-);
-
-
-processBtn.disabled =
-false;
-
-}
-
-
-function escapeHtml(text){
-
-return String(text)
-
-.replace(
-/&/g,
-"&amp;"
-)
-
-.replace(
-/</g,
-"&lt;"
-)
-
-.replace(
-/>/g,
-"&gt;"
-)
-
-.replace(
-/"/g,
-"&quot;"
-);
-
-}
-
-
-/* =========================
-   IMAGES TO PDF
+   LOCAL PDF TOOLS
 ========================= */
 
 async function imagesToPdf(files){
@@ -2021,8 +1834,6 @@ quality
 
 }
 );
-
-}
 
 
 /* =========================
