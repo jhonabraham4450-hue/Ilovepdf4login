@@ -85,7 +85,11 @@ body{
 }
 
 #fileInput{
-  display:none;
+  position:absolute;
+  width:1px;
+  height:1px;
+  opacity:0;
+  overflow:hidden;
 }
 
 .file-list{
@@ -198,20 +202,17 @@ Select your file to continue.
 
 <div class="upload-box">
 
-<button
-  id="selectFileBtn"
+<label
   class="select-btn"
-  type="button"
+  for="fileInput"
 >
 Select File
-</button>
-
 <input
   id="fileInput"
   type="file"
   multiple
-  style="display:none"
 >
+</label>
 
 <div class="note">
 Select your file and then press Process File.
@@ -415,11 +416,6 @@ document.getElementById(
 "fileInput"
 );
 
-const selectFileBtn =
-document.getElementById(
-"selectFileBtn"
-);
-
 const fileList =
 document.getElementById(
 "fileList"
@@ -447,13 +443,6 @@ let selectedFiles = [];
 /* =========================
    FILE SELECT
 ========================= */
-
-selectFileBtn.addEventListener(
-"click",
-function(){
-  fileInput.click();
-}
-);
 
 fileInput.addEventListener(
 "change",
@@ -991,7 +980,7 @@ data.jobId
 async function pollConversion(jobId){
 
 const maxAttempts =
-600;
+120;
 
 
 for(
