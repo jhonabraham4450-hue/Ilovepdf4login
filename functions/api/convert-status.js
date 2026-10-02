@@ -1,7 +1,5 @@
 export async function onRequestGet(context) {
-
   try {
-
     const url =
       new URL(context.request.url);
 
@@ -9,134 +7,110 @@ export async function onRequestGet(context) {
       url.searchParams.get("job");
 
     if (!jobId) {
-
-      return Response.json(
-        {
-          status: "error",
-          error: "Missing job ID."
-        },
-        { status: 400 }
-      );
+      return json({
+        status: "error",
+        error: "Missing job id."
+      }, 400);
     }
 
     /*
-      Ask Render conversion engine
+      Ask the Render conversion engine
       for the current job status.
     */
-    const renderStatusUrl =
-      "https://free-conversion-engine.onrender.com/status/" +
-      encodeURIComponent(jobId);
-
-    const response =
+    const renderResponse =
       await fetch(
-        renderStatusUrl,
+        "https://free-conversion-engine.onrender.com/status/" +
+        encodeURIComponent(jobId),
         {
           method: "GET",
+
           headers: {
             "Accept": "application/json"
-          }
+          },
+
+          cache: "no-store"
         }
       );
 
     const text =
-      await response.text();
+      await renderResponse.text();
 
     let data;
 
     try {
-
-      data =
-        JSON.parse(text);
-
-    } catch {
-
-      return Response.json(
-        {
-          status: "error",
-          error:
-            "Conversion engine returned invalid response."
-        },
-        { status: 502 }
-      );
-    }
-
-    if (!response.ok) {
-
-      return Response.json(
-        {
-          status:
-            data.status || "error",
-
-          error:
-            data.error ||
-            "Conversion engine error."
-        },
-        {
-          status: response.status
-        }
-      );
+      data = JSON.parse(text);
+    } catch (error) {
+      return json({
+        status: "error",
+        error:
+          "Render returned an invalid response."
+      }, 502);
     }
 
     /*
-      Render already returns:
-      status
-      url
-      filename
+      Render conversion finished.
     */
-
-    if (data.status === "finished") {
-
-      return Response.json({
-
+    if (
+      data.status === "finished"
+    ) {
+      return json({
         status: "finished",
 
         url: data.url,
 
         filename:
           data.filename || "converted-file"
-
       });
     }
 
+    /*
+      Render conversion failed.
+    */
     if (
       data.status === "error" ||
       data.status === "failed"
     ) {
-
-      return Response.json({
-
+      return json({
         status: "error",
 
         error:
           data.error ||
+          data.message ||
           "Conversion failed."
-
-      });
+      }, 500);
     }
 
-    return Response.json({
-
+    /*
+      Still processing.
+    */
+    return json({
       status:
-        data.status || "processing"
-
+        data.status ||
+        "processing"
     });
 
   } catch (error) {
+    return json({
+      status: "error",
 
-    console.error(
-      "convert-status error:",
-      error
-    );
-
-    return Response.json(
-      {
-        status: "error",
-
-        error:
-          error?.message ||
-          "Unable to check conversion status."
-      },
-      { status: 500 }
-    );
+      error:
+        error?.message ||
+        "Unable to check conversion status."
+    }, 500);
   }
+}
+
+
+function json(data, status = 200) {
+  return new Response(
+    JSON.stringify(data),
+    {
+      status: status,
+
+      headers: {
+        "Content-Type": "application/json; charset=UTF-8",
+        "Cache-Control": "no-store"
+      }
+    }
+  );
 }
