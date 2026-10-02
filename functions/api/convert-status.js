@@ -1,107 +1,142 @@
-const FREE_ENGINE_URL =
-  "https://free-conversion-engine.onrender.com";
+export async function onRequestGet(context) {
 
-export async function onRequestGet({ request }) {
   try {
-    const url = new URL(request.url);
+
+    const url =
+      new URL(context.request.url);
 
     const jobId =
-      url.searchParams.get("job") ||
-      url.searchParams.get("jobId");
+      url.searchParams.get("job");
 
     if (!jobId) {
-      return json({
-        status: "error",
-        error: "Missing job id."
-      }, 400);
+
+      return Response.json(
+        {
+          status: "error",
+          error: "Missing job ID."
+        },
+        { status: 400 }
+      );
     }
 
-    const response = await fetch(
-      FREE_ENGINE_URL +
-        "/status/" +
-        encodeURIComponent(jobId),
-      {
-        method: "GET",
-        headers: {
-          "Accept": "application/json",
-          "Cache-Control": "no-cache"
-        }
-      }
-    );
+    /*
+      Ask Render conversion engine
+      for the current job status.
+    */
+    const renderStatusUrl =
+      "https://free-conversion-engine.onrender.com/status/" +
+      encodeURIComponent(jobId);
 
-    const text = await response.text();
+    const response =
+      await fetch(
+        renderStatusUrl,
+        {
+          method: "GET",
+          headers: {
+            "Accept": "application/json"
+          }
+        }
+      );
+
+    const text =
+      await response.text();
 
     let data;
 
     try {
-      data = JSON.parse(text);
+
+      data =
+        JSON.parse(text);
+
     } catch {
-      return json({
-        status: "error",
-        error:
-          "Invalid response from free conversion engine."
-      }, 502);
+
+      return Response.json(
+        {
+          status: "error",
+          error:
+            "Conversion engine returned invalid response."
+        },
+        { status: 502 }
+      );
     }
 
     if (!response.ok) {
-      return json({
-        status: "error",
-        error:
-          data?.error ||
-          "Unable to get conversion status.",
-        details: data
-      }, response.status);
+
+      return Response.json(
+        {
+          status:
+            data.status || "error",
+
+          error:
+            data.error ||
+            "Conversion engine error."
+        },
+        {
+          status: response.status
+        }
+      );
     }
 
-    if (!data) {
-      return json({
-        status: "error",
-        error:
-          "Conversion engine returned no status."
-      }, 502);
+    /*
+      Render already returns:
+      status
+      url
+      filename
+    */
+
+    if (data.status === "finished") {
+
+      return Response.json({
+
+        status: "finished",
+
+        url: data.url,
+
+        filename:
+          data.filename || "converted-file"
+
+      });
     }
 
-    return json({
+    if (
+      data.status === "error" ||
+      data.status === "failed"
+    ) {
+
+      return Response.json({
+
+        status: "error",
+
+        error:
+          data.error ||
+          "Conversion failed."
+
+      });
+    }
+
+    return Response.json({
+
       status:
-        data.status || "unknown",
+        data.status || "processing"
 
-      jobId:
-        data.jobId || jobId,
-
-    downloadUrl:
-  data.url
-    ? data.url.replace(/^http:/i, "https:")
-    : null,
-
-      filename:
-        data.filename || null,
-
-      contentType:
-        data.contentType || null
     });
 
   } catch (error) {
-    return json({
-      status: "error",
-      error:
-        error?.message ||
-        "Unable to connect to free conversion engine."
-    }, 500);
-  }
-}
 
-function json(data, status = 200) {
-  return new Response(
-    JSON.stringify(data),
-    {
-      status,
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control":
-          "no-store, no-cache, must-revalidate",
-        "Pragma": "no-cache",
-        "Expires": "0"
-      }
-    }
-  );
+    console.error(
+      "convert-status error:",
+      error
+    );
+
+    return Response.json(
+      {
+        status: "error",
+
+        error:
+          error?.message ||
+          "Unable to check conversion status."
+      },
+      { status: 500 }
+    );
+  }
 }
