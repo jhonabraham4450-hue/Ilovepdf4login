@@ -202,17 +202,20 @@ Select your file to continue.
 
 <div class="upload-box">
 
-<label
+<button
   class="select-btn"
-  for="fileInput"
+  type="button"
+  onclick="document.getElementById('fileInput').click()"
 >
 Select File
+</button>
+
 <input
   id="fileInput"
   type="file"
   multiple
+  style="display:none;"
 >
-</label>
 
 <div class="note">
 Select your file and then press Process File.
