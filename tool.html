@@ -85,11 +85,7 @@ body{
 }
 
 #fileInput{
-  position:absolute;
-  width:1px;
-  height:1px;
-  opacity:0;
-  overflow:hidden;
+  display:none;
 }
 
 .file-list{
@@ -203,9 +199,9 @@ Select your file to continue.
 <div class="upload-box">
 
 <button
+  id="selectFileBtn"
   class="select-btn"
   type="button"
-  onclick="document.getElementById('fileInput').click()"
 >
 Select File
 </button>
@@ -214,7 +210,7 @@ Select File
   id="fileInput"
   type="file"
   multiple
-  style="display:none;"
+  style="display:none"
 >
 
 <div class="note">
@@ -419,6 +415,11 @@ document.getElementById(
 "fileInput"
 );
 
+const selectFileBtn =
+document.getElementById(
+"selectFileBtn"
+);
+
 const fileList =
 document.getElementById(
 "fileList"
@@ -446,6 +447,13 @@ let selectedFiles = [];
 /* =========================
    FILE SELECT
 ========================= */
+
+selectFileBtn.addEventListener(
+"click",
+function(){
+  fileInput.click();
+}
+);
 
 fileInput.addEventListener(
 "change",
