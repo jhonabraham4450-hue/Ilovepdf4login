@@ -1,75 +1,164 @@
-```js
 export async function onRequestPost(context) {
+
   try {
+
     const request = context.request;
     const contentType =
       request.headers.get("content-type") || "";
 
-    /* =====================================================
-       STEP 2 — FILE UPLOAD
-       Browser will POST multipart file to this same endpoint.
-       Cloudflare will forward it to Render.
-    ===================================================== */
+    /* =========================================
+       FILE UPLOAD
+    ========================================= */
 
     if (
       contentType
         .toLowerCase()
         .includes("multipart/form-data")
     ) {
-      const incomingForm =
+
+      const formData =
         await request.formData();
+
+      const file =
+        formData.get("file");
+
+      const tool =
+        String(
+          formData.get("tool") || ""
+        ).trim().toLowerCase();
+
+      const jobId =
+        String(
+          formData.get("jobId") || ""
+        ).trim();
+
+      const filename =
+        String(
+          formData.get("filename") ||
+          file?.name ||
+          "file"
+        ).trim();
+
+      if (!file || !(file instanceof File)) {
+        return json({
+          success: false,
+          error: "File was not received by Cloudflare."
+        }, 400);
+      }
+
+      if (!tool) {
+        return json({
+          success: false,
+          error: "Conversion tool was not received."
+        }, 400);
+      }
+
+      if (!jobId) {
+        return json({
+          success: false,
+          error: "Job ID was not received."
+        }, 400);
+      }
+
+      /* ---------------------------------------
+         Create NEW multipart form for Render
+      --------------------------------------- */
 
       const renderForm =
         new FormData();
 
-      for (const [key, value] of incomingForm.entries()) {
-        if (value instanceof File) {
-          renderForm.append(
-            key,
-            value,
-            value.name
-          );
-        } else {
-          renderForm.append(
-            key,
-            String(value)
-          );
-        }
-      }
+      renderForm.append(
+        "tool",
+        tool
+      );
+
+      renderForm.append(
+        "jobId",
+        jobId
+      );
+
+      renderForm.append(
+        "filename",
+        filename
+      );
+
+      renderForm.append(
+        "file",
+        file,
+        file.name || filename
+      );
+
+      /* ---------------------------------------
+         Send file to Render
+      --------------------------------------- */
 
       const renderResponse =
         await fetch(
           "https://free-conversion-engine.onrender.com/convert",
           {
             method: "POST",
-            body: renderForm
+            body: renderForm,
+            headers: {
+              "Accept":
+                "application/json"
+            }
           }
         );
 
       const renderText =
         await renderResponse.text();
 
-      return new Response(
-        renderText,
-        {
-          status: renderResponse.status,
-          headers: {
-            "Content-Type":
-              renderResponse.headers.get(
-                "content-type"
-              ) ||
-              "application/json; charset=UTF-8",
+      let renderData;
 
-            "Cache-Control":
-              "no-store, no-cache, must-revalidate"
-          }
-        }
-      );
+      try {
+
+        renderData =
+          JSON.parse(renderText);
+
+      } catch {
+
+        return json({
+          success: false,
+          error:
+            "Render returned invalid JSON.",
+          renderStatus:
+            renderResponse.status,
+          renderResponse:
+            renderText.slice(0, 1000)
+        }, 502);
+
+      }
+
+      if (!renderResponse.ok) {
+
+        return json({
+          success: false,
+          error:
+            renderData.error ||
+            renderData.message ||
+            "Render conversion request failed.",
+          renderStatus:
+            renderResponse.status
+        }, renderResponse.status);
+
+      }
+
+      return json({
+        success: true,
+        jobId:
+          renderData.jobId ||
+          jobId,
+        status:
+          renderData.status ||
+          "processing"
+      });
+
     }
 
-    /* =====================================================
-       STEP 1 — CREATE JOB
-    ===================================================== */
+
+    /* =========================================
+       CREATE JOB
+    ========================================= */
 
     let body = {};
 
@@ -78,37 +167,43 @@ export async function onRequestPost(context) {
         .toLowerCase()
         .includes("application/json")
     ) {
+
       const raw =
         await request.text();
 
       if (raw.trim()) {
+
         try {
+
           body =
             JSON.parse(raw);
+
         } catch {
-          return json(
-            {
-              error:
-                "Invalid JSON request body."
-            },
-            400
-          );
+
+          return json({
+            success: false,
+            error:
+              "Invalid JSON request body."
+          }, 400);
+
         }
+
       }
+
     }
+
 
     const tool =
       String(
-        body?.tool || ""
-      )
-        .trim()
-        .toLowerCase();
+        body.tool || ""
+      ).trim().toLowerCase();
 
     const filename =
       String(
-        body?.filename ||
+        body.filename ||
         "file"
       ).trim();
+
 
     const allowedTools = [
       "word-to-pdf",
@@ -119,37 +214,33 @@ export async function onRequestPost(context) {
       "pdf-to-excel"
     ];
 
+
     if (!tool) {
-      return json(
-        {
-          error:
-            "Conversion tool was not received."
-        },
-        400
-      );
+
+      return json({
+        success: false,
+        error:
+          "Conversion tool was not received."
+      }, 400);
+
     }
 
-    if (
-      !allowedTools.includes(tool)
-    ) {
-      return json(
-        {
-          error:
-            "Unsupported conversion tool: " +
-            tool
-        },
-        400
-      );
+
+    if (!allowedTools.includes(tool)) {
+
+      return json({
+        success: false,
+        error:
+          "Unsupported conversion tool: " +
+          tool
+      }, 400);
+
     }
+
 
     const jobId =
       crypto.randomUUID();
 
-    /*
-      IMPORTANT:
-      Upload URL is now this Cloudflare endpoint,
-      NOT Render directly.
-    */
 
     const uploadUrl =
       new URL(
@@ -157,43 +248,59 @@ export async function onRequestPost(context) {
       ).origin +
       "/api/convert-start";
 
+
     return json({
+
       success: true,
 
       jobId: jobId,
 
       form: {
+
         url: uploadUrl,
 
         parameters: {
+
           tool: tool,
+
           jobId: jobId,
+
           filename: filename
+
         }
+
       }
+
     });
 
-  } catch (error) {
-    return json(
-      {
-        error:
-          error?.message ||
-          "Unable to start conversion."
-      },
-      500
-    );
   }
+
+  catch (error) {
+
+    return json({
+
+      success: false,
+
+      error:
+        error?.message ||
+        "Conversion server error."
+
+    }, 500);
+
+  }
+
 }
 
 
-/* =====================================================
+/* =========================================
    JSON RESPONSE
-===================================================== */
+========================================= */
 
 function json(
   data,
   status = 200
 ) {
+
   return new Response(
     JSON.stringify(data),
     {
@@ -208,5 +315,5 @@ function json(
       }
     }
   );
+
 }
-```
