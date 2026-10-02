@@ -1,7 +1,6 @@
 export async function onRequestGet(context) {
   try {
-    const url =
-      new URL(context.request.url);
+    const url = new URL(context.request.url);
 
     const jobId =
       url.searchParams.get("job");
@@ -13,21 +12,15 @@ export async function onRequestGet(context) {
       }, 400);
     }
 
-    /*
-      Ask the Render conversion engine
-      for the current job status.
-    */
     const renderResponse =
       await fetch(
         "https://free-conversion-engine.onrender.com/status/" +
         encodeURIComponent(jobId),
         {
           method: "GET",
-
           headers: {
             "Accept": "application/json"
           },
-
           cache: "no-store"
         }
       );
@@ -39,7 +32,7 @@ export async function onRequestGet(context) {
 
     try {
       data = JSON.parse(text);
-    } catch (error) {
+    } catch {
       return json({
         status: "error",
         error:
@@ -47,32 +40,21 @@ export async function onRequestGet(context) {
       }, 502);
     }
 
-    /*
-      Render conversion finished.
-    */
-    if (
-      data.status === "finished"
-    ) {
+    if (data.status === "finished") {
       return json({
         status: "finished",
-
         url: data.url,
-
         filename:
           data.filename || "converted-file"
       });
     }
 
-    /*
-      Render conversion failed.
-    */
     if (
       data.status === "error" ||
       data.status === "failed"
     ) {
       return json({
         status: "error",
-
         error:
           data.error ||
           data.message ||
@@ -80,19 +62,14 @@ export async function onRequestGet(context) {
       }, 500);
     }
 
-    /*
-      Still processing.
-    */
     return json({
       status:
-        data.status ||
-        "processing"
+        data.status || "processing"
     });
 
   } catch (error) {
     return json({
       status: "error",
-
       error:
         error?.message ||
         "Unable to check conversion status."
@@ -100,16 +77,16 @@ export async function onRequestGet(context) {
   }
 }
 
-
 function json(data, status = 200) {
   return new Response(
     JSON.stringify(data),
     {
-      status: status,
-
+      status,
       headers: {
-        "Content-Type": "application/json; charset=UTF-8",
-        "Cache-Control": "no-store"
+        "Content-Type":
+          "application/json; charset=UTF-8",
+        "Cache-Control":
+          "no-store, no-cache, must-revalidate"
       }
     }
   );
