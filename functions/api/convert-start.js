@@ -5,6 +5,10 @@ export async function onRequestPost(context) {
 
     let body = {};
 
+    /* =========================
+       READ JSON BODY
+    ========================= */
+
     const contentType =
       request.headers.get("content-type") || "";
 
@@ -13,37 +17,51 @@ export async function onRequestPost(context) {
         .toLowerCase()
         .includes("application/json")
     ) {
-      const raw = await request.text();
-
-      if (raw.trim()) {
-        try {
-          body = JSON.parse(raw);
-        } catch (error) {
-          return json(
-            {
-              error: "Invalid JSON request body."
-            },
-            400
-          );
-        }
+      try {
+        body = await request.json();
+      } catch {
+        body = {};
       }
     }
 
+    /* =========================
+       GET TOOL
+    ========================= */
+
     let tool = String(
-      body?.tool || ""
+      body.tool || ""
     )
       .trim()
       .toLowerCase();
 
-    const filename = String(
-      body?.filename || "file"
+    let filename = String(
+      body.filename || "file"
     ).trim();
 
-    /*
-      Fallback:
-      If tool is missing from the JSON body,
-      try to read it from the request URL.
-    */
+    /* =========================
+       FALLBACK FROM REFERER
+    ========================= */
+
+    if (!tool) {
+      const referer =
+        request.headers.get("referer") || "";
+
+      try {
+        const refererUrl =
+          new URL(referer);
+
+        tool = String(
+          refererUrl.searchParams.get("tool") || ""
+        )
+          .trim()
+          .toLowerCase();
+      } catch {}
+    }
+
+    /* =========================
+       FALLBACK FROM REQUEST URL
+    ========================= */
+
     if (!tool) {
       try {
         const requestUrl =
@@ -54,10 +72,20 @@ export async function onRequestPost(context) {
         )
           .trim()
           .toLowerCase();
-      } catch (error) {
-        tool = "";
-      }
+      } catch {}
     }
+
+    /* =========================
+       DEFAULT ONLY FOR PDF TO WORD
+       ========================= */
+
+    if (!tool) {
+      tool = "pdf-to-word";
+    }
+
+    /* =========================
+       ALLOWED TOOLS
+    ========================= */
 
     const allowedTools = [
       "word-to-pdf",
@@ -68,29 +96,30 @@ export async function onRequestPost(context) {
       "pdf-to-excel"
     ];
 
-    if (!tool) {
-      return json(
-        {
-          error:
-            "Conversion tool was not received."
-        },
-        400
-      );
-    }
-
     if (!allowedTools.includes(tool)) {
       return json(
         {
+          success: false,
           error:
-            "Unsupported conversion tool: " +
-            tool
+            "Unsupported conversion tool: " + tool
         },
         400
       );
     }
 
+    /* =========================
+       CREATE JOB
+    ========================= */
+
     const jobId =
       crypto.randomUUID();
+
+    /* =========================
+       RENDER CONVERSION SERVER
+    ========================= */
+
+    const renderUrl =
+      "https://free-conversion-engine.onrender.com/convert";
 
     return json({
       success: true,
@@ -98,8 +127,7 @@ export async function onRequestPost(context) {
       jobId: jobId,
 
       form: {
-        url:
-          "https://free-conversion-engine.onrender.com/convert",
+        url: renderUrl,
 
         parameters: {
           tool: tool,
@@ -112,6 +140,7 @@ export async function onRequestPost(context) {
   } catch (error) {
     return json(
       {
+        success: false,
         error:
           error?.message ||
           "Unable to start conversion."
@@ -120,6 +149,10 @@ export async function onRequestPost(context) {
     );
   }
 }
+
+/* =========================
+   JSON RESPONSE
+========================= */
 
 function json(
   data,
