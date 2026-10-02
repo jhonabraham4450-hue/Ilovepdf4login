@@ -1,9 +1,7 @@
 export async function onRequestGet(context) {
   try {
     const url = new URL(context.request.url);
-
-    const jobId =
-      url.searchParams.get("job");
+    const jobId = url.searchParams.get("job");
 
     if (!jobId) {
       return json({
@@ -12,40 +10,57 @@ export async function onRequestGet(context) {
       }, 400);
     }
 
-    const renderResponse =
-      await fetch(
-        "https://free-conversion-engine.onrender.com/status/" +
+    const renderResponse = await fetch(
+      "https://free-conversion-engine.onrender.com/status/" +
         encodeURIComponent(jobId),
-        {
-          method: "GET",
-          headers: {
-            "Accept": "application/json"
-          },
-          cache: "no-store"
-        }
-      );
+      {
+        method: "GET",
+        headers: {
+          "Accept": "application/json"
+        },
+        cache: "no-store"
+      }
+    );
 
-    const text =
-      await renderResponse.text();
+    const text = await renderResponse.text();
 
     let data;
-
     try {
       data = JSON.parse(text);
     } catch {
       return json({
         status: "error",
-        error:
-          "Render returned an invalid response."
+        error: "Render returned an invalid response."
       }, 502);
     }
 
-    if (data.status === "finished") {
+    if (
+      data.status === "finished" ||
+      data.status === "complete" ||
+      data.status === "completed"
+    ) {
+
+      // Render URL থাকলে সেটি ব্যবহার করবে।
+      // না থাকলে আমরা নিজেরাই download URL তৈরি করব।
+      const downloadUrl =
+        data.url ||
+        data.downloadUrl ||
+        data.resultUrl ||
+        data.result?.url ||
+        (
+          "https://free-conversion-engine.onrender.com/download/" +
+          encodeURIComponent(jobId)
+        );
+
       return json({
         status: "finished",
-        url: data.url,
+        url: downloadUrl,
+        downloadUrl: downloadUrl,
+        resultUrl: downloadUrl,
         filename:
-          data.filename || "converted-file"
+          data.filename ||
+          data.result?.filename ||
+          "converted-file"
       });
     }
 
@@ -63,8 +78,7 @@ export async function onRequestGet(context) {
     }
 
     return json({
-      status:
-        data.status || "processing"
+      status: data.status || "processing"
     });
 
   } catch (error) {
@@ -83,8 +97,7 @@ function json(data, status = 200) {
     {
       status,
       headers: {
-        "Content-Type":
-          "application/json; charset=UTF-8",
+        "Content-Type": "application/json; charset=UTF-8",
         "Cache-Control":
           "no-store, no-cache, must-revalidate"
       }
