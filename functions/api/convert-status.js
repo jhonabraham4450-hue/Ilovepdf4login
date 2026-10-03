@@ -31,13 +31,44 @@ export async function onRequestGet({ request }) {
     try {
       data = JSON.parse(text);
     } catch {
-      data = {
+      return json({
         status: "error",
-        error: "Invalid response from conversion server."
-      };
+        error:
+          "Invalid response from conversion server."
+      }, 502);
     }
 
-    return json(data, response.status);
+    if (!response.ok) {
+      return json(data, response.status);
+    }
+
+    if (data.status === "finished") {
+      return json({
+        success: true,
+        status: "finished",
+        jobId: jobId,
+        filename: data.filename || "converted-file",
+        downloadUrl:
+          `${CONVERTER_URL}/download/${encodeURIComponent(jobId)}`
+      });
+    }
+
+    if (data.status === "error") {
+      return json({
+        success: false,
+        status: "error",
+        jobId: jobId,
+        error:
+          data.error ||
+          "Conversion failed."
+      });
+    }
+
+    return json({
+      success: true,
+      status: data.status || "processing",
+      jobId: jobId
+    });
 
   } catch (error) {
     return json({
@@ -55,8 +86,10 @@ function json(data, status = 200) {
     {
       status,
       headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Content-Type":
+          "application/json",
+        "Cache-Control":
+          "no-store, no-cache, must-revalidate",
         "Pragma": "no-cache"
       }
     }
