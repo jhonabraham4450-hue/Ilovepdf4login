@@ -560,111 +560,147 @@ async function processFiles(){
    CLOUDCONVERT START
 ========================= */
 
-async function cloudConvert(file){
+/* =========================
+   CONVERSION STATUS
+========================= */
 
-  try{
+async function pollConversion(jobId){
 
-    setMessage("Uploading file to CloudConvert...");
+  const maxAttempts = 120;
 
-    /*
-      Send the actual selected file
-      to our Worker.
+  for(
+    let attempt = 1;
+    attempt <= maxAttempts;
+    attempt++
+  ){
 
-      The Worker will:
-      1. Create the CloudConvert job
-      2. Upload the file to CloudConvert
-      3. Return the job ID
-    */
-
-    const formData = new FormData();
-
-    formData.append(
-      "file",
-      file,
-      file.name
-    );
-
-    formData.append(
-      "tool",
-      tool
-    );
-
-    const startResponse = await fetch(
-      "/api/convert-start?v=3",
-      {
-        method:"POST",
-
-        body:formData,
-
-        credentials:"include",
-
-        cache:"no-store",
-
-        headers:{
-          "Cache-Control":"no-cache"
-        }
+    await new Promise(
+      function(resolve){
+        setTimeout(resolve, 2000);
       }
     );
 
-    const startText =
-      await startResponse.text();
-
-    let data;
-
     try{
 
-      data = JSON.parse(startText);
+      const response = await fetch(
+        "/api/convert-status?job=" +
+        encodeURIComponent(jobId) +
+        "&v=" +
+        Date.now(),
+        {
+          method:"GET",
 
-    }catch(e){
+          credentials:"include",
 
-      throw new Error(
-        startText ||
-        "Invalid conversion server response."
+          cache:"no-store",
+
+          headers:{
+            "Cache-Control":"no-cache",
+            "Pragma":"no-cache"
+          }
+        }
       );
 
-    }
+      const text =
+        await response.text();
 
-    if(!startResponse.ok || !data.success){
+      let data;
 
-      throw new Error(
-        data.error ||
-        "Unable to start conversion."
+      try{
+
+        data = JSON.parse(text);
+
+      }catch(e){
+
+        throw new Error(
+          "Invalid conversion status response."
+        );
+
+      }
+
+      if(!response.ok){
+
+        throw new Error(
+          data.error ||
+          "Unable to check conversion status."
+        );
+
+      }
+
+      if(
+        data.status === "finished" ||
+        data.status === "completed"
+      ){
+
+        const downloadUrl =
+          data.downloadUrl ||
+          data.url ||
+          data.resultUrl;
+
+        if(!downloadUrl){
+
+          throw new Error(
+            "Conversion finished but download link is missing."
+          );
+
+        }
+
+        showDownload(
+          downloadUrl,
+          "Download " + info.title,
+          data.filename ||
+          getOutputFilename()
+        );
+
+        setMessage(
+          "Conversion completed successfully."
+        );
+
+        processBtn.disabled = false;
+
+        return;
+
+      }
+
+      if(
+        data.status === "error" ||
+        data.status === "failed"
+      ){
+
+        throw new Error(
+          data.error ||
+          data.message ||
+          "Conversion failed."
+        );
+
+      }
+
+      setMessage(
+        "Converting... Please wait. (" +
+        attempt +
+        "/" +
+        maxAttempts +
+        ")"
       );
 
-    }
+    }catch(error){
 
-    if(!data.jobId){
-
-      throw new Error(
-        "CloudConvert did not return a job ID."
+      console.error(
+        "Conversion status error:",
+        error
       );
 
+      throw error;
+
     }
-
-    setMessage(
-      "File uploaded successfully. CloudConvert is converting..."
-    );
-
-    await pollConversion(data.jobId);
-
-  }catch(error){
-
-    console.error(
-      "CloudConvert error:",
-      error
-    );
-
-    setMessage(
-      error.message ||
-      "Conversion failed."
-    );
-
-    processBtn.disabled = false;
 
   }
 
-}
+  throw new Error(
+    "Conversion timed out. Please try again."
+  );
 
+}
 /* =========================
    CLOUDCONVERT STATUS
 ========================= */
