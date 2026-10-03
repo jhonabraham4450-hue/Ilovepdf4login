@@ -1,6 +1,9 @@
-export async function onRequestGet(context) {
+const CONVERTER_URL =
+  "https://free-conversion-engine.onrender.com";
+
+export async function onRequestGet({ request }) {
   try {
-    const url = new URL(context.request.url);
+    const url = new URL(request.url);
     const jobId = url.searchParams.get("job");
 
     if (!jobId) {
@@ -10,83 +13,38 @@ export async function onRequestGet(context) {
       }, 400);
     }
 
-    const renderResponse = await fetch(
-      "https://free-conversion-engine.onrender.com/status/" +
-        encodeURIComponent(jobId),
+    const response = await fetch(
+      `${CONVERTER_URL}/status/${encodeURIComponent(jobId)}?t=${Date.now()}`,
       {
         method: "GET",
         headers: {
-          "Accept": "application/json"
-        },
-        cache: "no-store"
+          "Cache-Control": "no-cache",
+          "Pragma": "no-cache"
+        }
       }
     );
 
-    const text = await renderResponse.text();
+    const text = await response.text();
 
     let data;
+
     try {
       data = JSON.parse(text);
     } catch {
-      return json({
+      data = {
         status: "error",
-        error: "Render returned an invalid response."
-      }, 502);
+        error: "Invalid response from conversion server."
+      };
     }
 
-    if (
-      data.status === "finished" ||
-      data.status === "complete" ||
-      data.status === "completed"
-    ) {
-
-      // Render URL থাকলে সেটি ব্যবহার করবে।
-      // না থাকলে আমরা নিজেরাই download URL তৈরি করব।
-      const downloadUrl =
-        data.url ||
-        data.downloadUrl ||
-        data.resultUrl ||
-        data.result?.url ||
-        (
-          "https://free-conversion-engine.onrender.com/download/" +
-          encodeURIComponent(jobId)
-        );
-
-      return json({
-        status: "finished",
-        url: downloadUrl,
-        downloadUrl: downloadUrl,
-        resultUrl: downloadUrl,
-        filename:
-          data.filename ||
-          data.result?.filename ||
-          "converted-file"
-      });
-    }
-
-    if (
-      data.status === "error" ||
-      data.status === "failed"
-    ) {
-      return json({
-        status: "error",
-        error:
-          data.error ||
-          data.message ||
-          "Conversion failed."
-      }, 500);
-    }
-
-    return json({
-      status: data.status || "processing"
-    });
+    return json(data, response.status);
 
   } catch (error) {
     return json({
       status: "error",
       error:
         error?.message ||
-        "Unable to check conversion status."
+        "Unable to connect to conversion server."
     }, 500);
   }
 }
@@ -97,9 +55,9 @@ function json(data, status = 200) {
     {
       status,
       headers: {
-        "Content-Type": "application/json; charset=UTF-8",
-        "Cache-Control":
-          "no-store, no-cache, must-revalidate"
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Pragma": "no-cache"
       }
     }
   );
