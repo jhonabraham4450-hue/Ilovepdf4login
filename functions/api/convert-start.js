@@ -90,21 +90,21 @@ export async function onRequestPost({ request }) {
     }
 
     if (!renderResponse.ok || !data.success) {
-      return json(
-        {
-          success: false,
-          error:
-            data.error ||
-            "Unable to start conversion.",
-          details:
-            data.details ||
-            null,
-          httpStatus:
-            renderResponse.status
-        },
-        renderResponse.status || 502
-      );
-    }
+  return json(
+    {
+      success: false,
+      error:
+        (data.error ||
+          "Unable to start conversion.") +
+        (data.details
+          ? " | " + data.details
+          : ""),
+      httpStatus:
+        renderResponse.status
+    },
+    renderResponse.status || 502
+  );
+}
 
     return json(
       {
