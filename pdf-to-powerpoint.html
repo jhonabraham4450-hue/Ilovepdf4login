@@ -189,6 +189,7 @@ footer strong{
 }
 
 @media(max-width:600px){
+
   .container{
     margin:25px auto;
     padding:15px;
@@ -214,6 +215,7 @@ footer strong{
     padding:7px 9px;
     font-size:13px;
   }
+
 }
 </style>
 </head>
@@ -221,6 +223,7 @@ footer strong{
 <body>
 
 <header>
+
   <div class="nav">
 
     <a href="home.html" class="logo">
@@ -232,7 +235,9 @@ footer strong{
     </a>
 
   </div>
+
 </header>
+
 
 <main class="container">
 
@@ -242,11 +247,14 @@ footer strong{
       📊
     </div>
 
-    <h1>PDF to PowerPoint</h1>
+    <h1>
+      PDF to PowerPoint
+    </h1>
 
     <p class="description">
       Convert your PDF file into a PowerPoint presentation.
     </p>
+
 
     <div class="upload-box">
 
@@ -254,7 +262,10 @@ footer strong{
         Select a PDF file to convert
       </p>
 
-      <label for="fileInput" class="select-btn">
+      <label
+        for="fileInput"
+        class="select-btn"
+      >
         Select PDF File
       </label>
 
@@ -264,11 +275,15 @@ footer strong{
         accept=".pdf,application/pdf"
       >
 
-      <div id="fileName" class="file-name">
+      <div
+        id="fileName"
+        class="file-name"
+      >
         No file selected
       </div>
 
     </div>
+
 
     <button
       id="processBtn"
@@ -278,13 +293,22 @@ footer strong{
       Convert to PowerPoint
     </button>
 
-    <div id="status" class="status"></div>
 
-    <div id="downloadArea" class="download-area"></div>
+    <div
+      id="status"
+      class="status"
+    ></div>
+
+
+    <div
+      id="downloadArea"
+      class="download-area"
+    ></div>
 
   </div>
 
 </main>
+
 
 <footer>
 
@@ -301,6 +325,7 @@ footer strong{
   </p>
 
 </footer>
+
 
 <script>
 
@@ -326,93 +351,116 @@ let selectedFile = null;
    FILE SELECT
 ========================= */
 
-fileInput.addEventListener("change", function(){
+fileInput.addEventListener(
+  "change",
+  function(){
 
-  const file = fileInput.files[0];
+    const file =
+      fileInput.files[0];
 
-  selectedFile = null;
+    selectedFile = null;
 
-  downloadArea.innerHTML = "";
-  statusBox.textContent = "";
+    downloadArea.innerHTML = "";
 
-  if(!file){
+    statusBox.textContent = "";
+
+
+    if(!file){
+
+      fileName.textContent =
+        "No file selected";
+
+      processBtn.disabled =
+        true;
+
+      return;
+    }
+
+
+    const fileNameLower =
+      file.name.toLowerCase();
+
+    const isPDF =
+      fileNameLower.endsWith(".pdf");
+
+
+    if(!isPDF){
+
+      fileName.textContent =
+        "Please select a PDF file.";
+
+      statusBox.textContent =
+        "Only PDF files are supported.";
+
+      processBtn.disabled =
+        true;
+
+      return;
+    }
+
+
+    selectedFile = file;
 
     fileName.textContent =
-      "No file selected";
-
-    processBtn.disabled = true;
-
-    return;
-  }
-
-  const fileNameLower =
-    file.name.toLowerCase();
-
-  const isPDF =
-    fileNameLower.endsWith(".pdf");
-
-  if(!isPDF){
-
-    fileName.textContent =
-      "Please select a PDF file.";
+      file.name;
 
     statusBox.textContent =
-      "Only PDF files are supported.";
+      "PDF file selected. Ready to convert.";
 
-    processBtn.disabled = true;
+    processBtn.disabled =
+      false;
 
-    return;
   }
-
-  selectedFile = file;
-
-  fileName.textContent =
-    file.name;
-
-  statusBox.textContent =
-    "PDF file selected. Ready to convert.";
-
-  processBtn.disabled = false;
-
-});
+);
 
 
 /* =========================
    CONVERT BUTTON
 ========================= */
 
-processBtn.addEventListener("click", async function(){
+processBtn.addEventListener(
+  "click",
+  async function(){
 
-  if(!selectedFile){
+    if(!selectedFile){
 
-    statusBox.textContent =
-      "Please select a PDF file first.";
+      statusBox.textContent =
+        "Please select a PDF file first.";
 
-    return;
+      return;
+    }
+
+
+    processBtn.disabled =
+      true;
+
+    downloadArea.innerHTML = "";
+
+
+    try{
+
+      await startConversion(
+        selectedFile
+      );
+
+    }catch(error){
+
+      console.error(error);
+
+      statusBox.textContent =
+        "Error: " +
+        (
+          error.message ||
+          "Conversion failed."
+        );
+
+      processBtn.disabled =
+        false;
+
+    }
+
   }
-
-  processBtn.disabled = true;
-
-  downloadArea.innerHTML = "";
-
-  try{
-
-    await startConversion(selectedFile);
-
-  }catch(error){
-
-    console.error(error);
-
-    statusBox.textContent =
-      "Error: " +
-      (error.message ||
-       "Conversion failed.");
-
-    processBtn.disabled = false;
-
-  }
-
-});
+);
 
 
 /* =========================
@@ -422,10 +470,12 @@ processBtn.addEventListener("click", async function(){
 async function startConversion(file){
 
   statusBox.textContent =
-    "Uploading file to CloudConvert...";
+    "Uploading file to conversion engine...";
+
 
   const formData =
     new FormData();
+
 
   formData.append(
     "file",
@@ -433,25 +483,35 @@ async function startConversion(file){
     file.name
   );
 
+
   formData.append(
     "tool",
     "pdf-to-powerpoint"
   );
 
+
+  const apiUrl =
+    window.location.origin +
+    "/api/convert-start";
+
+
   const response =
     await fetch(
-      "/api/convert-start",
+      apiUrl,
       {
         method:"POST",
-        credentials:"include",
-        body:formData
+        body:formData,
+        cache:"no-store"
       }
     );
+
 
   const responseText =
     await response.text();
 
+
   let data;
+
 
   try{
 
@@ -467,6 +527,7 @@ async function startConversion(file){
 
   }
 
+
   if(!response.ok){
 
     throw new Error(
@@ -477,18 +538,34 @@ async function startConversion(file){
 
   }
 
-  if(!data.jobId){
+
+  if(!data.success){
 
     throw new Error(
-      "CloudConvert job ID was not returned."
+      data.error ||
+      data.message ||
+      "Unable to start conversion."
     );
 
   }
 
+
+  if(!data.jobId){
+
+    throw new Error(
+      "Conversion job ID was not returned."
+    );
+
+  }
+
+
   statusBox.textContent =
     "Conversion started. Please wait...";
 
-  await pollConversion(data.jobId);
+
+  await pollConversion(
+    data.jobId
+  );
 
 }
 
@@ -499,7 +576,9 @@ async function startConversion(file){
 
 async function pollConversion(jobId){
 
-  const maxAttempts = 120;
+  const maxAttempts =
+    120;
+
 
   for(
     let attempt = 1;
@@ -509,30 +588,37 @@ async function pollConversion(jobId){
 
     await new Promise(
       resolve =>
-        setTimeout(resolve,2000)
+        setTimeout(
+          resolve,
+          2000
+        )
     );
+
+
+    const statusUrl =
+      window.location.origin +
+      "/api/convert-status?job=" +
+      encodeURIComponent(jobId) +
+      "&v=" +
+      Date.now();
+
 
     const response =
       await fetch(
-        "/api/convert-status?job=" +
-        encodeURIComponent(jobId) +
-        "&v=" +
-        Date.now(),
+        statusUrl,
         {
           method:"GET",
-          credentials:"include",
-          cache:"no-store",
-          headers:{
-            "Cache-Control":"no-cache",
-            "Pragma":"no-cache"
-          }
+          cache:"no-store"
         }
       );
+
 
     const responseText =
       await response.text();
 
+
     let data;
+
 
     try{
 
@@ -547,6 +633,7 @@ async function pollConversion(jobId){
 
     }
 
+
     if(!response.ok){
 
       throw new Error(
@@ -556,6 +643,7 @@ async function pollConversion(jobId){
       );
 
     }
+
 
     if(
       data.status === "finished" ||
@@ -567,6 +655,7 @@ async function pollConversion(jobId){
         data.url ||
         data.resultUrl;
 
+
       if(!downloadUrl){
 
         throw new Error(
@@ -575,8 +664,12 @@ async function pollConversion(jobId){
 
       }
 
+
       const link =
-        document.createElement("a");
+        document.createElement(
+          "a"
+        );
+
 
       link.href =
         downloadUrl;
@@ -593,19 +686,28 @@ async function pollConversion(jobId){
       link.rel =
         "noopener";
 
-      downloadArea.innerHTML = "";
 
-      downloadArea.appendChild(link);
+      downloadArea.innerHTML =
+        "";
+
+
+      downloadArea.appendChild(
+        link
+      );
+
 
       statusBox.textContent =
         "Conversion completed successfully.";
 
+
       processBtn.disabled =
         false;
+
 
       return;
 
     }
+
 
     if(
       data.status === "error" ||
@@ -615,10 +717,11 @@ async function pollConversion(jobId){
       throw new Error(
         data.error ||
         data.message ||
-        "CloudConvert conversion failed."
+        "Conversion failed."
       );
 
     }
+
 
     statusBox.textContent =
       "Converting... Please wait. (" +
@@ -628,6 +731,7 @@ async function pollConversion(jobId){
       ")";
 
   }
+
 
   throw new Error(
     "Conversion timed out. Please try again."
