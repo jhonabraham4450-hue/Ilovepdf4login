@@ -26,9 +26,7 @@ export async function onRequestPost({ request }) {
       return json(
         {
           success: false,
-          error:
-            "Unsupported conversion tool: " +
-            tool
+          error: "Unsupported conversion tool: " + tool
         },
         400
       );
@@ -61,14 +59,17 @@ export async function onRequestPost({ request }) {
       CONVERTER_URL + "/convert",
       {
         method: "POST",
-        body: renderForm
+        body: renderForm,
+        headers: {
+          "Accept": "application/json"
+        }
       }
     );
 
     const responseText =
       await renderResponse.text();
 
-    let data;
+    let data = null;
 
     try {
       data = JSON.parse(responseText);
@@ -77,8 +78,12 @@ export async function onRequestPost({ request }) {
         {
           success: false,
           error:
-            "Conversion engine returned an invalid response.",
-          details: responseText
+            "Render returned a non-JSON response.",
+          details:
+            responseText ||
+            "Empty response",
+          httpStatus:
+            renderResponse.status
         },
         502
       );
@@ -90,7 +95,12 @@ export async function onRequestPost({ request }) {
           success: false,
           error:
             data.error ||
-            "Unable to start conversion."
+            "Unable to start conversion.",
+          details:
+            data.details ||
+            null,
+          httpStatus:
+            renderResponse.status
         },
         renderResponse.status || 502
       );
