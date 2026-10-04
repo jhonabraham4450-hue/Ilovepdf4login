@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -12,7 +13,9 @@
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 body{
   margin:0;
@@ -84,7 +87,12 @@ body{
 }
 
 #fileInput{
-  display:none;
+  position:absolute;
+  width:1px;
+  height:1px;
+  opacity:0;
+  overflow:hidden;
+  pointer-events:none;
 }
 
 #fileList{
@@ -180,29 +188,52 @@ button{
     <h2 id="toolTitle">PDF Tool</h2>
 
     <div class="drop">
-      <p id="description">Select your file to continue.</p>
 
-      <label for="fileInput">Select File</label>
-      <input id="fileInput" type="file" multiple>
+      <p id="description">
+        Select your file to continue.
+      </p>
+
+      <label for="fileInput">
+        Select File
+      </label>
+
+      <input
+        id="fileInput"
+        type="file"
+        multiple
+      >
 
       <div class="small">
         Your file is processed only after you press the Process button.
       </div>
+
     </div>
 
     <div id="fileList"></div>
 
     <div class="scanner">
-      <button type="button" onclick="clearFiles()">Clear Files</button>
-    </div>
-
-    <div class="actions">
-      <button id="processBtn" disabled onclick="processFiles()">
-        Process File
+      <button
+        type="button"
+        onclick="clearFiles()"
+      >
+        Clear Files
       </button>
     </div>
 
+    <div class="actions">
+
+      <button
+        id="processBtn"
+        disabled
+        onclick="processFiles()"
+      >
+        Process File
+      </button>
+
+    </div>
+
     <div id="message"></div>
+
     <div id="downloadArea"></div>
 
   </div>
@@ -210,8 +241,15 @@ button{
 
 <script>
 
-const params = new URLSearchParams(window.location.search);
-const tool = params.get("tool") || "pdf-to-word";
+const params =
+  new URLSearchParams(
+    window.location.search
+  );
+
+const tool =
+  params.get("tool") ||
+  "pdf-to-word";
+
 
 const toolInfo = {
 
@@ -317,28 +355,59 @@ const toolInfo = {
 
 };
 
-const info = toolInfo[tool] || {
-  title:"PDF Tool",
-  description:"Select a file to continue."
-};
 
-document.getElementById("toolTitle").textContent = info.title;
-document.getElementById("description").textContent = info.description;
+const info =
+  toolInfo[tool] || {
+
+    title:"PDF Tool",
+
+    description:
+      "Select a file to continue."
+
+  };
+
+
+document.getElementById(
+  "toolTitle"
+).textContent =
+  info.title;
+
+
+document.getElementById(
+  "description"
+).textContent =
+  info.description;
+
 
 const fileInput =
-  document.getElementById("fileInput");
+  document.getElementById(
+    "fileInput"
+  );
+
 
 const fileList =
-  document.getElementById("fileList");
+  document.getElementById(
+    "fileList"
+  );
+
 
 const processBtn =
-  document.getElementById("processBtn");
+  document.getElementById(
+    "processBtn"
+  );
+
 
 const message =
-  document.getElementById("message");
+  document.getElementById(
+    "message"
+  );
+
 
 const downloadArea =
-  document.getElementById("downloadArea");
+  document.getElementById(
+    "downloadArea"
+  );
+
 
 let selectedFiles = [];
 
@@ -352,7 +421,9 @@ fileInput.addEventListener(
   function(e){
 
     selectedFiles =
-      Array.from(e.target.files || []);
+      Array.from(
+        e.target.files || []
+      );
 
     showFiles();
 
@@ -366,26 +437,36 @@ fileInput.addEventListener(
 
 function showFiles(){
 
-  fileList.innerHTML = "";
+  fileList.innerHTML =
+    "";
 
-  downloadArea.innerHTML = "";
+  downloadArea.innerHTML =
+    "";
 
-  message.textContent = "";
+  message.textContent =
+    "";
+
 
   if(!selectedFiles.length){
 
-    processBtn.disabled = true;
+    processBtn.disabled =
+      true;
 
     return;
+
   }
+
 
   selectedFiles.forEach(
     function(file,index){
 
       const div =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
 
-      div.className = "file";
+      div.className =
+        "file";
 
       div.textContent =
         (index + 1) +
@@ -395,12 +476,17 @@ function showFiles(){
         formatSize(file.size) +
         ")";
 
-      fileList.appendChild(div);
+      fileList.appendChild(
+        div
+      );
 
     }
   );
 
-  processBtn.disabled = false;
+
+  processBtn.disabled =
+    false;
+
 }
 
 
@@ -412,15 +498,20 @@ function clearFiles(){
 
   selectedFiles = [];
 
-  fileInput.value = "";
+  fileInput.value =
+    "";
 
-  fileList.innerHTML = "";
+  fileList.innerHTML =
+    "";
 
-  downloadArea.innerHTML = "";
+  downloadArea.innerHTML =
+    "";
 
-  message.textContent = "";
+  message.textContent =
+    "";
 
-  processBtn.disabled = true;
+  processBtn.disabled =
+    true;
 
 }
 
@@ -437,17 +528,25 @@ function formatSize(bytes){
 
   }
 
-  if(bytes < 1024 * 1024){
+
+  if(
+    bytes <
+    1024 * 1024
+  ){
 
     return (
       bytes / 1024
-    ).toFixed(1) + " KB";
+    ).toFixed(1) +
+    " KB";
 
   }
 
+
   return (
-    bytes / (1024 * 1024)
-  ).toFixed(1) + " MB";
+    bytes /
+    (1024 * 1024)
+  ).toFixed(1) +
+  " MB";
 
 }
 
@@ -470,13 +569,14 @@ function goBack(){
 
 function setMessage(text){
 
-  message.textContent = text;
+  message.textContent =
+    text;
 
 }
 
 
 /* =========================
-   CLOUDCONVERT TOOLS
+   CONVERSION TOOLS
 ========================= */
 
 function isCloudConvertTool(){
@@ -484,10 +584,15 @@ function isCloudConvertTool(){
   return [
 
     "pdf-to-word",
+
     "word-to-pdf",
+
     "pdf-to-powerpoint",
+
     "powerpoint-to-pdf",
+
     "pdf-to-excel",
+
     "excel-to-pdf"
 
   ].includes(tool);
@@ -542,19 +647,26 @@ async function processFiles(){
     );
 
     return;
+
   }
 
-  processBtn.disabled = true;
 
-  downloadArea.innerHTML = "";
+  processBtn.disabled =
+    true;
+
+  downloadArea.innerHTML =
+    "";
 
   setMessage(
     "Processing... Please wait."
   );
 
+
   try{
 
-    if(isCloudConvertTool()){
+    if(
+      isCloudConvertTool()
+    ){
 
       await cloudConvert(
         selectedFiles[0]
@@ -581,7 +693,9 @@ async function processFiles(){
     }
 
 
-    if(tool === "merge-pdf"){
+    if(
+      tool === "merge-pdf"
+    ){
 
       await mergePdf(
         selectedFiles
@@ -623,7 +737,9 @@ async function processFiles(){
     }
 
 
-    if(tool === "compress-image"){
+    if(
+      tool === "compress-image"
+    ){
 
       await compressImage(
         selectedFiles[0]
@@ -634,7 +750,9 @@ async function processFiles(){
     }
 
 
-    if(tool === "resize-image"){
+    if(
+      tool === "resize-image"
+    ){
 
       await resizeImage(
         selectedFiles[0]
@@ -649,7 +767,8 @@ async function processFiles(){
       "This tool is not configured yet."
     );
 
-    processBtn.disabled = false;
+    processBtn.disabled =
+      false;
 
   }catch(error){
 
@@ -663,7 +782,8 @@ async function processFiles(){
       )
     );
 
-    processBtn.disabled = false;
+    processBtn.disabled =
+      false;
 
   }
 
@@ -671,7 +791,7 @@ async function processFiles(){
 
 
 /* =========================
-   CLOUDCONVERT START
+   CONVERSION START
 ========================= */
 
 async function cloudConvert(file){
@@ -679,50 +799,70 @@ async function cloudConvert(file){
   try{
 
     setMessage(
-      "Uploading file to CloudConvert..."
+      "Uploading file to conversion server..."
     );
+
 
     const formData =
       new FormData();
 
+
     formData.append(
       "file",
-      file
+      file,
+      file.name
     );
+
 
     formData.append(
       "tool",
       tool
     );
 
+
     const response =
       await fetch(
-        "/api/convert-start",
+        "/api/convert-start?v=" +
+        Date.now(),
         {
           method:"POST",
+
           credentials:"include",
-          body:formData
+
+          body:formData,
+
+          cache:"no-store"
         }
       );
 
-    const text =
+
+    const responseText =
       await response.text();
 
+
     let data;
+
 
     try{
 
       data =
-        JSON.parse(text);
+        JSON.parse(
+          responseText
+        );
 
-    }catch(e){
+    }catch{
+
+      console.error(
+        "Conversion start response:",
+        responseText
+      );
 
       throw new Error(
-        text ||
-        "Invalid conversion response."
+        "Invalid response from conversion server."
       );
 
     }
+
 
     if(!response.ok){
 
@@ -734,38 +874,49 @@ async function cloudConvert(file){
 
     }
 
-    if(!data.jobId){
+
+    if(
+      !data.success ||
+      !data.jobId
+    ){
 
       throw new Error(
-        "CloudConvert job ID was not returned."
+        data.error ||
+        "Conversion job was not created."
       );
 
     }
+
 
     setMessage(
       "Conversion started... Please wait."
     );
 
+
     await pollConversion(
       data.jobId
     );
 
+
   }catch(error){
 
     console.error(
-      "CloudConvert error:",
+      "Conversion error:",
       error
     );
+
 
     setMessage(
       "Error: " +
       (
         error.message ||
-        "CloudConvert conversion failed."
+        "Conversion failed."
       )
     );
 
-    processBtn.disabled = false;
+
+    processBtn.disabled =
+      false;
 
   }
 
@@ -773,12 +924,18 @@ async function cloudConvert(file){
 
 
 /* =========================
-   CLOUDCONVERT STATUS
+   CONVERSION STATUS
 ========================= */
 
 async function pollConversion(jobId){
 
-  const maxAttempts = 120;
+  const maxAttempts =
+    120;
+
+
+  const converterUrl =
+    "https://free-conversion-engine.onrender.com";
+
 
   for(
     let attempt = 1;
@@ -798,30 +955,63 @@ async function pollConversion(jobId){
     );
 
 
-    const response =
-      await fetch(
-        "/api/convert-status?job=" +
-        encodeURIComponent(jobId) +
-        "&v=" +
-        Date.now(),
-        {
-          method:"GET",
+    let response;
 
-          credentials:"include",
 
-          cache:"no-store",
+    let responseText;
 
-          headers:{
-            "Cache-Control":"no-cache",
-            "Pragma":"no-cache"
+
+    try{
+
+      response =
+        await fetch(
+          converterUrl +
+          "/status/" +
+          encodeURIComponent(
+            jobId
+          ) +
+          "?v=" +
+          Date.now(),
+          {
+            method:"GET",
+
+            cache:"no-store",
+
+            headers:{
+              "Cache-Control":
+                "no-cache",
+
+              "Pragma":
+                "no-cache"
+            }
           }
+        );
 
-        }
+
+      responseText =
+        await response.text();
+
+
+    }catch(error){
+
+      console.error(
+        "Status request error:",
+        error
       );
 
 
-    const responseText =
-      await response.text();
+      setMessage(
+        "Checking conversion... (" +
+        attempt +
+        "/" +
+        maxAttempts +
+        ")"
+      );
+
+
+      continue;
+
+    }
 
 
     let data;
@@ -830,13 +1020,28 @@ async function pollConversion(jobId){
     try{
 
       data =
-        JSON.parse(responseText);
+        JSON.parse(
+          responseText
+        );
 
-    }catch(e){
+    }catch(error){
 
-      throw new Error(
-        "Invalid conversion status response."
+      console.error(
+        "Invalid status response:",
+        responseText
       );
+
+
+      setMessage(
+        "Checking conversion... (" +
+        attempt +
+        "/" +
+        maxAttempts +
+        ")"
+      );
+
+
+      continue;
 
     }
 
@@ -858,25 +1063,21 @@ async function pollConversion(jobId){
     ){
 
       const downloadUrl =
-        data.downloadUrl ||
-        data.url ||
-        data.resultUrl;
-
-
-      if(!downloadUrl){
-
-        throw new Error(
-          "Conversion finished but download link is missing."
+        converterUrl +
+        "/download/" +
+        encodeURIComponent(
+          jobId
         );
 
-      }
 
-
-      downloadArea.innerHTML = "";
+      downloadArea.innerHTML =
+        "";
 
 
       const a =
-        document.createElement("a");
+        document.createElement(
+          "a"
+        );
 
 
       a.href =
@@ -888,7 +1089,8 @@ async function pollConversion(jobId){
 
 
       a.textContent =
-        "Download " + info.title;
+        "Download " +
+        info.title;
 
 
       a.target =
@@ -899,7 +1101,16 @@ async function pollConversion(jobId){
         "noopener";
 
 
-      downloadArea.appendChild(a);
+      a.setAttribute(
+        "download",
+        data.filename ||
+        getOutputFilename()
+      );
+
+
+      downloadArea.appendChild(
+        a
+      );
 
 
       setMessage(
@@ -958,10 +1169,14 @@ async function imagesToPdf(files){
     await PDFLib.PDFDocument.create();
 
 
-  for(const file of files){
+  for(
+    const file of files
+  ){
 
     if(
-      !file.type.startsWith("image/")
+      !file.type.startsWith(
+        "image/"
+      )
     ){
 
       continue;
@@ -977,7 +1192,8 @@ async function imagesToPdf(files){
 
 
     if(
-      file.type === "image/png"
+      file.type ===
+      "image/png"
     ){
 
       image =
@@ -1023,7 +1239,8 @@ async function imagesToPdf(files){
     new Blob(
       [pdfBytes],
       {
-        type:"application/pdf"
+        type:
+          "application/pdf"
       }
     );
 
@@ -1056,7 +1273,9 @@ async function mergePdf(files){
     await PDFLib.PDFDocument.create();
 
 
-  for(const file of files){
+  for(
+    const file of files
+  ){
 
     const bytes =
       await file.arrayBuffer();
@@ -1078,7 +1297,9 @@ async function mergePdf(files){
     pages.forEach(
       function(page){
 
-        merged.addPage(page);
+        merged.addPage(
+          page
+        );
 
       }
     );
@@ -1094,7 +1315,8 @@ async function mergePdf(files){
     new Blob(
       [result],
       {
-        type:"application/pdf"
+        type:
+          "application/pdf"
       }
     );
 
@@ -1133,18 +1355,22 @@ async function pdfLocalTool(file){
     );
 
 
-  if(tool === "rotate-pdf"){
+  if(
+    tool === "rotate-pdf"
+  ){
 
     pdf.getPages().forEach(
       function(page){
 
         const rotation =
-          page.getRotation().angle || 0;
+          page.getRotation()
+            .angle || 0;
 
 
         page.setRotation(
           PDFLib.degrees(
-            (rotation + 90) % 360
+            (rotation + 90) %
+            360
           )
         );
 
@@ -1192,7 +1418,9 @@ async function pdfLocalTool(file){
     pages.forEach(
       function(page){
 
-        newPdf.addPage(page);
+        newPdf.addPage(
+          page
+        );
 
       }
     );
@@ -1206,16 +1434,19 @@ async function pdfLocalTool(file){
       new Blob(
         [output],
         {
-          type:"application/pdf"
+          type:
+            "application/pdf"
         }
       );
 
 
     showBlobDownload(
       blob,
+
       tool === "extract-pages"
         ? "extracted-page.pdf"
         : "split-page-1.pdf",
+
       "Download PDF"
     );
 
@@ -1242,7 +1473,8 @@ async function pdfLocalTool(file){
     new Blob(
       [output],
       {
-        type:"application/pdf"
+        type:
+          "application/pdf"
       }
     );
 
@@ -1272,11 +1504,15 @@ async function pdfLocalTool(file){
 async function imageConvert(file){
 
   const img =
-    await loadImage(file);
+    await loadImage(
+      file
+    );
 
 
   const canvas =
-    document.createElement("canvas");
+    document.createElement(
+      "canvas"
+    );
 
 
   canvas.width =
@@ -1288,10 +1524,14 @@ async function imageConvert(file){
 
 
   const ctx =
-    canvas.getContext("2d");
+    canvas.getContext(
+      "2d"
+    );
 
 
-  if(tool === "jpg-to-png"){
+  if(
+    tool === "jpg-to-png"
+  ){
 
     ctx.drawImage(
       img,
@@ -1354,11 +1594,15 @@ async function imageConvert(file){
 async function compressImage(file){
 
   const img =
-    await loadImage(file);
+    await loadImage(
+      file
+    );
 
 
   const canvas =
-    document.createElement("canvas");
+    document.createElement(
+      "canvas"
+    );
 
 
   canvas.width =
@@ -1370,7 +1614,9 @@ async function compressImage(file){
 
 
   const ctx =
-    canvas.getContext("2d");
+    canvas.getContext(
+      "2d"
+    );
 
 
   ctx.drawImage(
@@ -1406,7 +1652,9 @@ async function compressImage(file){
 async function resizeImage(file){
 
   const img =
-    await loadImage(file);
+    await loadImage(
+      file
+    );
 
 
   const maxWidth =
@@ -1416,28 +1664,35 @@ async function resizeImage(file){
   const ratio =
     Math.min(
       1,
-      maxWidth / img.naturalWidth
+      maxWidth /
+      img.naturalWidth
     );
 
 
   const canvas =
-    document.createElement("canvas");
+    document.createElement(
+      "canvas"
+    );
 
 
   canvas.width =
     Math.round(
-      img.naturalWidth * ratio
+      img.naturalWidth *
+      ratio
     );
 
 
   canvas.height =
     Math.round(
-      img.naturalHeight * ratio
+      img.naturalHeight *
+      ratio
     );
 
 
   const ctx =
-    canvas.getContext("2d");
+    canvas.getContext(
+      "2d"
+    );
 
 
   ctx.drawImage(
@@ -1482,7 +1737,9 @@ function loadImage(file){
 
 
       const url =
-        URL.createObjectURL(file);
+        URL.createObjectURL(
+          file
+        );
 
 
       img.onload =
@@ -1560,8 +1817,11 @@ function canvasToDownload(
           resolve();
 
         },
+
         type,
+
         quality
+
       );
 
     }
@@ -1605,11 +1865,14 @@ function showDownload(
   filename
 ){
 
-  downloadArea.innerHTML = "";
+  downloadArea.innerHTML =
+    "";
 
 
   const a =
-    document.createElement("a");
+    document.createElement(
+      "a"
+    );
 
 
   a.href =
@@ -1621,7 +1884,8 @@ function showDownload(
 
 
   a.textContent =
-    text || "Download";
+    text ||
+    "Download";
 
 
   if(filename){
@@ -1649,7 +1913,9 @@ function showDownload(
   }
 
 
-  downloadArea.appendChild(a);
+  downloadArea.appendChild(
+    a
+  );
 
 }
 
