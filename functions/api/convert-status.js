@@ -1,205 +1,208 @@
-const CONVERTER_URL =
+const RENDER_URL =
   "https://free-conversion-engine.onrender.com";
 
-export async function onRequestGet({ request }) {
+export async function onRequestGet(context) {
   try {
-
     const url =
-      new URL(request.url);
+      new URL(context.request.url);
 
     const jobId =
       url.searchParams.get("job");
 
     if (!jobId) {
-
       return json(
         {
           success: false,
-          status: "error",
-          error: "Missing job id."
+          error: "Job ID was not provided."
         },
         400
       );
-
     }
 
-
-    const response =
+    const renderResponse =
       await fetch(
-        `${CONVERTER_URL}/status/${encodeURIComponent(jobId)}?t=${Date.now()}`,
+        `${RENDER_URL}/status/${encodeURIComponent(jobId)}`,
         {
           method: "GET",
-
           headers: {
-            "Cache-Control":
-              "no-cache, no-store, must-revalidate",
-
-            "Pragma":
-              "no-cache"
+            "Accept":
+              "application/json"
           }
         }
       );
 
+    const renderText =
+      await renderResponse.text();
 
-    const text =
-      await response.text();
-
-
-    let data;
-
+    let renderData;
 
     try {
-
-      data =
-        JSON.parse(text);
-
+      renderData =
+        JSON.parse(renderText);
     } catch {
-
       return json(
         {
           success: false,
-          status: "error",
           error:
-            "Invalid response from conversion server.",
+            "Invalid response from free conversion engine.",
           details:
-            text || "Empty response"
+            renderText.slice(0, 1000)
         },
         502
       );
-
     }
 
-
-    if (!response.ok) {
-
+    if (!renderResponse.ok) {
       return json(
         {
           success: false,
-          status: "error",
           error:
-            data.error ||
-            data.message ||
-            "Conversion server error."
+            renderData.error ||
+            renderData.message ||
+            "Unable to check conversion status."
         },
-        response.status || 502
+        renderResponse.status
       );
-
     }
 
+    /*
+      Normalize every possible status
+      returned by the Render server.
+    */
+
+    const status =
+      renderData.status ||
+      renderData.state ||
+      "processing";
 
     /*
-      RENDER JOB FINISHED
+      If conversion is finished,
+      create a direct Render download URL.
     */
 
     if (
-      data.status === "finished" ||
-      data.status === "completed"
+      status === "finished" ||
+      status === "completed" ||
+      status === "success"
     ) {
+      const downloadUrl =
+        renderData.downloadUrl ||
+        renderData.url ||
+        renderData.resultUrl ||
+        renderData.download_url ||
+        (
+          renderData.result &&
+          (
+            renderData.result.url ||
+            renderData.result.downloadUrl
+          )
+        );
 
-      return json(
-        {
-          success: true,
+      let finalDownloadUrl =
+        downloadUrl;
 
-          status: "finished",
+      if (!finalDownloadUrl) {
+        finalDownloadUrl =
+          `${RENDER_URL}/download/${encodeURIComponent(jobId)}`;
+      }
 
-          jobId: jobId,
+      return json({
+        success: true,
+        status: "finished",
 
-          filename:
-            data.filename ||
-            "converted-file",
+        jobId: jobId,
 
-          downloadUrl:
-            `${CONVERTER_URL}/download/${encodeURIComponent(jobId)}`
-        }
-      );
+        downloadUrl:
+          finalDownloadUrl,
 
+        url:
+          finalDownloadUrl,
+
+        resultUrl:
+          finalDownloadUrl,
+
+        filename:
+          renderData.filename ||
+          renderData.outputFilename ||
+          "converted-file",
+
+        message:
+          renderData.message ||
+          "Conversion completed successfully."
+      });
     }
 
-
     /*
-      RENDER JOB FAILED
+      Conversion failed.
     */
 
     if (
-      data.status === "error" ||
-      data.status === "failed"
+      status === "error" ||
+      status === "failed" ||
+      status === "failure"
     ) {
-
       return json(
         {
           success: false,
-
-          status: "error",
-
+          status: "failed",
           jobId: jobId,
-
           error:
-            data.error ||
-            data.message ||
+            renderData.error ||
+            renderData.message ||
             "Conversion failed."
-        }
+        },
+        500
       );
-
     }
 
-
     /*
-      STILL PROCESSING
+      Still processing.
     */
 
-    return json(
-      {
-        success: true,
+    return json({
+      success: true,
+      status: "processing",
+      jobId: jobId,
 
-        status:
-          data.status ||
-          "processing",
+      progress:
+        renderData.progress ??
+        null,
 
-        jobId: jobId
-      }
-    );
-
+      message:
+        renderData.message ||
+        "Conversion is still processing."
+    });
 
   } catch (error) {
+    console.error(
+      "convert-status error:",
+      error
+    );
 
     return json(
       {
         success: false,
-
-        status: "error",
-
         error:
           error?.message ||
-          "Unable to connect to conversion server."
+          "Failed to check conversion status."
       },
       500
     );
-
   }
 }
 
 
-function json(
-  data,
-  status = 200
-) {
-
+function json(data, status = 200) {
   return new Response(
     JSON.stringify(data),
     {
-      status: status,
-
+      status,
       headers: {
         "Content-Type":
-          "application/json; charset=UTF-8",
-
+          "application/json; charset=utf-8",
         "Cache-Control":
-          "no-store, no-cache, must-revalidate",
-
-        "Pragma":
-          "no-cache"
+          "no-store, no-cache, must-revalidate"
       }
     }
   );
-
 }
