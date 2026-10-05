@@ -1,53 +1,58 @@
-const CONVERTER_URL =
-  "https://free-conversion-engine.onrender.com";
+const RENDER_URL = "https://free-conversion-engine.onrender.com";
 
-export async function onRequestPost({ request }) {
+export async function onRequestPost(context) {
   try {
+    const request = context.request;
+
+    const contentType =
+      request.headers.get("content-type") || "";
+
+    if (!contentType.toLowerCase().includes("multipart/form-data")) {
+      return json(
+        {
+          success: false,
+          error: "Invalid request. Multipart file upload is required."
+        },
+        400
+      );
+    }
+
     const incomingForm = await request.formData();
 
-    const tool = String(
-      incomingForm.get("tool") || ""
-    )
-      .trim()
-      .toLowerCase();
-
     const file = incomingForm.get("file");
+    const tool = incomingForm.get("tool");
 
-    const allowedTools = [
-      "word-to-pdf",
-      "powerpoint-to-pdf",
-      "excel-to-pdf",
-      "pdf-to-word",
-      "pdf-to-powerpoint",
-      "pdf-to-excel"
-    ];
-
-    if (!allowedTools.includes(tool)) {
+    if (!file || typeof file === "string") {
       return json(
         {
           success: false,
-          error: "Unsupported conversion tool: " + tool
+          error: "File was not received."
         },
         400
       );
     }
 
-    if (!(file instanceof File)) {
+    if (!tool || typeof tool !== "string") {
       return json(
         {
           success: false,
-          error: "No file uploaded."
+          error: "Conversion tool was not received."
         },
         400
       );
     }
+
+    /*
+      Send the uploaded file directly
+      to the free Render conversion engine.
+    */
 
     const renderForm = new FormData();
 
     renderForm.append(
       "file",
       file,
-      file.name
+      file.name || "input-file"
     );
 
     renderForm.append(
@@ -56,78 +61,101 @@ export async function onRequestPost({ request }) {
     );
 
     const renderResponse = await fetch(
-      CONVERTER_URL + "/convert",
+      `${RENDER_URL}/convert`,
       {
         method: "POST",
-        body: renderForm,
-        headers: {
-          "Accept": "application/json"
-        }
+        body: renderForm
       }
     );
 
-    const responseText =
+    const renderText =
       await renderResponse.text();
 
-    let data = null;
+    let renderData;
 
     try {
-      data = JSON.parse(responseText);
+      renderData = JSON.parse(renderText);
     } catch {
       return json(
         {
           success: false,
           error:
-            "Render returned a non-JSON response.",
-          details:
-            responseText ||
-            "Empty response",
-          httpStatus:
-            renderResponse.status
+            "Invalid response from free conversion engine.",
+          details: renderText.slice(0, 1000)
         },
         502
       );
     }
 
-    if (!renderResponse.ok || !data.success) {
-  return json(
-    {
-      success: false,
-      error:
-        (data.error ||
-          "Unable to start conversion.") +
-        (data.details
-          ? " | " + data.details
-          : ""),
-      httpStatus:
+    if (!renderResponse.ok) {
+      return json(
+        {
+          success: false,
+          error:
+            renderData.error ||
+            renderData.message ||
+            "Free conversion engine rejected the request.",
+          details: renderData
+        },
         renderResponse.status
-    },
-    renderResponse.status || 502
-  );
-}
+      );
+    }
 
-    return json(
-      {
-        success: true,
-        jobId: data.jobId,
-        status:
-          data.status || "processing"
-      },
-      200
-    );
+    if (!renderData.success) {
+      return json(
+        {
+          success: false,
+          error:
+            renderData.error ||
+            renderData.message ||
+            "Conversion job could not be created."
+        },
+        502
+      );
+    }
+
+    if (!renderData.jobId) {
+      return json(
+        {
+          success: false,
+          error:
+            "Free conversion engine did not return a job ID.",
+          details: renderData
+        },
+        502
+      );
+    }
+
+    return json({
+      success: true,
+      jobId: renderData.jobId,
+      status:
+        renderData.status || "processing",
+      tool: tool,
+      filename:
+        renderData.filename ||
+        file.name ||
+        "converted"
+    });
 
   } catch (error) {
+    console.error(
+      "convert-start error:",
+      error
+    );
+
     return json(
       {
         success: false,
         error:
           error?.message ||
-          "Unable to start conversion."
+          "Failed to start conversion."
       },
       500
     );
   }
 }
+
 
 function json(data, status = 200) {
   return new Response(
@@ -136,7 +164,7 @@ function json(data, status = 200) {
       status,
       headers: {
         "Content-Type":
-          "application/json; charset=UTF-8",
+          "application/json; charset=utf-8",
         "Cache-Control":
           "no-store, no-cache, must-revalidate"
       }
